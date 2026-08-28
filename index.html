@@ -132,7 +132,7 @@
 <body>
     <div class="container">
         <h1>✨ Criador de animações de boot✨</h1>
-        <p>Crie sua animação de boot com facilidade e super velocidade!</p>
+        <p>Crie sua animação de boot com facilidade e eficiência! :3</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
@@ -216,6 +216,9 @@
         const gridMarcadores = document.getElementById('grid-marcadores');
         const configuracoes = document.getElementById('configuracoes');
         const btnGerar = document.getElementById('btn-gerar');
+        
+        const canvasInvisivel = document.createElement('canvas');
+        const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
         
         let marcadores = { m0: null, m1: null, m2: null, m3: null };
         let originalW = 0, originalH = 0;
@@ -421,7 +424,7 @@
             configuracoes.classList.add('bloqueado');
             
             btnGerar.classList.add('btn-desativado');
-            btnGerar.textContent = "Fotografando em Alta Velocidade! ⚡";
+            btnGerar.textContent = "Extraindo os frames... 📸";
             document.getElementById('container-progresso').style.display = 'flex'; 
             
             try {
@@ -438,7 +441,9 @@
                 
                 const deveGerarGif = document.getElementById('input-gerar-gif').checked;
 
-                await paparazzoHiperespaco(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
+                canvasInvisivel.width = largura; canvasInvisivel.height = altura;
+
+                await paparazzoOtimizado(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
@@ -481,8 +486,8 @@
             }
         });
 
-        // ✨ O PAPARAZZO HIPERESPAÇO (SUB-SAMPLING DE GIF + ULTRA FAST JPEG) ✨
-        async function paparazzoHiperespaco(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
+        // ✨ O VERDADEIRO PAPARAZZO OTIMIZADO (Rápido E Leve pra RAM!) ✨
+        async function paparazzoOtimizado(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
             const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
             let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
             const intervalo = 1 / fps;
@@ -495,12 +500,11 @@
             let gifW = 250; 
             let gifH = 250;
             
-            // O PULO DO GATO DO GIF: Se o FPS for alto, o GIF pega só 1 a cada N quadros para voar! ⚡
             const puloFramesGif = fps > 15 ? Math.round(fps / 12) : 1;
             const delayEfetivoGif = Math.round((1000 / fps) * puloFramesGif);
 
             if (deveGerarGif) {
-                document.getElementById('texto-progresso').textContent = "Iniciando motor turbo de GIF... ⚙️";
+                document.getElementById('texto-progresso').textContent = "Iniciando motor de GIF... ⚙️";
                 try {
                     const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
                     gifH = Math.floor(altura * (250 / largura));
@@ -523,8 +527,6 @@
             }
 
             playerVideo.pause();
-
-            const compressoesParalelas = [];
             let contadorFrameGeral = 0;
 
             for (let tempo = marcadores.m0; tempo <= marcadores.m3; tempo += intervalo) {
@@ -534,14 +536,10 @@
                     playerVideo.addEventListener('seeked', cb);
                 });
 
-                const canvasVeloz = document.createElement('canvas');
-                canvasVeloz.width = largura;
-                canvasVeloz.height = altura;
-                const ctxVeloz = canvasVeloz.getContext('2d', { alpha: false });
-
-                ctxVeloz.fillStyle = "#000000";
-                ctxVeloz.fillRect(0, 0, largura, altura);
-                ctxVeloz.drawImage(playerVideo, 0, 0, largura, altura);
+                // Reutilizando um único canvas sem afogar o navegador! 💖
+                contexto.fillStyle = "#000000";
+                contexto.fillRect(0, 0, largura, altura);
+                contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; let numFoto = 0;
                 if (tempo < marcadores.m1) { pastaAlvo = pasta0; numFoto = c0++; } 
@@ -550,39 +548,34 @@
 
                 const nome = String(numFoto).padStart(5, '0') + extensao;
                 
-                // Compressão em paralelo com 0.72 (Sua CPU vai amar!) ⚡
-                const promessa = new Promise(res => canvasVeloz.toBlob(res, mimeType, 0.72)).then(blob => {
-                    if (blob) pastaAlvo.file(nome, blob);
-                });
-                compressoesParalelas.push(promessa);
+                // Extração imediata e estável
+                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.72));
+                if (blob) pastaAlvo.file(nome, blob);
 
-                // Adiciona ao GIF apenas nos quadros amostrados (3x mais rápido!) 🎞️
                 if (deveGerarGif && gif && ctxGif && (contadorFrameGeral % puloFramesGif === 0)) {
                     ctxGif.fillStyle = "#000000";
                     ctxGif.fillRect(0, 0, gifW, gifH);
-                    ctxGif.drawImage(canvasVeloz, 0, 0, gifW, gifH);
+                    ctxGif.drawImage(canvasInvisivel, 0, 0, gifW, gifH);
                     gif.addFrame(ctxGif, {delay: delayEfetivoGif, copy: true});
                 }
 
                 contadorFrameGeral++;
                 fotosTiradas++;
+                
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                 document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
-                document.getElementById('texto-progresso').textContent = `Extraindo e Comprimindo... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
+                document.getElementById('texto-progresso').textContent = `Extraindo Frames... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
             }
 
-            document.getElementById('texto-progresso').textContent = "Sincronizando tarefas paralelas... ⏳";
-            await Promise.all(compressoesParalelas);
-
             if (deveGerarGif && gif) {
-                document.getElementById('texto-progresso').textContent = "Renderizando Preview em GIF Turbo! 🎬";
+                document.getElementById('texto-progresso').textContent = "Renderizando Preview em GIF... 🎬";
                 btnGerar.textContent = "Renderizando GIF... 🖼️";
                 
                 return new Promise((resolve) => {
                     gif.on('progress', p => {
                         const pct = Math.round(p * 100);
                         document.getElementById('barra-preenchimento').style.width = pct + '%';
-                        document.getElementById('texto-progresso').textContent = `Renderizando GIF... ${pct}% :3`;
+                        document.getElementById('texto-progresso').textContent = `Processando GIF... ${pct}% :3`;
                     });
                     
                     gif.on('finished', function(blob) {
