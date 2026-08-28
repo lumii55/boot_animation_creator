@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Forja de Boot Animations ✨</title>
+    <title>✨ Forja de Boot Animations (PC Edition) ✨</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
         
@@ -54,35 +54,30 @@
         button:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        .btn-teste { background-color: #ff5555; color: #fff; margin-top: 10px; }
-
+        /* A BARRINHA DE PROGRESSO TURBO! :3 */
         .container-progresso {
             width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
         }
         .texto-progresso { font-size: 12px; color: #03dac6; text-align: center; font-weight: 700; }
         .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
         .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
-
-        #img-teste { width: 100%; border-radius: 15px; margin-top: 10px; display: none; border: 2px solid #03dac6; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>✨ Forja de Animações ✨</h1>
-        <p>Faça sua própria Boot Animation perfeita! uwu</p>
+        <h1>✨ Forja Turbo (PC) ✨</h1>
+        <p>Ultra rápida e com ZIPs levinhos! uwu</p>
 
-        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
+        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo (MP4/WebM)</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
         <video id="player-video" controls playsinline></video>
 
-        <button id="btn-teste" class="btn-teste" style="display: none;">📸 Tirar Foto de Teste</button>
-        <img id="img-teste" alt="Foto de Teste">
-
         <div class="configuracoes">
+            <!-- Dica: Se ficar pesado, coloca 24 ou 15 FPS aqui! :3 -->
             <div class="campo campo-fps"><label>Velocidade (FPS)</label><input type="number" id="input-fps" value="30"></div>
-            <div class="campo"><label>Largura</label><input type="number" id="input-largura" readonly></div>
-            <div class="campo"><label>Altura</label><input type="number" id="input-altura" readonly></div>
+            <div class="campo"><label>Largura</label><input type="number" id="input-largura"></div>
+            <div class="campo"><label>Altura</label><input type="number" id="input-altura"></div>
         </div>
 
         <button id="btn-marcador" class="btn-desativado">Esperando vídeo... TwT</button>
@@ -101,54 +96,43 @@
         const containerProgresso = document.getElementById('container-progresso');
         const barraPreenchimento = document.getElementById('barra-preenchimento');
         const textoProgresso = document.getElementById('texto-progresso');
-        const btnTeste = document.getElementById('btn-teste');
-        const imgTeste = document.getElementById('img-teste');
         
+        // MÁGICA DE OTIMIZAÇÃO 1: alpha: false remove 25% do peso da imagem e fica sempre preto no fundo!
         const canvasInvisivel = document.createElement('canvas');
-        const contexto = canvasInvisivel.getContext('2d'); 
+        const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
         
         let etapaAtual = 0;
         let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
 
-        // O NOVO LEITOR QUE BURLA O BLOQUEIO DO FIREFOX! 🪄✨
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
             if (!arquivo) return;
 
-            btnMarcador.textContent = "⏳ Lendo arquivo de vídeo... uwu";
-            btnMarcador.classList.add('btn-desativado');
-
             const leitor = new FileReader();
             leitor.onload = function(e) {
-                playerVideo.src = e.target.result; // Converte para Data URL!
+                playerVideo.src = e.target.result; 
                 playerVideo.style.display = 'block';
-                btnTeste.style.display = 'block';
                 etapaAtual = 0;
                 btnMarcador.textContent = "📍 Marcar Início da Animação";
                 btnMarcador.classList.remove('btn-desativado');
                 containerProgresso.style.display = 'none'; 
                 barraPreenchimento.style.width = '0%';
-                imgTeste.style.display = 'none';
             };
             leitor.readAsDataURL(arquivo);
         });
 
         playerVideo.addEventListener('loadedmetadata', function() {
-            document.getElementById('input-largura').value = playerVideo.videoWidth;
-            document.getElementById('input-altura').value = playerVideo.videoHeight;
-        });
+            let w = playerVideo.videoWidth;
+            let h = playerVideo.videoHeight;
 
-        // FOTO DE TESTE 📸
-        btnTeste.addEventListener('click', () => {
-            canvasInvisivel.width = playerVideo.videoWidth;
-            canvasInvisivel.height = playerVideo.videoHeight;
-            
-            contexto.fillStyle = "#ff0000";
-            contexto.fillRect(0, 0, canvasInvisivel.width, canvasInvisivel.height);
-            contexto.drawImage(playerVideo, 0, 0, canvasInvisivel.width, canvasInvisivel.height);
-            
-            imgTeste.src = canvasInvisivel.toDataURL('image/png');
-            imgTeste.style.display = 'block';
+            // MÁGICA DE OTIMIZAÇÃO 2: Se o vídeo for gigante (ex: 1080p), reduz pela metade para o ZIP ficar levinho! 📉
+            if (w >= 1080 || h >= 1080) {
+                w = Math.floor(w / 2);
+                h = Math.floor(h / 2);
+            }
+
+            document.getElementById('input-largura').value = w;
+            document.getElementById('input-altura').value = h;
         });
 
         btnMarcador.addEventListener('click', () => {
@@ -166,7 +150,7 @@
 
         async function iniciarGeracaoZip() {
             btnMarcador.classList.add('btn-desativado');
-            btnMarcador.textContent = "⏳ Tirando as fotos... uwu";
+            btnMarcador.textContent = "⏳ Forjando as fotos na velocidade da luz... ⚡";
             containerProgresso.style.display = 'flex'; 
             
             try {
@@ -174,15 +158,19 @@
                 const fps = parseInt(document.getElementById('input-fps').value) || 30;
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
-                canvasInvisivel.width = largura; canvasInvisivel.height = altura;
+                
+                canvasInvisivel.width = largura; 
+                canvasInvisivel.height = altura;
 
-                await paparazzoLentoEReal(zip, largura, altura, fps);
+                // Chama o Paparazzo super rápido!
+                await paparazzoVelocidadeDaLuz(zip, largura, altura, fps);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
                 textoProgresso.textContent = "Compactando a magia... (Aguarde!)";
-                btnMarcador.textContent = "📦 Fechando o zíper... owo";
+                btnMarcador.textContent = "📦 Fechando o zíper (STORE)... owo";
                 
+                // MÁGICA 3: Mantendo STORE obrigatório pro KernelSU não surtar!
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
                 
                 const linkDownload = document.createElement("a");
@@ -190,7 +178,7 @@
                 linkDownload.download = "bootanimation.zip";
                 linkDownload.click();
                 
-                textoProgresso.textContent = "Pronto! :3";
+                textoProgresso.textContent = "Tudo Pronto! :3";
                 btnMarcador.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
                 setTimeout(() => { btnMarcador.classList.remove('btn-desativado'); }, 2000);
             } catch (erro) {
@@ -201,66 +189,59 @@
             }
         }
 
-        function paparazzoLentoEReal(zip, largura, altura, fps) {
-            return new Promise((resolve) => {
-                const pasta0 = zip.folder("part0");
-                const pasta1 = zip.folder("part1");
-                const pasta2 = zip.folder("part2");
+        // NOVO PAPARAZZO: Sem pausas, sem Firefox, puro suco de Chromium! ⚡
+        async function paparazzoVelocidadeDaLuz(zip, largura, altura, fps) {
+            const pasta0 = zip.folder("part0");
+            const pasta1 = zip.folder("part1");
+            const pasta2 = zip.folder("part2");
 
-                let c0 = 0, c1 = 0, c2 = 0;
-                const intervalo = 1 / fps;
-                let fotosTiradas = 0;
-                const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
-                
-                let proximoTempoAlvo = tempos.inicio;
+            let c0 = 0, c1 = 0, c2 = 0;
+            const intervalo = 1 / fps;
+            let fotosTiradas = 0;
+            
+            const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
 
-                playerVideo.currentTime = tempos.inicio;
-                playerVideo.playbackRate = 0.25; 
-                playerVideo.muted = true; 
+            // Congela o player, a gente vai mover ele na marra!
+            playerVideo.pause();
 
-                playerVideo.play().then(() => {
-                    const vigiarTela = async () => {
-                        if (playerVideo.currentTime >= tempos.fimParte2) {
-                            playerVideo.pause();
-                            playerVideo.playbackRate = 1.0;
-                            resolve();
-                            return;
-                        }
+            for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
+                playerVideo.currentTime = tempo;
 
-                        if (playerVideo.currentTime >= proximoTempoAlvo) {
-                            playerVideo.pause(); 
-
-                            contexto.fillStyle = "#000000";
-                            contexto.fillRect(0, 0, largura, altura);
-                            contexto.drawImage(playerVideo, 0, 0, largura, altura);
-
-                            let pastaAlvo = null; let numFoto = 0;
-                            if (proximoTempoAlvo < tempos.fimParte0) { pastaAlvo = pasta0; numFoto = c0++; } 
-                            else if (proximoTempoAlvo < tempos.fimParte1) { pastaAlvo = pasta1; numFoto = c1++; } 
-                            else { pastaAlvo = pasta2; numFoto = c2++; }
-
-                            const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
-                            
-                            await new Promise(res => {
-                                canvasInvisivel.toBlob((blob) => {
-                                    if (blob) pastaAlvo.file(nomeArquivo, blob);
-                                    res();
-                                }, 'image/png');
-                            });
-
-                            fotosTiradas++;
-                            const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
-                            barraPreenchimento.style.width = porcentagem + '%';
-                            textoProgresso.textContent = `Tirando foto ${fotosTiradas} de ${totalFotos} (${porcentagem}%)`;
-
-                            proximoTempoAlvo += intervalo;
-                            playerVideo.play(); 
-                        }
-                        requestAnimationFrame(vigiarTela);
+                // Espera o Chromium processar o seeked na velocidade nativa dele!
+                await new Promise(resolve => {
+                    const aoCarregar = () => {
+                        playerVideo.removeEventListener('seeked', aoCarregar);
+                        resolve();
                     };
-                    requestAnimationFrame(vigiarTela);
+                    playerVideo.addEventListener('seeked', aoCarregar);
                 });
-            });
+
+                // Desenha a imagem (o fundo transparente já vira preto automaticamente pelo alpha: false)
+                contexto.drawImage(playerVideo, 0, 0, largura, altura);
+
+                let pastaAlvo = null; 
+                let numFoto = 0;
+
+                if (tempo < tempos.fimParte0) { 
+                    pastaAlvo = pasta0; numFoto = c0++; 
+                } else if (tempo < tempos.fimParte1) { 
+                    pastaAlvo = pasta1; numFoto = c1++; 
+                } else { 
+                    pastaAlvo = pasta2; numFoto = c2++; 
+                }
+
+                const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
+
+                // Salva a imagem bonitinha na memória
+                const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
+                if (blob) pastaAlvo.file(nomeArquivo, blob);
+
+                // Atualiza a barrinha piscante! :P
+                fotosTiradas++;
+                const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
+                barraPreenchimento.style.width = porcentagem + '%';
+                textoProgresso.textContent = `Forjando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
+            }
         }
     </script>
 </body>
