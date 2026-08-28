@@ -54,20 +54,12 @@
         button:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        /* A BARRINHA DE PROGRESSO! :3 */
         .container-progresso {
             width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
         }
-        .texto-progresso {
-            font-size: 12px; color: #03dac6; text-align: center; font-weight: 700;
-        }
-        .barra-fundo {
-            width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden;
-        }
-        .barra-preenchimento {
-            height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px;
-            transition: width 0.1s linear;
-        }
+        .texto-progresso { font-size: 12px; color: #03dac6; text-align: center; font-weight: 700; }
+        .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
+        .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
     </style>
 </head>
 <body>
@@ -75,7 +67,7 @@
         <h1>✨ Forja de Animações ✨</h1>
         <p>Faça sua própria Boot Animation perfeita! uwu</p>
 
-        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo da Galeria</label>
+        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
         <video id="player-video" controls playsinline></video>
@@ -90,9 +82,7 @@
         
         <div class="container-progresso" id="container-progresso">
             <div class="texto-progresso" id="texto-progresso">0%</div>
-            <div class="barra-fundo">
-                <div class="barra-preenchimento" id="barra-preenchimento"></div>
-            </div>
+            <div class="barra-fundo"><div class="barra-preenchimento" id="barra-preenchimento"></div></div>
         </div>
     </div>
 
@@ -110,9 +100,6 @@
         
         let etapaAtual = 0;
         let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
-
-        // O nosso super detetive de navegador! 🕵️‍♀️✨
-        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
@@ -133,8 +120,8 @@
 
         btnMarcador.addEventListener('click', () => {
             const tempoAtual = playerVideo.currentTime;
-            if (etapaAtual === 0) { tempos.inicio = tempoAtual; etapaAtual = 1; btnMarcador.textContent = "✂️ Marcar Fim do Início (Começo do Loop)"; }
-            else if (etapaAtual === 1) { tempos.fimParte0 = tempoAtual; etapaAtual = 2; btnMarcador.textContent = "🔁 Marcar Fim do Loop (Começo do Final)"; }
+            if (etapaAtual === 0) { tempos.inicio = tempoAtual; etapaAtual = 1; btnMarcador.textContent = "✂️ Marcar Fim do Início"; }
+            else if (etapaAtual === 1) { tempos.fimParte0 = tempoAtual; etapaAtual = 2; btnMarcador.textContent = "🔁 Marcar Fim do Loop"; }
             else if (etapaAtual === 2) { tempos.fimParte1 = tempoAtual; etapaAtual = 3; btnMarcador.textContent = "🏁 Marcar Fim da Animação"; }
             else if (etapaAtual === 3) {
                 tempos.fimParte2 = tempoAtual; etapaAtual = 4;
@@ -156,7 +143,7 @@
                 const altura = parseInt(document.getElementById('input-altura').value);
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                await paparazzoDeFrames(zip, largura, altura, fps);
+                await paparazzoLentoEReal(zip, largura, altura, fps);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
@@ -181,73 +168,76 @@
             }
         }
 
-        async function paparazzoDeFrames(zip, largura, altura, fps) {
-            const pasta0 = zip.folder("part0");
-            const pasta1 = zip.folder("part1");
-            const pasta2 = zip.folder("part2");
+        // A MÁGICA FINAL: O VÍDEO RODA SOZINHO! 🎬✨
+        function paparazzoLentoEReal(zip, largura, altura, fps) {
+            return new Promise((resolve) => {
+                const pasta0 = zip.folder("part0");
+                const pasta1 = zip.folder("part1");
+                const pasta2 = zip.folder("part2");
 
-            let c0 = 0, c1 = 0, c2 = 0;
-            const intervalo = 1 / fps;
-            let fotosTiradas = 0;
-            
-            const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
-
-            playerVideo.pause();
-
-            for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
+                let c0 = 0, c1 = 0, c2 = 0;
+                const intervalo = 1 / fps;
+                let fotosTiradas = 0;
+                const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
                 
-                await new Promise(resolve => {
-                    const aoCarregar = () => {
-                        playerVideo.removeEventListener('seeked', aoCarregar);
-                        
-                        if (isFirefox) {
-                            // A DANÇA DA RAPOSA! 🦊💃
-                            // Força o vídeo a dar play rapidinho só pro Firefox desenhar na tela
-                            playerVideo.play().then(() => {
-                                setTimeout(() => {
-                                    playerVideo.pause(); // Pausa correndo!
-                                    resolve();
-                                }, 50); // 50ms é tempo suficiente pro Firefox se assustar e pintar o frame
-                            }).catch(() => {
-                                // Se der ruim no play, espera na marra!
-                                setTimeout(resolve, 200);
-                            });
-                        } else {
-                            // MODO CHROME: Vai na velocidade da luz! ⚡
-                            requestAnimationFrame(() => requestAnimationFrame(resolve));
+                let proximoTempoAlvo = tempos.inicio;
+
+                // Volta pro começo e toca beeeeem devagar pra não pular frames!
+                playerVideo.currentTime = tempos.inicio;
+                playerVideo.playbackRate = 0.25; 
+                playerVideo.muted = true; 
+
+                // Dá o Play!
+                playerVideo.play().then(() => {
+                    
+                    const vigiarTela = async () => {
+                        // Passou do final? Acabou!
+                        if (playerVideo.currentTime >= tempos.fimParte2) {
+                            playerVideo.pause();
+                            playerVideo.playbackRate = 1.0;
+                            resolve();
+                            return;
                         }
+
+                        // Chegou na hora da foto?
+                        if (playerVideo.currentTime >= proximoTempoAlvo) {
+                            playerVideo.pause(); // Congela pra tirar a foto perfeitamente!
+
+                            // Forçamos o fundo preto pra garantir!
+                            contexto.fillStyle = "#000000";
+                            contexto.fillRect(0, 0, largura, altura);
+                            contexto.drawImage(playerVideo, 0, 0, largura, altura);
+
+                            let pastaAlvo = null; let numFoto = 0;
+                            if (proximoTempoAlvo < tempos.fimParte0) { pastaAlvo = pasta0; numFoto = c0++; } 
+                            else if (proximoTempoAlvo < tempos.fimParte1) { pastaAlvo = pasta1; numFoto = c1++; } 
+                            else { pastaAlvo = pasta2; numFoto = c2++; }
+
+                            const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
+                            
+                            // Aguarda salvar a foto antes de voltar a tocar o vídeo
+                            await new Promise(res => {
+                                canvasInvisivel.toBlob((blob) => {
+                                    if (blob) pastaAlvo.file(nomeArquivo, blob);
+                                    res();
+                                }, 'image/png');
+                            });
+
+                            fotosTiradas++;
+                            const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
+                            barraPreenchimento.style.width = porcentagem + '%';
+                            textoProgresso.textContent = `Tirando foto ${fotosTiradas} de ${totalFotos} (${porcentagem}%)`;
+
+                            proximoTempoAlvo += intervalo;
+                            playerVideo.play(); // Volta a tocar!
+                        }
+                        
+                        requestAnimationFrame(vigiarTela); // Fica de olho na tela!
                     };
                     
-                    playerVideo.addEventListener('seeked', aoCarregar);
-                    playerVideo.currentTime = tempo;
+                    requestAnimationFrame(vigiarTela);
                 });
-
-                // Fundo pretinho pra não ter risco nenhum!
-                contexto.fillStyle = "#000000";
-                contexto.fillRect(0, 0, largura, altura);
-                // Foto! 📸
-                contexto.drawImage(playerVideo, 0, 0, largura, altura);
-
-                let pastaAlvo = null; 
-                let numFoto = 0;
-
-                if (tempo < tempos.fimParte0) { 
-                    pastaAlvo = pasta0; numFoto = c0++; 
-                } else if (tempo < tempos.fimParte1) { 
-                    pastaAlvo = pasta1; numFoto = c1++; 
-                } else { 
-                    pastaAlvo = pasta2; numFoto = c2++; 
-                }
-
-                const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
-                const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
-                if (blob) pastaAlvo.file(nomeArquivo, blob);
-
-                fotosTiradas++;
-                const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
-                barraPreenchimento.style.width = porcentagem + '%';
-                textoProgresso.textContent = `Tirando foto ${fotosTiradas} de ${totalFotos} (${porcentagem}%)`;
-            }
+            });
         }
     </script>
 </body>
