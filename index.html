@@ -125,15 +125,15 @@
 </head>
 <body>
     <div class="container">
-        <h1>✨ Forja CapCut Edition ✨</h1>
-        <p>A edição perfeita para sua Boot Animation! uwu</p>
+        <h1>✨ Criador de animações de boot✨</h1>
+        <p>Crie sua animação de boot com facilidade!</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
         <div class="video-container" id="video-container">
             <video id="player-video" playsinline class="pausado"></video>
-            <p class="dica-video">👆 Clique no vídeo para Dar Play ou Pausar!</p>
+            <p class="dica-video">👆 Clique no vídeo para dar Play ou Pausar!</p>
         </div>
 
         <div class="timeline-wrapper" id="timeline-wrapper">
@@ -157,7 +157,7 @@
         <div class="configuracoes" id="configuracoes">
             <div class="campo campo-full">
                 <label>Nome do Arquivo 📝 (Sem .zip)</label>
-                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: minha-animacao-fofa">
+                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: minha_animacao_boot">
             </div>
 
             <div class="campo campo-full">
@@ -168,19 +168,19 @@
             </div>
 
             <div class="campo campo-full">
-                <label>Formato das Fotos 🖼️</label>
+                <label>Formato dos Frames 🖼️</label>
                 <select id="input-formato">
-                    <option value="jpeg" selected>JPEG (Muito leve! 12MB!) 🌟</option>
-                    <option value="png">PNG (Padrão pesadão) 🐢</option>
+                    <option value="jpeg" selected>JPEG (Android 10+ Mais leve!) 🌟</option>
+                    <option value="png">PNG (Padrão pesado) 🐢</option>
                 </select>
             </div>
             <div class="campo campo-full">
-                <label>Qualidade do Zip 📉</label>
+                <label>Resolução 📉</label>
                 <select id="input-qualidade">
-                    <option value="320">Ultra Leve (Batata! 320p) 🥔</option>
-                    <option value="480" selected>Leve (Recomendado! 480p) :3</option>
-                    <option value="720">Média (Pesado! 720p) owo</option>
-                    <option value="1">Original (Gigante!) 💀</option>
+                    <option value="320">Ultra Leve (Batata! 320p)</option>
+                    <option value="480" selected>Leve (Recomendado! 480p)</option>
+                    <option value="720">Média (Pesado! 720p)</option>
+                    <option value="1">Original (Gigante!)</option>
                 </select>
             </div>
             <div class="campo campo-full"><label>Velocidade (FPS) 🎬</label><input type="number" id="input-fps" value="24"></div>
@@ -188,7 +188,7 @@
             <div class="campo"><label>Altura</label><input type="number" id="input-altura" readonly></div>
         </div>
 
-        <button id="btn-gerar" class="btn-gerar btn-desativado">Faltam Marcadores... TwT</button>
+        <button id="btn-gerar" class="btn-gerar btn-desativado">Faltam Marcadores...</button>
         
         <div class="container-progresso" id="container-progresso">
             <div class="texto-progresso" id="texto-progresso">0%</div>
@@ -255,7 +255,7 @@
             atualizarTamanho();
             ajustarPaddings();
             
-            document.getElementById('texto-progresso').textContent = "Carregando a Timeline... :3";
+            document.getElementById('texto-progresso').textContent = "Carregando a Timeline... ⌛";
             document.getElementById('container-progresso').style.display = 'flex';
             await desenharFilmstrip();
             document.getElementById('container-progresso').style.display = 'none';
@@ -337,14 +337,14 @@
             if (tudoMarcado) {
                 if (temposOrdem[0] <= temposOrdem[1] && temposOrdem[1] <= temposOrdem[2] && temposOrdem[2] <= temposOrdem[3]) {
                     btnGerar.classList.remove('btn-desativado');
-                    btnGerar.textContent = "🚀 GERAR BOOT ANIMATION!";
+                    btnGerar.textContent = "🚀 GERAR ANIMAÇÃO DE BOOT";
                 } else {
                     btnGerar.classList.add('btn-desativado');
                     btnGerar.textContent = "⚠️ Ordem errada! O Início (1) deve vir antes do Fim (4)!";
                 }
             } else {
                 btnGerar.classList.add('btn-desativado');
-                btnGerar.textContent = "Faltam Marcadores... TwT";
+                btnGerar.textContent = "Faltam Marcadores...";
             }
         }
 
@@ -366,7 +366,7 @@
             if (btnGerar.classList.contains('btn-desativado')) return;
             
             btnGerar.classList.add('btn-desativado');
-            btnGerar.textContent = "⏳ Forjando na velocidade da luz... ⚡";
+            btnGerar.textContent = "Gerando frames... ⌛";
             document.getElementById('container-progresso').style.display = 'flex'; 
             
             try {
@@ -383,24 +383,23 @@
 
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                // Passando as novas variáveis pro Paparazzo!
                 await paparazzoDaTimeline(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
                 document.getElementById('texto-progresso').textContent = "Compactando o .ZIP... (Aguarde!)";
-                btnGerar.textContent = "📦 Fechando o zíper (STORE)... owo";
+                btnGerar.textContent = "Fechando o zíper... 📦";
                 
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
                 
                 const linkDownload = document.createElement("a");
                 linkDownload.href = URL.createObjectURL(conteudoZip);
-                linkDownload.download = `${nomeEscolhido}.zip`; // NOME CUSTOMIZADO AQUI! :3
+                linkDownload.download = `${nomeEscolhido}.zip`; 
                 linkDownload.click();
                 
             } catch (erro) {
                 console.error(erro);
-                btnGerar.textContent = "❌ Deu erro! TwT";
+                btnGerar.textContent = "Aconteceu um erro ❌";
                 document.getElementById('texto-progresso').style.color = "#ff5555";
             }
         });
@@ -413,7 +412,6 @@
             const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
             const extensao = formato === 'jpeg' ? '.jpg' : '.png';
 
-            // PREPARA O GIF! 🖼️
             let gif = null;
             let canvasGif = null, ctxGif = null;
             let gifW = 250; 
@@ -438,7 +436,7 @@
                     canvasGif.width = gifW;
                     canvasGif.height = gifH;
                     ctxGif = canvasGif.getContext('2d', { alpha: false });
-                } catch(e) { console.error("Erro no motor de GIF TwT", e); gif = null; }
+                } catch(e) { console.error("Erro no motor de GIF", e); gif = null; }
             }
 
             playerVideo.pause();
@@ -463,7 +461,6 @@
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.8));
                 if (blob) pastaAlvo.file(nome, blob);
 
-                // SE ESTIVER GERANDO GIF, GUARDA O FRAME! 🖼️
                 if (deveGerarGif && gif && ctxGif) {
                     ctxGif.fillStyle = "#000000";
                     ctxGif.fillRect(0, 0, gifW, gifH);
@@ -474,13 +471,12 @@
                 fotosTiradas++;
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                 document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
-                document.getElementById('texto-progresso').textContent = `Forjando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
+                document.getElementById('texto-progresso').textContent = `Criando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
             }
 
-            // FINALIZA O GIF LINDINHO NO FUNDO E DEIXA ENGATILHADO! 🎞️
             if (deveGerarGif && gif) {
                 document.getElementById('texto-progresso').textContent = "Renderizando Preview em GIF... 🎬 (Pode demorar um tiquinho!)";
-                btnGerar.textContent = "🖼️ Criando a Magia do GIF... owo";
+                btnGerar.textContent = "Gerando GIF... 🖼️";
                 
                 return new Promise((resolve) => {
                     gif.on('progress', p => {
@@ -494,7 +490,7 @@
                         linkGif.href = URL.createObjectURL(blob);
                         linkGif.download = `${nomeEscolhido}.gif`;
                         linkGif.click();
-                        resolve(); // Libera o código pra fechar o ZIP e baixar!
+                        resolve();
                     });
                     gif.render();
                 });
