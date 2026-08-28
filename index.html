@@ -31,18 +31,15 @@
         }
         .btn-upload:active { transform: scale(0.96); }
 
-        /* VÍDEO LIMPINHO, SEM BOTÃO GIGANTE! ✨ */
         .video-container { position: relative; width: 100%; text-align: center; display: none; }
         video { 
             width: 100%; max-height: 35vh; border-radius: 15px; 
             background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
             object-fit: contain; cursor: pointer; transition: 0.2s;
         }
-        /* Bordinha pra indicar que tá pausado */
         video.pausado { border: 2px solid #03dac6; }
         .dica-video { font-size: 11px; color: #aaaaaa; margin-top: 5px; opacity: 0.8; }
 
-        /* ✨ A TIMELINE 100% SINCRONIZADA ✨ */
         .timeline-wrapper {
             width: 100%; height: 60px; background: #222; border-radius: 10px;
             position: relative; display: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
@@ -69,17 +66,15 @@
         }
         .filmstrip img { height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none; flex: 1; }
         
-        /* LINHAS DOS MARCADORES NA TIMELINE 📍 */
         .linha-marcador {
             position: absolute; top: 0; bottom: 0; width: 4px; z-index: 10;
             transform: translateX(-50%); border-radius: 2px; opacity: 0.9;
         }
-        .linha-m0 { background: #03dac6; } /* Inicio */
-        .linha-m1 { background: #bb86fc; } /* Fim Inicio */
-        .linha-m2 { background: #ffb86c; } /* Fim Loop */
-        .linha-m3 { background: #ff5555; } /* Fim Final */
+        .linha-m0 { background: #03dac6; }
+        .linha-m1 { background: #bb86fc; }
+        .linha-m2 { background: #ffb86c; }
+        .linha-m3 { background: #ff5555; }
 
-        /* BOTÕES DE MARCADORES LIVRES 🎛️ */
         .grid-marcadores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; display: none; }
         .btn-marc {
             padding: 12px 5px; border-radius: 12px; font-weight: bold; border: none;
@@ -97,11 +92,19 @@
         .configuracoes { display: none; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .campo-full { grid-column: span 2; }
         .campo { display: flex; flex-direction: column; }
-        .campo label { color: #bb86fc; margin-bottom: 4px; text-align: center; font-size: 13px; }
+        .campo label { color: #bb86fc; margin-bottom: 4px; text-align: center; font-size: 13px; font-weight: 700; }
         .campo input, .campo select { 
             background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 10px; 
             border-radius: 10px; text-align: center; font-family: 'Fredoka', sans-serif; 
             font-size: 14px; width: 100%; outline: none;
+        }
+
+        .checkbox-container {
+            display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 10px;
+            background: #2a2a2a; border: 1px solid #444; border-radius: 10px; padding: 10px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            width: 20px; height: 20px; cursor: pointer; accent-color: #bb86fc;
         }
 
         .btn-gerar { 
@@ -118,16 +121,16 @@
         .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
         .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>✨ Forja CapCut Edition ✨</h1>
-        <p>Arraste a timeline para achar o frame perfeito! uwu</p>
+        <p>A edição perfeita para sua Boot Animation! uwu</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
-        <!-- VÍDEO SEM O BOTÃOZÃO! -->
         <div class="video-container" id="video-container">
             <video id="player-video" playsinline class="pausado"></video>
             <p class="dica-video">👆 Clique no vídeo para Dar Play ou Pausar!</p>
@@ -138,9 +141,7 @@
             <div class="timeline-scroll" id="timeline-scroll">
                 <div class="filmstrip-container">
                     <div class="pad-spacer" id="pad-left"></div>
-                    <div class="filmstrip" id="filmstrip">
-                        <!-- Imagens vão entrar aqui! -->
-                    </div>
+                    <div class="filmstrip" id="filmstrip"></div>
                     <div class="pad-spacer" id="pad-right"></div>
                 </div>
             </div>
@@ -155,6 +156,18 @@
 
         <div class="configuracoes" id="configuracoes">
             <div class="campo campo-full">
+                <label>Nome do Arquivo 📝 (Sem .zip)</label>
+                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: minha-animacao-fofa">
+            </div>
+
+            <div class="campo campo-full">
+                <div class="checkbox-container">
+                    <label style="margin:0;">Gerar Preview em .GIF? 🖼️</label>
+                    <input type="checkbox" id="input-gerar-gif" checked>
+                </div>
+            </div>
+
+            <div class="campo campo-full">
                 <label>Formato das Fotos 🖼️</label>
                 <select id="input-formato">
                     <option value="jpeg" selected>JPEG (Muito leve! 12MB!) 🌟</option>
@@ -162,7 +175,7 @@
                 </select>
             </div>
             <div class="campo campo-full">
-                <label>Qualidade 📉</label>
+                <label>Qualidade do Zip 📉</label>
                 <select id="input-qualidade">
                     <option value="320">Ultra Leve (Batata! 320p) 🥔</option>
                     <option value="480" selected>Leve (Recomendado! 480p) :3</option>
@@ -171,8 +184,8 @@
                 </select>
             </div>
             <div class="campo campo-full"><label>Velocidade (FPS) 🎬</label><input type="number" id="input-fps" value="24"></div>
-            <div class="campo"><label>Largura</label><input type="number" id="input-largura"></div>
-            <div class="campo"><label>Altura</label><input type="number" id="input-altura"></div>
+            <div class="campo"><label>Largura</label><input type="number" id="input-largura" readonly></div>
+            <div class="campo"><label>Altura</label><input type="number" id="input-altura" readonly></div>
         </div>
 
         <button id="btn-gerar" class="btn-gerar btn-desativado">Faltam Marcadores... TwT</button>
@@ -202,22 +215,15 @@
         let originalW = 0, originalH = 0;
         let isDraggingTimeline = false;
 
-        // Clique no vídeo para tocar/pausar de forma limpa! 🎬
         playerVideo.addEventListener('click', () => {
-            if (playerVideo.paused) {
-                playerVideo.play();
-                playerVideo.classList.remove('pausado');
-            } else {
-                playerVideo.pause();
-                playerVideo.classList.add('pausado');
-            }
+            if (playerVideo.paused) { playerVideo.play(); playerVideo.classList.remove('pausado'); } 
+            else { playerVideo.pause(); playerVideo.classList.add('pausado'); }
         });
 
         playerVideo.addEventListener('pause', () => playerVideo.classList.add('pausado'));
         playerVideo.addEventListener('play', () => playerVideo.classList.remove('pausado'));
 
         function ajustarPaddings() {
-            // A mágica matemática pra agulha bater perfeitamente no centro!
             const pad = (timelineWrapper.clientWidth / 2) + "px";
             document.getElementById('pad-left').style.minWidth = pad;
             document.getElementById('pad-right').style.minWidth = pad;
@@ -249,18 +255,13 @@
             atualizarTamanho();
             ajustarPaddings();
             
-            // Fica bonitinho gerando a timeline 🎞️
             document.getElementById('texto-progresso').textContent = "Carregando a Timeline... :3";
             document.getElementById('container-progresso').style.display = 'flex';
             await desenharFilmstrip();
             document.getElementById('container-progresso').style.display = 'none';
         });
 
-        // O SEGREDO DO CAPCUT: Sincronia perfeita! 📏
-        scrollTimeline.addEventListener('pointerdown', () => { 
-            isDraggingTimeline = true; 
-            playerVideo.pause(); 
-        });
+        scrollTimeline.addEventListener('pointerdown', () => { isDraggingTimeline = true; playerVideo.pause(); });
         window.addEventListener('pointerup', () => { isDraggingTimeline = false; });
 
         scrollTimeline.addEventListener('scroll', () => {
@@ -279,11 +280,9 @@
 
         async function desenharFilmstrip() {
             filmstrip.innerHTML = '';
-            
-            // Calcula o tamanho da barra dependendo do vídeo pra sincronizar perfeitamente!
             const dur = playerVideo.duration;
-            const numFrames = Math.max(5, Math.min(Math.floor(dur), 20)); // 1 foto por segundo (max 20)
-            const larguraFrame = 60; // pixels
+            const numFrames = Math.max(5, Math.min(Math.floor(dur), 20)); 
+            const larguraFrame = 60; 
             filmstrip.style.width = (numFrames * larguraFrame) + 'px';
             
             canvasInvisivel.width = 100;
@@ -349,7 +348,6 @@
             }
         }
 
-        // QUALIDADE E TAMANHO
         document.getElementById('input-qualidade').addEventListener('change', atualizarTamanho);
         function atualizarTamanho() {
             if (!originalW || !originalH) return;
@@ -364,7 +362,6 @@
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
-        // A MÁGICA DA GERAÇÃO
         btnGerar.addEventListener('click', async () => {
             if (btnGerar.classList.contains('btn-desativado')) return;
             
@@ -378,25 +375,29 @@
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
                 const formato = document.getElementById('input-formato').value;
+                
+                let nomeEscolhido = document.getElementById('input-nome').value.trim();
+                if (!nomeEscolhido) nomeEscolhido = "bootanimation";
+                
+                const deveGerarGif = document.getElementById('input-gerar-gif').checked;
+
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                await paparazzoDaTimeline(zip, largura, altura, fps, formato);
+                // Passando as novas variáveis pro Paparazzo!
+                await paparazzoDaTimeline(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
-                document.getElementById('texto-progresso').textContent = "Compactando... (Aguarde!)";
+                document.getElementById('texto-progresso').textContent = "Compactando o .ZIP... (Aguarde!)";
                 btnGerar.textContent = "📦 Fechando o zíper (STORE)... owo";
                 
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
                 
                 const linkDownload = document.createElement("a");
                 linkDownload.href = URL.createObjectURL(conteudoZip);
-                linkDownload.download = "bootanimation.zip";
+                linkDownload.download = `${nomeEscolhido}.zip`; // NOME CUSTOMIZADO AQUI! :3
                 linkDownload.click();
                 
-                document.getElementById('texto-progresso').textContent = "Tudo Pronto! :3";
-                btnGerar.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
-                setTimeout(() => { btnGerar.classList.remove('btn-desativado'); }, 2000);
             } catch (erro) {
                 console.error(erro);
                 btnGerar.textContent = "❌ Deu erro! TwT";
@@ -404,13 +405,41 @@
             }
         });
 
-        async function paparazzoDaTimeline(zip, largura, altura, fps, formato) {
+        async function paparazzoDaTimeline(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
             const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
             let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
             const intervalo = 1 / fps;
             const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
             const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
             const extensao = formato === 'jpeg' ? '.jpg' : '.png';
+
+            // PREPARA O GIF! 🖼️
+            let gif = null;
+            let canvasGif = null, ctxGif = null;
+            let gifW = 250; 
+            let gifH = 250;
+
+            if (deveGerarGif) {
+                document.getElementById('texto-progresso').textContent = "Iniciando motor de GIF... ⚙️";
+                try {
+                    // Baixando o script de trás direto da fonte para não bugar!
+                    const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
+                    gifH = Math.floor(altura * (250 / largura));
+                    
+                    gif = new GIF({
+                        workers: 2,
+                        quality: 10,
+                        width: gifW,
+                        height: gifH,
+                        workerScript: URL.createObjectURL(workerBlob)
+                    });
+
+                    canvasGif = document.createElement('canvas');
+                    canvasGif.width = gifW;
+                    canvasGif.height = gifH;
+                    ctxGif = canvasGif.getContext('2d', { alpha: false });
+                } catch(e) { console.error("Erro no motor de GIF TwT", e); gif = null; }
+            }
 
             playerVideo.pause();
 
@@ -421,6 +450,8 @@
                     playerVideo.addEventListener('seeked', cb);
                 });
 
+                contexto.fillStyle = "#000000";
+                contexto.fillRect(0, 0, largura, altura);
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; let numFoto = 0;
@@ -432,10 +463,41 @@
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.8));
                 if (blob) pastaAlvo.file(nome, blob);
 
+                // SE ESTIVER GERANDO GIF, GUARDA O FRAME! 🖼️
+                if (deveGerarGif && gif && ctxGif) {
+                    ctxGif.fillStyle = "#000000";
+                    ctxGif.fillRect(0, 0, gifW, gifH);
+                    ctxGif.drawImage(playerVideo, 0, 0, gifW, gifH);
+                    gif.addFrame(ctxGif, {delay: Math.round(1000 / fps), copy: true});
+                }
+
                 fotosTiradas++;
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                 document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
                 document.getElementById('texto-progresso').textContent = `Forjando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
+            }
+
+            // FINALIZA O GIF LINDINHO NO FUNDO E DEIXA ENGATILHADO! 🎞️
+            if (deveGerarGif && gif) {
+                document.getElementById('texto-progresso').textContent = "Renderizando Preview em GIF... 🎬 (Pode demorar um tiquinho!)";
+                btnGerar.textContent = "🖼️ Criando a Magia do GIF... owo";
+                
+                return new Promise((resolve) => {
+                    gif.on('progress', p => {
+                        const pct = Math.round(p * 100);
+                        document.getElementById('barra-preenchimento').style.width = pct + '%';
+                        document.getElementById('texto-progresso').textContent = `Processando GIF... ${pct}% :3`;
+                    });
+                    
+                    gif.on('finished', function(blob) {
+                        const linkGif = document.createElement("a");
+                        linkGif.href = URL.createObjectURL(blob);
+                        linkGif.download = `${nomeEscolhido}.gif`;
+                        linkGif.click();
+                        resolve(); // Libera o código pra fechar o ZIP e baixar!
+                    });
+                    gif.render();
+                });
             }
         }
     </script>
