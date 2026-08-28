@@ -16,7 +16,7 @@
         }
 
         .container { 
-            width: 100%; max-width: 420px; display: flex; flex-direction: column; 
+            width: 100%; max-width: 450px; display: flex; flex-direction: column; 
             align-items: center; gap: 15px; padding-bottom: 50px;
         }
 
@@ -37,10 +37,10 @@
         }
 
         .configuracoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-        .campo-fps { grid-column: span 2; }
+        .campo-full { grid-column: span 2; }
         .campo { display: flex; flex-direction: column; }
         .campo label { color: #bb86fc; margin-bottom: 4px; text-align: center; font-size: 13px; }
-        .campo input { 
+        .campo input, .campo select { 
             background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 10px; 
             border-radius: 10px; text-align: center; font-family: 'Fredoka', sans-serif; 
             font-size: 16px; width: 100%; outline: none;
@@ -54,7 +54,6 @@
         button:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        /* A BARRINHA DE PROGRESSO TURBO! :3 */
         .container-progresso {
             width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
         }
@@ -66,7 +65,7 @@
 <body>
     <div class="container">
         <h1>✨ Forja Turbo (PC) ✨</h1>
-        <p>Ultra rápida e com ZIPs levinhos! uwu</p>
+        <p>Ultra rápida e agora com ZIPs de Dieta! uwu</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo (MP4/WebM)</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
@@ -74,8 +73,20 @@
         <video id="player-video" controls playsinline></video>
 
         <div class="configuracoes">
-            <!-- Dica: Se ficar pesado, coloca 24 ou 15 FPS aqui! :3 -->
-            <div class="campo campo-fps"><label>Velocidade (FPS)</label><input type="number" id="input-fps" value="30"></div>
+            <!-- A MÁGICA DA DIETA TÁ AQUI! 🪄 -->
+            <div class="campo campo-full">
+                <label>Qualidade (Tamanho do ZIP) 📉</label>
+                <select id="input-qualidade">
+                    <option value="480" selected>Leve (Recomendado! ~ 480p) :3</option>
+                    <option value="720">Média (Atenção no peso! ~ 720p) owo</option>
+                    <option value="1">Original (Cuidado! Muito pesado!) 💀</option>
+                </select>
+            </div>
+            
+            <div class="campo campo-full">
+                <label>Velocidade (15 a 24 é o ideal!) 🎬</label>
+                <input type="number" id="input-fps" value="24">
+            </div>
             <div class="campo"><label>Largura</label><input type="number" id="input-largura"></div>
             <div class="campo"><label>Altura</label><input type="number" id="input-altura"></div>
         </div>
@@ -96,13 +107,14 @@
         const containerProgresso = document.getElementById('container-progresso');
         const barraPreenchimento = document.getElementById('barra-preenchimento');
         const textoProgresso = document.getElementById('texto-progresso');
+        const selQualidade = document.getElementById('input-qualidade');
         
-        // MÁGICA DE OTIMIZAÇÃO 1: alpha: false remove 25% do peso da imagem e fica sempre preto no fundo!
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
         
         let etapaAtual = 0;
         let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
+        let originalW = 0, originalH = 0;
 
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
@@ -121,19 +133,40 @@
             leitor.readAsDataURL(arquivo);
         });
 
+        // Grava o tamanho original do vídeo!
         playerVideo.addEventListener('loadedmetadata', function() {
-            let w = playerVideo.videoWidth;
-            let h = playerVideo.videoHeight;
+            originalW = playerVideo.videoWidth;
+            originalH = playerVideo.videoHeight;
+            atualizarTamanho();
+        });
 
-            // MÁGICA DE OTIMIZAÇÃO 2: Se o vídeo for gigante (ex: 1080p), reduz pela metade para o ZIP ficar levinho! 📉
-            if (w >= 1080 || h >= 1080) {
-                w = Math.floor(w / 2);
-                h = Math.floor(h / 2);
+        // Se a pessoa mudar a opção de qualidade, atualiza na hora os números! :3
+        selQualidade.addEventListener('change', atualizarTamanho);
+
+        function atualizarTamanho() {
+            if (!originalW || !originalH) return;
+            let val = selQualidade.value;
+            let w = originalW;
+            let h = originalH;
+
+            // Encolhendo o vídeo de acordo com o que escolheu!
+            if (val === "480" && originalW > 480) {
+                let proporcao = 480 / originalW;
+                w = 480;
+                h = Math.floor(originalH * proporcao);
+            } else if (val === "720" && originalW > 720) {
+                let proporcao = 720 / originalW;
+                w = 720;
+                h = Math.floor(originalH * proporcao);
             }
+
+            // O sistema Android gosta de números pares pra vídeos, então vamos arredondar!
+            w = Math.floor(w / 2) * 2;
+            h = Math.floor(h / 2) * 2;
 
             document.getElementById('input-largura').value = w;
             document.getElementById('input-altura').value = h;
-        });
+        }
 
         btnMarcador.addEventListener('click', () => {
             const tempoAtual = playerVideo.currentTime;
@@ -155,14 +188,13 @@
             
             try {
                 const zip = new JSZip();
-                const fps = parseInt(document.getElementById('input-fps').value) || 30;
+                const fps = parseInt(document.getElementById('input-fps').value) || 24;
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
                 
                 canvasInvisivel.width = largura; 
                 canvasInvisivel.height = altura;
 
-                // Chama o Paparazzo super rápido!
                 await paparazzoVelocidadeDaLuz(zip, largura, altura, fps);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
@@ -170,7 +202,6 @@
                 textoProgresso.textContent = "Compactando a magia... (Aguarde!)";
                 btnMarcador.textContent = "📦 Fechando o zíper (STORE)... owo";
                 
-                // MÁGICA 3: Mantendo STORE obrigatório pro KernelSU não surtar!
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
                 
                 const linkDownload = document.createElement("a");
@@ -189,7 +220,6 @@
             }
         }
 
-        // NOVO PAPARAZZO: Sem pausas, sem Firefox, puro suco de Chromium! ⚡
         async function paparazzoVelocidadeDaLuz(zip, largura, altura, fps) {
             const pasta0 = zip.folder("part0");
             const pasta1 = zip.folder("part1");
@@ -201,13 +231,11 @@
             
             const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
 
-            // Congela o player, a gente vai mover ele na marra!
             playerVideo.pause();
 
             for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
                 playerVideo.currentTime = tempo;
 
-                // Espera o Chromium processar o seeked na velocidade nativa dele!
                 await new Promise(resolve => {
                     const aoCarregar = () => {
                         playerVideo.removeEventListener('seeked', aoCarregar);
@@ -216,7 +244,6 @@
                     playerVideo.addEventListener('seeked', aoCarregar);
                 });
 
-                // Desenha a imagem (o fundo transparente já vira preto automaticamente pelo alpha: false)
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; 
@@ -232,11 +259,9 @@
 
                 const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
 
-                // Salva a imagem bonitinha na memória
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
                 if (blob) pastaAlvo.file(nomeArquivo, blob);
 
-                // Atualiza a barrinha piscante! :P
                 fotosTiradas++;
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                 barraPreenchimento.style.width = porcentagem + '%';
