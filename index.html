@@ -63,7 +63,7 @@
         .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
         .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
 
-        #img-teste { width: 100%; border-radius: 15px; margin-top: 10px; display: none; border: 2px solid #ff5555; }
+        #img-teste { width: 100%; border-radius: 15px; margin-top: 10px; display: none; border: 2px solid #03dac6; }
     </style>
 </head>
 <body>
@@ -76,7 +76,6 @@
 
         <video id="player-video" controls playsinline></video>
 
-        <!-- O BOTÃO DE TESTE PARA INVESTIGAR O FIREFOX! 🕵️‍♀️ -->
         <button id="btn-teste" class="btn-teste" style="display: none;">📸 Tirar Foto de Teste</button>
         <img id="img-teste" alt="Foto de Teste">
 
@@ -111,18 +110,27 @@
         let etapaAtual = 0;
         let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
 
+        // O NOVO LEITOR QUE BURLA O BLOQUEIO DO FIREFOX! 🪄✨
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
             if (!arquivo) return;
-            playerVideo.src = URL.createObjectURL(arquivo);
-            playerVideo.style.display = 'block';
-            btnTeste.style.display = 'block'; // Mostra o botão de teste!
-            etapaAtual = 0;
-            btnMarcador.textContent = "📍 Marcar Início da Animação";
-            btnMarcador.classList.remove('btn-desativado');
-            containerProgresso.style.display = 'none'; 
-            barraPreenchimento.style.width = '0%';
-            imgTeste.style.display = 'none';
+
+            btnMarcador.textContent = "⏳ Lendo arquivo de vídeo... uwu";
+            btnMarcador.classList.add('btn-desativado');
+
+            const leitor = new FileReader();
+            leitor.onload = function(e) {
+                playerVideo.src = e.target.result; // Converte para Data URL!
+                playerVideo.style.display = 'block';
+                btnTeste.style.display = 'block';
+                etapaAtual = 0;
+                btnMarcador.textContent = "📍 Marcar Início da Animação";
+                btnMarcador.classList.remove('btn-desativado');
+                containerProgresso.style.display = 'none'; 
+                barraPreenchimento.style.width = '0%';
+                imgTeste.style.display = 'none';
+            };
+            leitor.readAsDataURL(arquivo);
         });
 
         playerVideo.addEventListener('loadedmetadata', function() {
@@ -130,19 +138,15 @@
             document.getElementById('input-altura').value = playerVideo.videoHeight;
         });
 
-        // O SISTEMA DE TESTE! 📸
+        // FOTO DE TESTE 📸
         btnTeste.addEventListener('click', () => {
             canvasInvisivel.width = playerVideo.videoWidth;
             canvasInvisivel.height = playerVideo.videoHeight;
             
-            // Pinta um fundo de vermelho berrante!
             contexto.fillStyle = "#ff0000";
             contexto.fillRect(0, 0, canvasInvisivel.width, canvasInvisivel.height);
-            
-            // Tenta desenhar o vídeo por cima
             contexto.drawImage(playerVideo, 0, 0, canvasInvisivel.width, canvasInvisivel.height);
             
-            // Tira a foto e mostra na tela!
             imgTeste.src = canvasInvisivel.toDataURL('image/png');
             imgTeste.style.display = 'block';
         });
@@ -215,7 +219,6 @@
                 playerVideo.muted = true; 
 
                 playerVideo.play().then(() => {
-                    
                     const vigiarTela = async () => {
                         if (playerVideo.currentTime >= tempos.fimParte2) {
                             playerVideo.pause();
