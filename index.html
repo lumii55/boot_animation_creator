@@ -54,7 +54,7 @@
         button:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        /* A BARRINHA DE PROGRESSO FOFA! :3 */
+        /* A BARRINHA DE PROGRESSO! :3 */
         .container-progresso {
             width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
         }
@@ -88,7 +88,6 @@
 
         <button id="btn-marcador" class="btn-desativado">Esperando vídeo... TwT</button>
         
-        <!-- A estrutura da nossa barrinha! owo -->
         <div class="container-progresso" id="container-progresso">
             <div class="texto-progresso" id="texto-progresso">0%</div>
             <div class="barra-fundo">
@@ -107,10 +106,13 @@
         const textoProgresso = document.getElementById('texto-progresso');
         
         const canvasInvisivel = document.createElement('canvas');
-        const contexto = canvasInvisivel.getContext('2d', { willReadFrequently: true });
+        const contexto = canvasInvisivel.getContext('2d'); 
         
         let etapaAtual = 0;
         let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
+
+        // O nosso super detetive de navegador! 🕵️‍♀️✨
+        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
 
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
@@ -120,7 +122,7 @@
             etapaAtual = 0;
             btnMarcador.textContent = "📍 Marcar Início da Animação";
             btnMarcador.classList.remove('btn-desativado');
-            containerProgresso.style.display = 'none'; // Esconde a barrinha ao trocar de vídeo!
+            containerProgresso.style.display = 'none'; 
             barraPreenchimento.style.width = '0%';
         });
 
@@ -145,7 +147,7 @@
         async function iniciarGeracaoZip() {
             btnMarcador.classList.add('btn-desativado');
             btnMarcador.textContent = "⏳ Tirando as fotos... uwu";
-            containerProgresso.style.display = 'flex'; // Mostra a barrinha linda! >:3
+            containerProgresso.style.display = 'flex'; 
             
             try {
                 const zip = new JSZip();
@@ -188,29 +190,31 @@
             const intervalo = 1 / fps;
             let fotosTiradas = 0;
             
-            // Calcula o total de fotos pra barrinha de progresso não se perder! uwu
             const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
 
             playerVideo.pause();
 
             for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
-                playerVideo.currentTime = tempo;
-
+                
                 await new Promise(resolve => {
                     const aoCarregar = () => {
                         playerVideo.removeEventListener('seeked', aoCarregar);
-                        // O TRUQUE DE MESTRE: Obriga o Chrome a desenhar a tela antes da gente capturar! :3
-                        requestAnimationFrame(() => {
-                            requestAnimationFrame(resolve);
-                        });
+                        
+                        // O Cérebro da Operação atuando aqui! 🧠
+                        if (isFirefox) {
+                            setTimeout(resolve, 150); // MODO RAPOSA: Mais lento, mas seguro!
+                        } else {
+                            // MODO CHROME: Vai na velocidade da luz! ⚡
+                            requestAnimationFrame(() => requestAnimationFrame(resolve));
+                        }
                     };
+                    
                     playerVideo.addEventListener('seeked', aoCarregar);
+                    playerVideo.currentTime = tempo;
                 });
 
-                // Pinta o fundo de preto absoluto pra nunca mais ter foto transparente! >:3
                 contexto.fillStyle = "#000000";
                 contexto.fillRect(0, 0, largura, altura);
-                // Desenha o vídeo por cima do preto!
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; 
@@ -228,7 +232,6 @@
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
                 if (blob) pastaAlvo.file(nomeArquivo, blob);
 
-                // Atualiza a barrinha de progresso fofinha! :P
                 fotosTiradas++;
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                 barraPreenchimento.style.width = porcentagem + '%';
