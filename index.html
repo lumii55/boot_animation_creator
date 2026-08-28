@@ -65,7 +65,7 @@
 <body>
     <div class="container">
         <h1>✨ Forja Turbo (PC) ✨</h1>
-        <p>Ultra rápida e agora com ZIPs de Dieta! uwu</p>
+        <p>Ultra rápida e agora com ZIPs Minúsculos! uwu</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo (MP4/WebM)</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
@@ -73,21 +73,29 @@
         <video id="player-video" controls playsinline></video>
 
         <div class="configuracoes">
+            
+            <!-- A MÁGICA DO FORMATO JPEG! 🖼️✨ -->
             <div class="campo campo-full">
-                <label>Qualidade (Tamanho do ZIP) 📉</label>
+                <label>Formato das Fotos 🖼️</label>
+                <select id="input-formato">
+                    <option value="jpeg" selected>JPEG (O Segredo Mágico! Muito leve!) 🌟</option>
+                    <option value="png">PNG (Padrão, mas é pesadão) 🐢</option>
+                </select>
+            </div>
+
+            <div class="campo campo-full">
+                <label>Qualidade 📉</label>
                 <select id="input-qualidade">
-                    <!-- Nova opção batata que salva o peso! -->
-                    <option value="320" selected>Ultra Leve (Batata! ~ 320p) 🥔</option>
-                    <option value="480">Leve (~ 480p) :3</option>
-                    <option value="720">Média (Pesado! ~ 720p) owo</option>
+                    <option value="320">Ultra Leve (Batata! ~ 320p) 🥔</option>
+                    <option value="480" selected>Leve (Recomendado! ~ 480p) :3</option>
+                    <option value="720">Média (Atenção no peso! ~ 720p) owo</option>
                     <option value="1">Original (Gigante!) 💀</option>
                 </select>
             </div>
             
             <div class="campo campo-full">
-                <!-- 15 FPS é o segredo de ouro pra boot animations leves! -->
                 <label>Velocidade (15 a 24 é o ideal!) 🎬</label>
-                <input type="number" id="input-fps" value="15">
+                <input type="number" id="input-fps" value="24">
             </div>
             <div class="campo"><label>Largura</label><input type="number" id="input-largura"></div>
             <div class="campo"><label>Altura</label><input type="number" id="input-altura"></div>
@@ -110,6 +118,7 @@
         const barraPreenchimento = document.getElementById('barra-preenchimento');
         const textoProgresso = document.getElementById('texto-progresso');
         const selQualidade = document.getElementById('input-qualidade');
+        const selFormato = document.getElementById('input-formato');
         
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
@@ -149,26 +158,16 @@
             let w = originalW;
             let h = originalH;
 
-            // O MODO BATATA TÁ ON! 🥔
             if (val === "320" && originalW > 320) {
-                let proporcao = 320 / originalW;
-                w = 320;
-                h = Math.floor(originalH * proporcao);
+                let proporcao = 320 / originalW; w = 320; h = Math.floor(originalH * proporcao);
             } else if (val === "480" && originalW > 480) {
-                let proporcao = 480 / originalW;
-                w = 480;
-                h = Math.floor(originalH * proporcao);
+                let proporcao = 480 / originalW; w = 480; h = Math.floor(originalH * proporcao);
             } else if (val === "720" && originalW > 720) {
-                let proporcao = 720 / originalW;
-                w = 720;
-                h = Math.floor(originalH * proporcao);
+                let proporcao = 720 / originalW; w = 720; h = Math.floor(originalH * proporcao);
             }
 
-            w = Math.floor(w / 2) * 2;
-            h = Math.floor(h / 2) * 2;
-
-            document.getElementById('input-largura').value = w;
-            document.getElementById('input-altura').value = h;
+            w = Math.floor(w / 2) * 2; h = Math.floor(h / 2) * 2;
+            document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
         btnMarcador.addEventListener('click', () => {
@@ -191,14 +190,15 @@
             
             try {
                 const zip = new JSZip();
-                const fps = parseInt(document.getElementById('input-fps').value) || 15;
+                const fps = parseInt(document.getElementById('input-fps').value) || 24;
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
+                const formatoEscolhido = selFormato.value;
                 
                 canvasInvisivel.width = largura; 
                 canvasInvisivel.height = altura;
 
-                await paparazzoVelocidadeDaLuz(zip, largura, altura, fps);
+                await paparazzoVelocidadeDaLuz(zip, largura, altura, fps, formatoEscolhido);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
@@ -223,7 +223,7 @@
             }
         }
 
-        async function paparazzoVelocidadeDaLuz(zip, largura, altura, fps) {
+        async function paparazzoVelocidadeDaLuz(zip, largura, altura, fps, formato) {
             const pasta0 = zip.folder("part0");
             const pasta1 = zip.folder("part1");
             const pasta2 = zip.folder("part2");
@@ -233,6 +233,11 @@
             let fotosTiradas = 0;
             
             const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
+
+            // Decidindo o formato de saída e a extensão!
+            const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
+            const extensao = formato === 'jpeg' ? '.jpg' : '.png';
+            const qualidadeJPG = 0.8; // A compressão mágica do JPEG que não afeta tanto a beleza!
 
             playerVideo.pause();
 
@@ -247,6 +252,9 @@
                     playerVideo.addEventListener('seeked', aoCarregar);
                 });
 
+                // Preenche o fundo de preto pra não bugar bordas do JPEG!
+                contexto.fillStyle = "#000000";
+                contexto.fillRect(0, 0, largura, altura);
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; 
@@ -260,9 +268,9 @@
                     pastaAlvo = pasta2; numFoto = c2++; 
                 }
 
-                const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
+                const nomeArquivo = String(numFoto).padStart(5, '0') + extensao;
 
-                const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
+                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, qualidadeJPG));
                 if (blob) pastaAlvo.file(nomeArquivo, blob);
 
                 fotosTiradas++;
