@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Forja de Boot Animations (PC Edition) ✨</title>
+    <title>✨ Forja de Boot Animations ✨</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
         
@@ -21,7 +21,7 @@
         }
 
         h1 { color: #bb86fc; text-align: center; font-size: 22px; margin-top: 10px; }
-        p { color: #aaaaaa; text-align: center; font-size: 13px; }
+        p { color: #aaaaaa; text-align: center; font-size: 13px; margin-bottom: 5px; }
 
         .btn-upload { 
             background-color: #bb86fc; color: #000; padding: 14px 20px; 
@@ -31,16 +31,22 @@
         }
         .btn-upload:active { transform: scale(0.96); }
 
+        /* VÍDEO LIMPINHO, SEM BOTÃO GIGANTE! ✨ */
+        .video-container { position: relative; width: 100%; text-align: center; display: none; }
         video { 
-            width: 100%; max-height: 30vh; border-radius: 15px; display: none; 
-            background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); object-fit: contain;
+            width: 100%; max-height: 35vh; border-radius: 15px; 
+            background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+            object-fit: contain; cursor: pointer; transition: 0.2s;
         }
+        /* Bordinha pra indicar que tá pausado */
+        video.pausado { border: 2px solid #03dac6; }
+        .dica-video { font-size: 11px; color: #aaaaaa; margin-top: 5px; opacity: 0.8; }
 
-        /* ✨ A TIMELINE ESTILO CAPCUT ✨ */
+        /* ✨ A TIMELINE 100% SINCRONIZADA ✨ */
         .timeline-wrapper {
             width: 100%; height: 60px; background: #222; border-radius: 10px;
             position: relative; display: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-            border: 1px solid #444;
+            border: 1px solid #444; overflow: hidden;
         }
         .playhead-centro {
             position: absolute; left: 50%; top: -5px; bottom: -5px; width: 3px;
@@ -49,18 +55,19 @@
         }
         .timeline-scroll {
             width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden;
-            scroll-behavior: auto; position: relative;
+            scroll-behavior: auto; position: relative; cursor: grab;
         }
+        .timeline-scroll:active { cursor: grabbing; }
         .timeline-scroll::-webkit-scrollbar { display: none; }
         
         .filmstrip-container { display: flex; height: 100%; width: max-content; }
-        .pad-spacer { min-width: 50vw; max-width: 200px; height: 100%; flex-shrink: 0; } /* Ajuste de centro */
+        .pad-spacer { height: 100%; flex-shrink: 0; }
         
         .filmstrip { 
-            display: flex; height: 100%; width: 800px; position: relative; 
+            display: flex; height: 100%; position: relative; 
             background-color: #111;
         }
-        .filmstrip img { height: 100%; width: 10%; object-fit: cover; opacity: 0.6; pointer-events: none; }
+        .filmstrip img { height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none; flex: 1; }
         
         /* LINHAS DOS MARCADORES NA TIMELINE 📍 */
         .linha-marcador {
@@ -73,9 +80,7 @@
         .linha-m3 { background: #ff5555; } /* Fim Final */
 
         /* BOTÕES DE MARCADORES LIVRES 🎛️ */
-        .grid-marcadores {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; display: none;
-        }
+        .grid-marcadores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; display: none; }
         .btn-marc {
             padding: 12px 5px; border-radius: 12px; font-weight: bold; border: none;
             font-family: 'Fredoka', sans-serif; cursor: pointer; color: #000; font-size: 13px;
@@ -117,31 +122,30 @@
 <body>
     <div class="container">
         <h1>✨ Forja CapCut Edition ✨</h1>
-        <p>A edição perfeita para sua Boot Animation! uwu</p>
+        <p>Arraste a timeline para achar o frame perfeito! uwu</p>
 
-        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo (MP4/WebM)</label>
+        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
-        <!-- Vídeo -->
-        <video id="player-video" controls playsinline></video>
+        <!-- VÍDEO SEM O BOTÃOZÃO! -->
+        <div class="video-container" id="video-container">
+            <video id="player-video" playsinline class="pausado"></video>
+            <p class="dica-video">👆 Clique no vídeo para Dar Play ou Pausar!</p>
+        </div>
 
-        <!-- Timeline estilo CapCut -->
         <div class="timeline-wrapper" id="timeline-wrapper">
             <div class="playhead-centro"></div>
             <div class="timeline-scroll" id="timeline-scroll">
                 <div class="filmstrip-container">
                     <div class="pad-spacer" id="pad-left"></div>
                     <div class="filmstrip" id="filmstrip">
-                        <!-- Imagens e linhas vão entrar aqui via JS! -->
+                        <!-- Imagens vão entrar aqui! -->
                     </div>
                     <div class="pad-spacer" id="pad-right"></div>
                 </div>
             </div>
         </div>
 
-        <p id="aviso-timeline" style="display: none; color: #03dac6; font-size: 12px;">Deslize a timeline para navegar! 👆</p>
-
-        <!-- Botões Livres de Marcação -->
         <div class="grid-marcadores" id="grid-marcadores">
             <button class="btn-marc btn-m0" onclick="marcarTrecho('m0')">📍 1. Início<span class="status-marc" id="st-m0">Não marcado</span></button>
             <button class="btn-marc btn-m1" onclick="marcarTrecho('m1')">✂️ 2. Fim Início<span class="status-marc" id="st-m1">Não marcado</span></button>
@@ -183,25 +187,38 @@
     <script>
         const inputVideo = document.getElementById('upload-video');
         const playerVideo = document.getElementById('player-video');
+        const videoContainer = document.getElementById('video-container');
         const timelineWrapper = document.getElementById('timeline-wrapper');
         const scrollTimeline = document.getElementById('timeline-scroll');
         const filmstrip = document.getElementById('filmstrip');
         const gridMarcadores = document.getElementById('grid-marcadores');
         const configuracoes = document.getElementById('configuracoes');
         const btnGerar = document.getElementById('btn-gerar');
-        const avisoTimeline = document.getElementById('aviso-timeline');
         
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
         
-        // Estado Livre dos marcadores! :3
         let marcadores = { m0: null, m1: null, m2: null, m3: null };
         let originalW = 0, originalH = 0;
         let isDraggingTimeline = false;
 
-        // Ajuste dinâmico do tamanho do padding pra agulha ficar no meio certinho!
+        // Clique no vídeo para tocar/pausar de forma limpa! 🎬
+        playerVideo.addEventListener('click', () => {
+            if (playerVideo.paused) {
+                playerVideo.play();
+                playerVideo.classList.remove('pausado');
+            } else {
+                playerVideo.pause();
+                playerVideo.classList.add('pausado');
+            }
+        });
+
+        playerVideo.addEventListener('pause', () => playerVideo.classList.add('pausado'));
+        playerVideo.addEventListener('play', () => playerVideo.classList.remove('pausado'));
+
         function ajustarPaddings() {
-            const pad = (scrollTimeline.clientWidth / 2) + "px";
+            // A mágica matemática pra agulha bater perfeitamente no centro!
+            const pad = (timelineWrapper.clientWidth / 2) + "px";
             document.getElementById('pad-left').style.minWidth = pad;
             document.getElementById('pad-right').style.minWidth = pad;
         }
@@ -214,14 +231,12 @@
             const leitor = new FileReader();
             leitor.onload = function(e) {
                 playerVideo.src = e.target.result; 
-                playerVideo.style.display = 'block';
+                videoContainer.style.display = 'block';
                 timelineWrapper.style.display = 'block';
                 gridMarcadores.style.display = 'grid';
                 configuracoes.style.display = 'grid';
                 btnGerar.style.display = 'block';
-                avisoTimeline.style.display = 'block';
                 
-                // Reseta tudo
                 marcadores = { m0: null, m1: null, m2: null, m3: null };
                 atualizarBotoesELinhas();
             };
@@ -234,14 +249,17 @@
             atualizarTamanho();
             ajustarPaddings();
             
-            // MÁGICA: Gera as miniaturas do vídeo pra timeline! 🎞️
+            // Fica bonitinho gerando a timeline 🎞️
+            document.getElementById('texto-progresso').textContent = "Carregando a Timeline... :3";
+            document.getElementById('container-progresso').style.display = 'flex';
             await desenharFilmstrip();
+            document.getElementById('container-progresso').style.display = 'none';
         });
 
-        // 🎬 Lógica de Scroll e Sincronia da Timeline (O Segredo do CapCut!)
+        // O SEGREDO DO CAPCUT: Sincronia perfeita! 📏
         scrollTimeline.addEventListener('pointerdown', () => { 
             isDraggingTimeline = true; 
-            playerVideo.pause(); // Pausa pra não brigar com a timeline!
+            playerVideo.pause(); 
         });
         window.addEventListener('pointerup', () => { isDraggingTimeline = false; });
 
@@ -255,40 +273,45 @@
 
         playerVideo.addEventListener('timeupdate', () => {
             if (isDraggingTimeline || !playerVideo.duration) return;
-            // Se o vídeo estiver tocando sozinho, a timeline corre atrás dele! 🏃‍♀️
             const percent = playerVideo.currentTime / playerVideo.duration;
             scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
         });
 
-        // 🖼️ Desenhador de Filmstrip
         async function desenharFilmstrip() {
             filmstrip.innerHTML = '';
-            const numFrames = 10;
+            
+            // Calcula o tamanho da barra dependendo do vídeo pra sincronizar perfeitamente!
+            const dur = playerVideo.duration;
+            const numFrames = Math.max(5, Math.min(Math.floor(dur), 20)); // 1 foto por segundo (max 20)
+            const larguraFrame = 60; // pixels
+            filmstrip.style.width = (numFrames * larguraFrame) + 'px';
+            
             canvasInvisivel.width = 100;
             canvasInvisivel.height = Math.floor((originalH / originalW) * 100);
             
             for (let i = 0; i < numFrames; i++) {
-                playerVideo.currentTime = (i / numFrames) * playerVideo.duration;
+                playerVideo.currentTime = (i / numFrames) * dur;
                 await new Promise(r => {
                     const cb = () => { playerVideo.removeEventListener('seeked', cb); r(); };
                     playerVideo.addEventListener('seeked', cb);
                 });
                 contexto.drawImage(playerVideo, 0, 0, canvasInvisivel.width, canvasInvisivel.height);
+                
                 const img = document.createElement('img');
                 img.src = canvasInvisivel.toDataURL('image/jpeg', 0.5);
+                img.style.width = (100 / numFrames) + '%';
                 filmstrip.appendChild(img);
             }
-            playerVideo.currentTime = 0; // Volta pro começo!
+            playerVideo.currentTime = 0;
+            scrollTimeline.scrollLeft = 0;
         }
 
-        // 🎛️ Função Mestra de Marcação Livre
         window.marcarTrecho = function(id) {
             marcadores[id] = playerVideo.currentTime;
             atualizarBotoesELinhas();
         }
 
         function atualizarBotoesELinhas() {
-            // Limpa as linhas velhas
             document.querySelectorAll('.linha-marcador').forEach(el => el.remove());
 
             let tudoMarcado = true;
@@ -302,7 +325,6 @@
                     spanStatus.textContent = tempo.toFixed(2) + 's';
                     temposOrdem.push(tempo);
                     
-                    // Desenha a linha na timeline! 📍
                     const linha = document.createElement('div');
                     linha.className = `linha-marcador linha-${id}`;
                     linha.style.left = ((tempo / playerVideo.duration) * 100) + '%';
@@ -313,14 +335,13 @@
                 }
             });
 
-            // Validação de botão de gerar (Tem que marcar todos, e de preferência na ordem certa!)
             if (tudoMarcado) {
                 if (temposOrdem[0] <= temposOrdem[1] && temposOrdem[1] <= temposOrdem[2] && temposOrdem[2] <= temposOrdem[3]) {
                     btnGerar.classList.remove('btn-desativado');
                     btnGerar.textContent = "🚀 GERAR BOOT ANIMATION!";
                 } else {
                     btnGerar.classList.add('btn-desativado');
-                    btnGerar.textContent = "⚠️ Ordem errada! O início tem que vir antes do final!";
+                    btnGerar.textContent = "⚠️ Ordem errada! O Início (1) deve vir antes do Fim (4)!";
                 }
             } else {
                 btnGerar.classList.add('btn-desativado');
@@ -328,7 +349,7 @@
             }
         }
 
-        // Sistema de Qualidade
+        // QUALIDADE E TAMANHO
         document.getElementById('input-qualidade').addEventListener('change', atualizarTamanho);
         function atualizarTamanho() {
             if (!originalW || !originalH) return;
@@ -343,7 +364,7 @@
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
-        // GERAR! 🚀
+        // A MÁGICA DA GERAÇÃO
         btnGerar.addEventListener('click', async () => {
             if (btnGerar.classList.contains('btn-desativado')) return;
             
@@ -400,8 +421,6 @@
                     playerVideo.addEventListener('seeked', cb);
                 });
 
-                contexto.fillStyle = "#000000";
-                contexto.fillRect(0, 0, largura, altura);
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; let numFoto = 0;
