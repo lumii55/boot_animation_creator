@@ -32,31 +32,83 @@
         .btn-upload:active { transform: scale(0.96); }
 
         video { 
-            width: 100%; max-height: 40vh; border-radius: 15px; display: none; 
+            width: 100%; max-height: 30vh; border-radius: 15px; display: none; 
             background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); object-fit: contain;
         }
 
-        .configuracoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        /* ✨ A TIMELINE ESTILO CAPCUT ✨ */
+        .timeline-wrapper {
+            width: 100%; height: 60px; background: #222; border-radius: 10px;
+            position: relative; display: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+            border: 1px solid #444;
+        }
+        .playhead-centro {
+            position: absolute; left: 50%; top: -5px; bottom: -5px; width: 3px;
+            background: #fff; z-index: 20; transform: translateX(-50%);
+            border-radius: 3px; box-shadow: 0 0 8px rgba(255,255,255,0.8); pointer-events: none;
+        }
+        .timeline-scroll {
+            width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden;
+            scroll-behavior: auto; position: relative;
+        }
+        .timeline-scroll::-webkit-scrollbar { display: none; }
+        
+        .filmstrip-container { display: flex; height: 100%; width: max-content; }
+        .pad-spacer { min-width: 50vw; max-width: 200px; height: 100%; flex-shrink: 0; } /* Ajuste de centro */
+        
+        .filmstrip { 
+            display: flex; height: 100%; width: 800px; position: relative; 
+            background-color: #111;
+        }
+        .filmstrip img { height: 100%; width: 10%; object-fit: cover; opacity: 0.6; pointer-events: none; }
+        
+        /* LINHAS DOS MARCADORES NA TIMELINE 📍 */
+        .linha-marcador {
+            position: absolute; top: 0; bottom: 0; width: 4px; z-index: 10;
+            transform: translateX(-50%); border-radius: 2px; opacity: 0.9;
+        }
+        .linha-m0 { background: #03dac6; } /* Inicio */
+        .linha-m1 { background: #bb86fc; } /* Fim Inicio */
+        .linha-m2 { background: #ffb86c; } /* Fim Loop */
+        .linha-m3 { background: #ff5555; } /* Fim Final */
+
+        /* BOTÕES DE MARCADORES LIVRES 🎛️ */
+        .grid-marcadores {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; display: none;
+        }
+        .btn-marc {
+            padding: 12px 5px; border-radius: 12px; font-weight: bold; border: none;
+            font-family: 'Fredoka', sans-serif; cursor: pointer; color: #000; font-size: 13px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;
+        }
+        .btn-marc:active { transform: scale(0.95); }
+        .btn-m0 { background-color: #03dac6; }
+        .btn-m1 { background-color: #bb86fc; }
+        .btn-m2 { background-color: #ffb86c; }
+        .btn-m3 { background-color: #ff5555; }
+        
+        .status-marc { font-size: 11px; display: block; opacity: 0.7; }
+
+        .configuracoes { display: none; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
         .campo-full { grid-column: span 2; }
         .campo { display: flex; flex-direction: column; }
         .campo label { color: #bb86fc; margin-bottom: 4px; text-align: center; font-size: 13px; }
         .campo input, .campo select { 
             background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 10px; 
             border-radius: 10px; text-align: center; font-family: 'Fredoka', sans-serif; 
-            font-size: 16px; width: 100%; outline: none;
+            font-size: 14px; width: 100%; outline: none;
         }
 
-        button { 
+        .btn-gerar { 
             background-color: #03dac6; color: #000; padding: 15px; border-radius: 20px; 
             font-weight: 700; font-family: 'Fredoka', sans-serif; border: none; width: 100%; 
             font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: none; margin-top: 10px;
         }
-        button:active { transform: scale(0.96); }
+        .btn-gerar:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        .container-progresso {
-            width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
-        }
+        .container-progresso { width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px; }
         .texto-progresso { font-size: 12px; color: #03dac6; text-align: center; font-weight: 700; }
         .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
         .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
@@ -64,44 +116,62 @@
 </head>
 <body>
     <div class="container">
-        <h1>✨ Forja Turbo (PC) ✨</h1>
-        <p>Ultra rápida e agora com ZIPs Minúsculos! uwu</p>
+        <h1>✨ Forja CapCut Edition ✨</h1>
+        <p>A edição perfeita para sua Boot Animation! uwu</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo (MP4/WebM)</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
+        <!-- Vídeo -->
         <video id="player-video" controls playsinline></video>
 
-        <div class="configuracoes">
-            
-            <!-- A MÁGICA DO FORMATO JPEG! 🖼️✨ -->
+        <!-- Timeline estilo CapCut -->
+        <div class="timeline-wrapper" id="timeline-wrapper">
+            <div class="playhead-centro"></div>
+            <div class="timeline-scroll" id="timeline-scroll">
+                <div class="filmstrip-container">
+                    <div class="pad-spacer" id="pad-left"></div>
+                    <div class="filmstrip" id="filmstrip">
+                        <!-- Imagens e linhas vão entrar aqui via JS! -->
+                    </div>
+                    <div class="pad-spacer" id="pad-right"></div>
+                </div>
+            </div>
+        </div>
+
+        <p id="aviso-timeline" style="display: none; color: #03dac6; font-size: 12px;">Deslize a timeline para navegar! 👆</p>
+
+        <!-- Botões Livres de Marcação -->
+        <div class="grid-marcadores" id="grid-marcadores">
+            <button class="btn-marc btn-m0" onclick="marcarTrecho('m0')">📍 1. Início<span class="status-marc" id="st-m0">Não marcado</span></button>
+            <button class="btn-marc btn-m1" onclick="marcarTrecho('m1')">✂️ 2. Fim Início<span class="status-marc" id="st-m1">Não marcado</span></button>
+            <button class="btn-marc btn-m2" onclick="marcarTrecho('m2')">🔁 3. Fim Loop<span class="status-marc" id="st-m2">Não marcado</span></button>
+            <button class="btn-marc btn-m3" onclick="marcarTrecho('m3')">🏁 4. Final<span class="status-marc" id="st-m3">Não marcado</span></button>
+        </div>
+
+        <div class="configuracoes" id="configuracoes">
             <div class="campo campo-full">
                 <label>Formato das Fotos 🖼️</label>
                 <select id="input-formato">
-                    <option value="jpeg" selected>JPEG (O Segredo Mágico! Muito leve!) 🌟</option>
-                    <option value="png">PNG (Padrão, mas é pesadão) 🐢</option>
+                    <option value="jpeg" selected>JPEG (Muito leve! 12MB!) 🌟</option>
+                    <option value="png">PNG (Padrão pesadão) 🐢</option>
                 </select>
             </div>
-
             <div class="campo campo-full">
                 <label>Qualidade 📉</label>
                 <select id="input-qualidade">
-                    <option value="320">Ultra Leve (Batata! ~ 320p) 🥔</option>
-                    <option value="480" selected>Leve (Recomendado! ~ 480p) :3</option>
-                    <option value="720">Média (Atenção no peso! ~ 720p) owo</option>
+                    <option value="320">Ultra Leve (Batata! 320p) 🥔</option>
+                    <option value="480" selected>Leve (Recomendado! 480p) :3</option>
+                    <option value="720">Média (Pesado! 720p) owo</option>
                     <option value="1">Original (Gigante!) 💀</option>
                 </select>
             </div>
-            
-            <div class="campo campo-full">
-                <label>Velocidade (15 a 24 é o ideal!) 🎬</label>
-                <input type="number" id="input-fps" value="24">
-            </div>
+            <div class="campo campo-full"><label>Velocidade (FPS) 🎬</label><input type="number" id="input-fps" value="24"></div>
             <div class="campo"><label>Largura</label><input type="number" id="input-largura"></div>
             <div class="campo"><label>Altura</label><input type="number" id="input-altura"></div>
         </div>
 
-        <button id="btn-marcador" class="btn-desativado">Esperando vídeo... TwT</button>
+        <button id="btn-gerar" class="btn-gerar btn-desativado">Faltam Marcadores... TwT</button>
         
         <div class="container-progresso" id="container-progresso">
             <div class="texto-progresso" id="texto-progresso">0%</div>
@@ -113,19 +183,29 @@
     <script>
         const inputVideo = document.getElementById('upload-video');
         const playerVideo = document.getElementById('player-video');
-        const btnMarcador = document.getElementById('btn-marcador');
-        const containerProgresso = document.getElementById('container-progresso');
-        const barraPreenchimento = document.getElementById('barra-preenchimento');
-        const textoProgresso = document.getElementById('texto-progresso');
-        const selQualidade = document.getElementById('input-qualidade');
-        const selFormato = document.getElementById('input-formato');
+        const timelineWrapper = document.getElementById('timeline-wrapper');
+        const scrollTimeline = document.getElementById('timeline-scroll');
+        const filmstrip = document.getElementById('filmstrip');
+        const gridMarcadores = document.getElementById('grid-marcadores');
+        const configuracoes = document.getElementById('configuracoes');
+        const btnGerar = document.getElementById('btn-gerar');
+        const avisoTimeline = document.getElementById('aviso-timeline');
         
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
         
-        let etapaAtual = 0;
-        let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
+        // Estado Livre dos marcadores! :3
+        let marcadores = { m0: null, m1: null, m2: null, m3: null };
         let originalW = 0, originalH = 0;
+        let isDraggingTimeline = false;
+
+        // Ajuste dinâmico do tamanho do padding pra agulha ficar no meio certinho!
+        function ajustarPaddings() {
+            const pad = (scrollTimeline.clientWidth / 2) + "px";
+            document.getElementById('pad-left').style.minWidth = pad;
+            document.getElementById('pad-right').style.minWidth = pad;
+        }
+        window.addEventListener('resize', ajustarPaddings);
 
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
@@ -135,75 +215,156 @@
             leitor.onload = function(e) {
                 playerVideo.src = e.target.result; 
                 playerVideo.style.display = 'block';
-                etapaAtual = 0;
-                btnMarcador.textContent = "📍 Marcar Início da Animação";
-                btnMarcador.classList.remove('btn-desativado');
-                containerProgresso.style.display = 'none'; 
-                barraPreenchimento.style.width = '0%';
+                timelineWrapper.style.display = 'block';
+                gridMarcadores.style.display = 'grid';
+                configuracoes.style.display = 'grid';
+                btnGerar.style.display = 'block';
+                avisoTimeline.style.display = 'block';
+                
+                // Reseta tudo
+                marcadores = { m0: null, m1: null, m2: null, m3: null };
+                atualizarBotoesELinhas();
             };
             leitor.readAsDataURL(arquivo);
         });
 
-        playerVideo.addEventListener('loadedmetadata', function() {
+        playerVideo.addEventListener('loadedmetadata', async function() {
             originalW = playerVideo.videoWidth;
             originalH = playerVideo.videoHeight;
             atualizarTamanho();
+            ajustarPaddings();
+            
+            // MÁGICA: Gera as miniaturas do vídeo pra timeline! 🎞️
+            await desenharFilmstrip();
         });
 
-        selQualidade.addEventListener('change', atualizarTamanho);
+        // 🎬 Lógica de Scroll e Sincronia da Timeline (O Segredo do CapCut!)
+        scrollTimeline.addEventListener('pointerdown', () => { 
+            isDraggingTimeline = true; 
+            playerVideo.pause(); // Pausa pra não brigar com a timeline!
+        });
+        window.addEventListener('pointerup', () => { isDraggingTimeline = false; });
 
+        scrollTimeline.addEventListener('scroll', () => {
+            if (!isDraggingTimeline || !playerVideo.duration) return;
+            const scrollMax = filmstrip.offsetWidth;
+            let percent = scrollTimeline.scrollLeft / scrollMax;
+            percent = Math.max(0, Math.min(1, percent));
+            playerVideo.currentTime = percent * playerVideo.duration;
+        });
+
+        playerVideo.addEventListener('timeupdate', () => {
+            if (isDraggingTimeline || !playerVideo.duration) return;
+            // Se o vídeo estiver tocando sozinho, a timeline corre atrás dele! 🏃‍♀️
+            const percent = playerVideo.currentTime / playerVideo.duration;
+            scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
+        });
+
+        // 🖼️ Desenhador de Filmstrip
+        async function desenharFilmstrip() {
+            filmstrip.innerHTML = '';
+            const numFrames = 10;
+            canvasInvisivel.width = 100;
+            canvasInvisivel.height = Math.floor((originalH / originalW) * 100);
+            
+            for (let i = 0; i < numFrames; i++) {
+                playerVideo.currentTime = (i / numFrames) * playerVideo.duration;
+                await new Promise(r => {
+                    const cb = () => { playerVideo.removeEventListener('seeked', cb); r(); };
+                    playerVideo.addEventListener('seeked', cb);
+                });
+                contexto.drawImage(playerVideo, 0, 0, canvasInvisivel.width, canvasInvisivel.height);
+                const img = document.createElement('img');
+                img.src = canvasInvisivel.toDataURL('image/jpeg', 0.5);
+                filmstrip.appendChild(img);
+            }
+            playerVideo.currentTime = 0; // Volta pro começo!
+        }
+
+        // 🎛️ Função Mestra de Marcação Livre
+        window.marcarTrecho = function(id) {
+            marcadores[id] = playerVideo.currentTime;
+            atualizarBotoesELinhas();
+        }
+
+        function atualizarBotoesELinhas() {
+            // Limpa as linhas velhas
+            document.querySelectorAll('.linha-marcador').forEach(el => el.remove());
+
+            let tudoMarcado = true;
+            let temposOrdem = [];
+
+            ['m0', 'm1', 'm2', 'm3'].forEach(id => {
+                const tempo = marcadores[id];
+                const spanStatus = document.getElementById(`st-${id}`);
+                
+                if (tempo !== null) {
+                    spanStatus.textContent = tempo.toFixed(2) + 's';
+                    temposOrdem.push(tempo);
+                    
+                    // Desenha a linha na timeline! 📍
+                    const linha = document.createElement('div');
+                    linha.className = `linha-marcador linha-${id}`;
+                    linha.style.left = ((tempo / playerVideo.duration) * 100) + '%';
+                    filmstrip.appendChild(linha);
+                } else {
+                    spanStatus.textContent = "Não marcado";
+                    tudoMarcado = false;
+                }
+            });
+
+            // Validação de botão de gerar (Tem que marcar todos, e de preferência na ordem certa!)
+            if (tudoMarcado) {
+                if (temposOrdem[0] <= temposOrdem[1] && temposOrdem[1] <= temposOrdem[2] && temposOrdem[2] <= temposOrdem[3]) {
+                    btnGerar.classList.remove('btn-desativado');
+                    btnGerar.textContent = "🚀 GERAR BOOT ANIMATION!";
+                } else {
+                    btnGerar.classList.add('btn-desativado');
+                    btnGerar.textContent = "⚠️ Ordem errada! O início tem que vir antes do final!";
+                }
+            } else {
+                btnGerar.classList.add('btn-desativado');
+                btnGerar.textContent = "Faltam Marcadores... TwT";
+            }
+        }
+
+        // Sistema de Qualidade
+        document.getElementById('input-qualidade').addEventListener('change', atualizarTamanho);
         function atualizarTamanho() {
             if (!originalW || !originalH) return;
-            let val = selQualidade.value;
-            let w = originalW;
-            let h = originalH;
+            let val = document.getElementById('input-qualidade').value;
+            let w = originalW; let h = originalH;
 
-            if (val === "320" && originalW > 320) {
-                let proporcao = 320 / originalW; w = 320; h = Math.floor(originalH * proporcao);
-            } else if (val === "480" && originalW > 480) {
-                let proporcao = 480 / originalW; w = 480; h = Math.floor(originalH * proporcao);
-            } else if (val === "720" && originalW > 720) {
-                let proporcao = 720 / originalW; w = 720; h = Math.floor(originalH * proporcao);
-            }
+            if (val === "320" && originalW > 320) { w = 320; h = Math.floor(originalH * (320/originalW)); } 
+            else if (val === "480" && originalW > 480) { w = 480; h = Math.floor(originalH * (480/originalW)); } 
+            else if (val === "720" && originalW > 720) { w = 720; h = Math.floor(originalH * (720/originalW)); }
 
             w = Math.floor(w / 2) * 2; h = Math.floor(h / 2) * 2;
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
-        btnMarcador.addEventListener('click', () => {
-            const tempoAtual = playerVideo.currentTime;
-            if (etapaAtual === 0) { tempos.inicio = tempoAtual; etapaAtual = 1; btnMarcador.textContent = "✂️ Marcar Fim do Início"; }
-            else if (etapaAtual === 1) { tempos.fimParte0 = tempoAtual; etapaAtual = 2; btnMarcador.textContent = "🔁 Marcar Fim do Loop"; }
-            else if (etapaAtual === 2) { tempos.fimParte1 = tempoAtual; etapaAtual = 3; btnMarcador.textContent = "🏁 Marcar Fim da Animação"; }
-            else if (etapaAtual === 3) {
-                tempos.fimParte2 = tempoAtual; etapaAtual = 4;
-                btnMarcador.textContent = "🚀 GERAR E BAIXAR BOOT ANIMATION!";
-            } else if (etapaAtual === 4) {
-                iniciarGeracaoZip();
-            }
-        });
-
-        async function iniciarGeracaoZip() {
-            btnMarcador.classList.add('btn-desativado');
-            btnMarcador.textContent = "⏳ Forjando as fotos na velocidade da luz... ⚡";
-            containerProgresso.style.display = 'flex'; 
+        // GERAR! 🚀
+        btnGerar.addEventListener('click', async () => {
+            if (btnGerar.classList.contains('btn-desativado')) return;
+            
+            btnGerar.classList.add('btn-desativado');
+            btnGerar.textContent = "⏳ Forjando na velocidade da luz... ⚡";
+            document.getElementById('container-progresso').style.display = 'flex'; 
             
             try {
                 const zip = new JSZip();
                 const fps = parseInt(document.getElementById('input-fps').value) || 24;
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
-                const formatoEscolhido = selFormato.value;
-                
-                canvasInvisivel.width = largura; 
-                canvasInvisivel.height = altura;
+                const formato = document.getElementById('input-formato').value;
+                canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                await paparazzoVelocidadeDaLuz(zip, largura, altura, fps, formatoEscolhido);
+                await paparazzoDaTimeline(zip, largura, altura, fps, formato);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
-                textoProgresso.textContent = "Compactando a magia... (Aguarde!)";
-                btnMarcador.textContent = "📦 Fechando o zíper (STORE)... owo";
+                document.getElementById('texto-progresso').textContent = "Compactando... (Aguarde!)";
+                btnGerar.textContent = "📦 Fechando o zíper (STORE)... owo";
                 
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
                 
@@ -212,71 +373,50 @@
                 linkDownload.download = "bootanimation.zip";
                 linkDownload.click();
                 
-                textoProgresso.textContent = "Tudo Pronto! :3";
-                btnMarcador.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
-                setTimeout(() => { btnMarcador.classList.remove('btn-desativado'); }, 2000);
+                document.getElementById('texto-progresso').textContent = "Tudo Pronto! :3";
+                btnGerar.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
+                setTimeout(() => { btnGerar.classList.remove('btn-desativado'); }, 2000);
             } catch (erro) {
                 console.error(erro);
-                btnMarcador.textContent = "❌ Deu erro! TwT";
-                textoProgresso.textContent = "Erro!";
-                textoProgresso.style.color = "#ff5555";
+                btnGerar.textContent = "❌ Deu erro! TwT";
+                document.getElementById('texto-progresso').style.color = "#ff5555";
             }
-        }
+        });
 
-        async function paparazzoVelocidadeDaLuz(zip, largura, altura, fps, formato) {
-            const pasta0 = zip.folder("part0");
-            const pasta1 = zip.folder("part1");
-            const pasta2 = zip.folder("part2");
-
-            let c0 = 0, c1 = 0, c2 = 0;
+        async function paparazzoDaTimeline(zip, largura, altura, fps, formato) {
+            const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
+            let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
             const intervalo = 1 / fps;
-            let fotosTiradas = 0;
-            
-            const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
-
-            // Decidindo o formato de saída e a extensão!
+            const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
             const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
             const extensao = formato === 'jpeg' ? '.jpg' : '.png';
-            const qualidadeJPG = 0.8; // A compressão mágica do JPEG que não afeta tanto a beleza!
 
             playerVideo.pause();
 
-            for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
+            for (let tempo = marcadores.m0; tempo <= marcadores.m3; tempo += intervalo) {
                 playerVideo.currentTime = tempo;
-
                 await new Promise(resolve => {
-                    const aoCarregar = () => {
-                        playerVideo.removeEventListener('seeked', aoCarregar);
-                        resolve();
-                    };
-                    playerVideo.addEventListener('seeked', aoCarregar);
+                    const cb = () => { playerVideo.removeEventListener('seeked', cb); resolve(); };
+                    playerVideo.addEventListener('seeked', cb);
                 });
 
-                // Preenche o fundo de preto pra não bugar bordas do JPEG!
                 contexto.fillStyle = "#000000";
                 contexto.fillRect(0, 0, largura, altura);
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
-                let pastaAlvo = null; 
-                let numFoto = 0;
+                let pastaAlvo = null; let numFoto = 0;
+                if (tempo < marcadores.m1) { pastaAlvo = pasta0; numFoto = c0++; } 
+                else if (tempo < marcadores.m2) { pastaAlvo = pasta1; numFoto = c1++; } 
+                else { pastaAlvo = pasta2; numFoto = c2++; }
 
-                if (tempo < tempos.fimParte0) { 
-                    pastaAlvo = pasta0; numFoto = c0++; 
-                } else if (tempo < tempos.fimParte1) { 
-                    pastaAlvo = pasta1; numFoto = c1++; 
-                } else { 
-                    pastaAlvo = pasta2; numFoto = c2++; 
-                }
-
-                const nomeArquivo = String(numFoto).padStart(5, '0') + extensao;
-
-                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, qualidadeJPG));
-                if (blob) pastaAlvo.file(nomeArquivo, blob);
+                const nome = String(numFoto).padStart(5, '0') + extensao;
+                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.8));
+                if (blob) pastaAlvo.file(nome, blob);
 
                 fotosTiradas++;
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
-                barraPreenchimento.style.width = porcentagem + '%';
-                textoProgresso.textContent = `Forjando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
+                document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
+                document.getElementById('texto-progresso').textContent = `Forjando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
             }
         }
     </script>
