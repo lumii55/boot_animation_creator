@@ -7,136 +7,66 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
         
-        /* A REGRA DE OURO DO MOBILE! 📱✨ */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body { 
-            background-color: #121212; 
-            color: #ffffff; 
-            font-family: 'Fredoka', sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start;
-            padding: 15px; 
-            min-height: 100vh;
-            width: 100vw;
-            overflow-x: hidden; /* Trava qualquer rolagem lateral chata! >:3 */
+            background-color: #121212; color: #ffffff; font-family: 'Fredoka', sans-serif; 
+            display: flex; justify-content: center; align-items: flex-start;
+            padding: 15px; min-height: 100vh; width: 100vw; overflow-x: hidden; 
         }
 
         .container { 
-            width: 100%; 
-            max-width: 420px; /* Tamanho perfeito pra telas de celular! */
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 15px; 
+            width: 100%; max-width: 420px; display: flex; flex-direction: column; 
+            align-items: center; gap: 15px; 
         }
 
-        h1 { 
-            color: #bb86fc; 
-            text-align: center; 
-            font-size: 22px;
-            margin-top: 10px;
-        }
-
-        p { 
-            color: #aaaaaa; 
-            text-align: center; 
-            font-size: 13px; 
-        }
+        h1 { color: #bb86fc; text-align: center; font-size: 22px; margin-top: 10px; }
+        p { color: #aaaaaa; text-align: center; font-size: 13px; }
 
         .btn-upload { 
-            background-color: #bb86fc; 
-            color: #000; 
-            padding: 14px 20px; 
-            border-radius: 20px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            width: 100%; 
-            text-align: center; 
-            font-size: 15px;
-            transition: 0.2s; 
+            background-color: #bb86fc; color: #000; padding: 14px 20px; 
+            border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; 
+            text-align: center; font-size: 15px; transition: 0.2s; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
-        .btn-upload:active { 
-            transform: scale(0.96); 
-        }
+        .btn-upload:active { transform: scale(0.96); }
 
         video { 
-            width: 100%; 
-            max-height: 40vh; /* Não deixa o vídeo ocupar a tela inteira */
-            border-radius: 15px; 
-            display: none; 
-            background-color: #000; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-            object-fit: contain;
+            width: 100%; max-height: 40vh; border-radius: 15px; display: none; 
+            background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); object-fit: contain;
         }
 
-        .configuracoes { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            width: 100%; 
-        }
-
-        .campo-fps { 
-            grid-column: span 2; 
-        }
-
-        .campo { 
-            display: flex; 
-            flex-direction: column; 
-        }
-
-        .campo label { 
-            color: #bb86fc; 
-            margin-bottom: 4px; 
-            text-align: center; 
-            font-size: 13px; 
-        }
-
+        .configuracoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        .campo-fps { grid-column: span 2; }
+        .campo { display: flex; flex-direction: column; }
+        .campo label { color: #bb86fc; margin-bottom: 4px; text-align: center; font-size: 13px; }
         .campo input { 
-            background: #2a2a2a; 
-            border: 1px solid #444; 
-            color: #fff; 
-            padding: 10px; 
-            border-radius: 10px; 
-            text-align: center; 
-            font-family: 'Fredoka', sans-serif; 
-            font-size: 16px; /* 16px evita o zoom automático no Chrome do celular! owo */
-            width: 100%;
-            outline: none;
+            background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 10px; 
+            border-radius: 10px; text-align: center; font-family: 'Fredoka', sans-serif; 
+            font-size: 16px; width: 100%; outline: none;
         }
 
         button { 
-            background-color: #03dac6; 
-            color: #000; 
-            padding: 15px; 
-            border-radius: 20px; 
-            font-weight: 700; 
-            font-family: 'Fredoka', sans-serif; 
-            border: none; 
-            width: 100%; 
-            font-size: 15px; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background-color: #03dac6; color: #000; padding: 15px; border-radius: 20px; 
+            font-weight: 700; font-family: 'Fredoka', sans-serif; border: none; width: 100%; 
+            font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
+        button:active { transform: scale(0.96); }
+        .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        button:active { 
-            transform: scale(0.96); 
+        /* A BARRINHA DE PROGRESSO FOFA! :3 */
+        .container-progresso {
+            width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
         }
-
-        .btn-desativado { 
-            background-color: #444444 !important; 
-            color: #888888 !important; 
-            pointer-events: none; 
-            box-shadow: none;
+        .texto-progresso {
+            font-size: 12px; color: #03dac6; text-align: center; font-weight: 700;
+        }
+        .barra-fundo {
+            width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden;
+        }
+        .barra-preenchimento {
+            height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px;
+            transition: width 0.1s linear;
         }
     </style>
 </head>
@@ -157,6 +87,14 @@
         </div>
 
         <button id="btn-marcador" class="btn-desativado">Esperando vídeo... TwT</button>
+        
+        <!-- A estrutura da nossa barrinha! owo -->
+        <div class="container-progresso" id="container-progresso">
+            <div class="texto-progresso" id="texto-progresso">0%</div>
+            <div class="barra-fundo">
+                <div class="barra-preenchimento" id="barra-preenchimento"></div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -164,6 +102,10 @@
         const inputVideo = document.getElementById('upload-video');
         const playerVideo = document.getElementById('player-video');
         const btnMarcador = document.getElementById('btn-marcador');
+        const containerProgresso = document.getElementById('container-progresso');
+        const barraPreenchimento = document.getElementById('barra-preenchimento');
+        const textoProgresso = document.getElementById('texto-progresso');
+        
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { willReadFrequently: true });
         
@@ -178,6 +120,8 @@
             etapaAtual = 0;
             btnMarcador.textContent = "📍 Marcar Início da Animação";
             btnMarcador.classList.remove('btn-desativado');
+            containerProgresso.style.display = 'none'; // Esconde a barrinha ao trocar de vídeo!
+            barraPreenchimento.style.width = '0%';
         });
 
         playerVideo.addEventListener('loadedmetadata', function() {
@@ -201,6 +145,8 @@
         async function iniciarGeracaoZip() {
             btnMarcador.classList.add('btn-desativado');
             btnMarcador.textContent = "⏳ Tirando as fotos... uwu";
+            containerProgresso.style.display = 'flex'; // Mostra a barrinha linda! >:3
+            
             try {
                 const zip = new JSZip();
                 const fps = parseInt(document.getElementById('input-fps').value) || 30;
@@ -211,7 +157,9 @@
                 await paparazzoDeFrames(zip, largura, altura, fps);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
-                btnMarcador.textContent = "📦 Compactando a magia... (Aguarde!)";
+                
+                textoProgresso.textContent = "Compactando a magia... (Aguarde!)";
+                btnMarcador.textContent = "📦 Fechando o zíper... owo";
                 
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
                 
@@ -220,11 +168,14 @@
                 linkDownload.download = "bootanimation.zip";
                 linkDownload.click();
                 
+                textoProgresso.textContent = "Pronto! :3";
                 btnMarcador.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
                 setTimeout(() => { btnMarcador.classList.remove('btn-desativado'); }, 2000);
             } catch (erro) {
                 console.error(erro);
                 btnMarcador.textContent = "❌ Deu erro! TwT";
+                textoProgresso.textContent = "Erro!";
+                textoProgresso.style.color = "#ff5555";
             }
         }
 
@@ -235,6 +186,10 @@
 
             let c0 = 0, c1 = 0, c2 = 0;
             const intervalo = 1 / fps;
+            let fotosTiradas = 0;
+            
+            // Calcula o total de fotos pra barrinha de progresso não se perder! uwu
+            const totalFotos = Math.floor((tempos.fimParte2 - tempos.inicio) / intervalo) + 1;
 
             playerVideo.pause();
 
@@ -244,29 +199,40 @@
                 await new Promise(resolve => {
                     const aoCarregar = () => {
                         playerVideo.removeEventListener('seeked', aoCarregar);
-                        setTimeout(resolve, 20); 
+                        // O TRUQUE DE MESTRE: Obriga o Chrome a desenhar a tela antes da gente capturar! :3
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(resolve);
+                        });
                     };
                     playerVideo.addEventListener('seeked', aoCarregar);
                 });
 
-                contexto.clearRect(0, 0, largura, altura);
+                // Pinta o fundo de preto absoluto pra nunca mais ter foto transparente! >:3
+                contexto.fillStyle = "#000000";
+                contexto.fillRect(0, 0, largura, altura);
+                // Desenha o vídeo por cima do preto!
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; 
                 let numFoto = 0;
 
                 if (tempo < tempos.fimParte0) { 
-                    pastaAlvo = pasta0; numFoto = c0++; btnMarcador.textContent = `📸 Part 0... (${numFoto})`; 
+                    pastaAlvo = pasta0; numFoto = c0++; 
                 } else if (tempo < tempos.fimParte1) { 
-                    pastaAlvo = pasta1; numFoto = c1++; btnMarcador.textContent = `📸 Part 1... (${numFoto})`; 
+                    pastaAlvo = pasta1; numFoto = c1++; 
                 } else { 
-                    pastaAlvo = pasta2; numFoto = c2++; btnMarcador.textContent = `📸 Part 2... (${numFoto})`; 
+                    pastaAlvo = pasta2; numFoto = c2++; 
                 }
 
                 const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
-
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
                 if (blob) pastaAlvo.file(nomeArquivo, blob);
+
+                // Atualiza a barrinha de progresso fofinha! :P
+                fotosTiradas++;
+                const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
+                barraPreenchimento.style.width = porcentagem + '%';
+                textoProgresso.textContent = `Tirando foto ${fotosTiradas} de ${totalFotos} (${porcentagem}%)`;
             }
         }
     </script>
