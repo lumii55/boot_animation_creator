@@ -62,7 +62,7 @@
         
         .filmstrip { 
             display: flex; height: 100%; position: relative; 
-            background-color: #111;
+            background-color: #111; user-select: none; /* Impede bugar o arraste */
         }
         .filmstrip img { height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none; flex: 1; }
         
@@ -183,7 +183,10 @@
                     <option value="1">Original (Gigante!)</option>
                 </select>
             </div>
-            <div class="campo campo-full"><label>Velocidade (FPS) 🎬</label><input type="number" id="input-fps" value="24"></div>
+            <div class="campo campo-full">
+                <label>Velocidade (FPS) 🎬</label>
+                <input type="number" id="input-fps" value="24" min="1" max="60">
+            </div>
             <div class="campo"><label>Largura</label><input type="number" id="input-largura" readonly></div>
             <div class="campo"><label>Altura</label><input type="number" id="input-altura" readonly></div>
         </div>
@@ -261,9 +264,46 @@
             document.getElementById('container-progresso').style.display = 'none';
         });
 
-        scrollTimeline.addEventListener('pointerdown', () => { isDraggingTimeline = true; playerVideo.pause(); });
-        window.addEventListener('pointerup', () => { isDraggingTimeline = false; });
+        // 🖱️ MAGIA DO ARRASTE COM O MOUSE (PC) E TOQUE (CELULAR) ✨
+        let isMouseDown = false;
+        let startX;
+        let scrollLeftPos;
 
+        // Celular
+        scrollTimeline.addEventListener('touchstart', () => { isDraggingTimeline = true; playerVideo.pause(); }, {passive: true});
+        window.addEventListener('touchend', () => { isDraggingTimeline = false; });
+        
+        // PC (Mouse Normal)
+        scrollTimeline.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            isDraggingTimeline = true;
+            playerVideo.pause();
+            startX = e.pageX - scrollTimeline.offsetLeft;
+            scrollLeftPos = scrollTimeline.scrollLeft;
+            scrollTimeline.style.cursor = 'grabbing';
+        });
+
+        scrollTimeline.addEventListener('mouseleave', () => {
+            isMouseDown = false;
+            isDraggingTimeline = false;
+            scrollTimeline.style.cursor = 'grab';
+        });
+
+        window.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            isDraggingTimeline = false;
+            scrollTimeline.style.cursor = 'grab';
+        });
+
+        scrollTimeline.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollTimeline.offsetLeft;
+            const walk = (x - startX) * 1.5; // Velocidade do deslize
+            scrollTimeline.scrollLeft = scrollLeftPos - walk;
+        });
+
+        // A Timeline atualiza o vídeo!
         scrollTimeline.addEventListener('scroll', () => {
             if (!isDraggingTimeline || !playerVideo.duration) return;
             const scrollMax = filmstrip.offsetWidth;
@@ -371,7 +411,10 @@
             
             try {
                 const zip = new JSZip();
-                const fps = parseInt(document.getElementById('input-fps').value) || 24;
+                // Limita o FPS até o 60 pra não dar ruim! owo
+                let fps = parseInt(document.getElementById('input-fps').value) || 24;
+                fps = Math.min(60, Math.max(1, fps));
+
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
                 const formato = document.getElementById('input-formato').value;
@@ -420,7 +463,6 @@
             if (deveGerarGif) {
                 document.getElementById('texto-progresso').textContent = "Iniciando motor de GIF... ⚙️";
                 try {
-                    // Baixando o script de trás direto da fonte para não bugar!
                     const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
                     gifH = Math.floor(altura * (250 / largura));
                     
