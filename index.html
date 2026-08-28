@@ -6,21 +6,138 @@
     <title>✨ Forja de Boot Animations ✨</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
-        body { background-color: #121212; color: #ffffff; font-family: 'Fredoka', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; min-height: 100vh; }
-        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        h1 { color: #bb86fc; margin-bottom: 0; text-align: center; }
-        p { color: #aaaaaa; text-align: center; margin-top: 0; font-size: 14px; }
-        .btn-upload { background-color: #bb86fc; color: #000; padding: 15px 24px; border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; text-align: center; box-sizing: border-box; transition: 0.2s; }
-        .btn-upload:active { transform: scale(0.95); }
-        video { width: 100%; border-radius: 15px; display: none; background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .configuracoes { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .campo-fps { grid-column: span 2; }
-        .campo { display: flex; flex-direction: column; }
-        .campo label { color: #bb86fc; margin-bottom: 5px; text-align: center; font-size: 14px; }
-        .campo input { background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 10px; text-align: center; font-family: 'Fredoka', sans-serif; font-size: 16px; }
-        button { background-color: #03dac6; color: #000; padding: 15px; border-radius: 20px; font-weight: 700; font-family: 'Fredoka', sans-serif; border: none; width: 100%; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        .btn-desativado { background-color: #555555 !important; color: #999999 !important; pointer-events: none; }
+        
+        /* A REGRA DE OURO DO MOBILE! 📱✨ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body { 
+            background-color: #121212; 
+            color: #ffffff; 
+            font-family: 'Fredoka', sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start;
+            padding: 15px; 
+            min-height: 100vh;
+            width: 100vw;
+            overflow-x: hidden; /* Trava qualquer rolagem lateral chata! >:3 */
+        }
+
+        .container { 
+            width: 100%; 
+            max-width: 420px; /* Tamanho perfeito pra telas de celular! */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 15px; 
+        }
+
+        h1 { 
+            color: #bb86fc; 
+            text-align: center; 
+            font-size: 22px;
+            margin-top: 10px;
+        }
+
+        p { 
+            color: #aaaaaa; 
+            text-align: center; 
+            font-size: 13px; 
+        }
+
+        .btn-upload { 
+            background-color: #bb86fc; 
+            color: #000; 
+            padding: 14px 20px; 
+            border-radius: 20px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            width: 100%; 
+            text-align: center; 
+            font-size: 15px;
+            transition: 0.2s; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .btn-upload:active { 
+            transform: scale(0.96); 
+        }
+
+        video { 
+            width: 100%; 
+            max-height: 40vh; /* Não deixa o vídeo ocupar a tela inteira */
+            border-radius: 15px; 
+            display: none; 
+            background-color: #000; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+            object-fit: contain;
+        }
+
+        .configuracoes { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            width: 100%; 
+        }
+
+        .campo-fps { 
+            grid-column: span 2; 
+        }
+
+        .campo { 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .campo label { 
+            color: #bb86fc; 
+            margin-bottom: 4px; 
+            text-align: center; 
+            font-size: 13px; 
+        }
+
+        .campo input { 
+            background: #2a2a2a; 
+            border: 1px solid #444; 
+            color: #fff; 
+            padding: 10px; 
+            border-radius: 10px; 
+            text-align: center; 
+            font-family: 'Fredoka', sans-serif; 
+            font-size: 16px; /* 16px evita o zoom automático no Chrome do celular! owo */
+            width: 100%;
+            outline: none;
+        }
+
+        button { 
+            background-color: #03dac6; 
+            color: #000; 
+            padding: 15px; 
+            border-radius: 20px; 
+            font-weight: 700; 
+            font-family: 'Fredoka', sans-serif; 
+            border: none; 
+            width: 100%; 
+            font-size: 15px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        button:active { 
+            transform: scale(0.96); 
+        }
+
+        .btn-desativado { 
+            background-color: #444444 !important; 
+            color: #888888 !important; 
+            pointer-events: none; 
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
@@ -91,7 +208,6 @@
                 const altura = parseInt(document.getElementById('input-altura').value);
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                // Aqui a gente chama a nossa nova função Stop-Motion! :3
                 await paparazzoDeFrames(zip, largura, altura, fps);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
@@ -112,7 +228,6 @@
             }
         }
 
-        // A NOVA MÁGICA: O Modo Stop-Motion Seguro! 📸✨
         async function paparazzoDeFrames(zip, largura, altura, fps) {
             const pasta0 = zip.folder("part0");
             const pasta1 = zip.folder("part1");
@@ -121,25 +236,19 @@
             let c0 = 0, c1 = 0, c2 = 0;
             const intervalo = 1 / fps;
 
-            // Pausar o vídeo pra gente ter controle absoluto!
             playerVideo.pause();
 
             for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
-                
-                // Vai para o frame exato
                 playerVideo.currentTime = tempo;
 
-                // Espera o celular carregar a imagem na tela (sem pressa pra não bugar!)
                 await new Promise(resolve => {
                     const aoCarregar = () => {
                         playerVideo.removeEventListener('seeked', aoCarregar);
-                        // Um tempinho extra de 20ms pro Chrome "respirar" e desenhar o frame :3
                         setTimeout(resolve, 20); 
                     };
                     playerVideo.addEventListener('seeked', aoCarregar);
                 });
 
-                // Desenha no Canvas do jeito tradicional (o único que funciona 100% no Android)
                 contexto.clearRect(0, 0, largura, altura);
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
@@ -156,7 +265,6 @@
 
                 const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
 
-                // Transforma em imagem e guarda no ZIP, esperando acabar pra ir pro próximo!
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
                 if (blob) pastaAlvo.file(nomeArquivo, blob);
             }
