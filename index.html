@@ -73,19 +73,21 @@
         <video id="player-video" controls playsinline></video>
 
         <div class="configuracoes">
-            <!-- A MÁGICA DA DIETA TÁ AQUI! 🪄 -->
             <div class="campo campo-full">
                 <label>Qualidade (Tamanho do ZIP) 📉</label>
                 <select id="input-qualidade">
-                    <option value="480" selected>Leve (Recomendado! ~ 480p) :3</option>
-                    <option value="720">Média (Atenção no peso! ~ 720p) owo</option>
-                    <option value="1">Original (Cuidado! Muito pesado!) 💀</option>
+                    <!-- Nova opção batata que salva o peso! -->
+                    <option value="320" selected>Ultra Leve (Batata! ~ 320p) 🥔</option>
+                    <option value="480">Leve (~ 480p) :3</option>
+                    <option value="720">Média (Pesado! ~ 720p) owo</option>
+                    <option value="1">Original (Gigante!) 💀</option>
                 </select>
             </div>
             
             <div class="campo campo-full">
+                <!-- 15 FPS é o segredo de ouro pra boot animations leves! -->
                 <label>Velocidade (15 a 24 é o ideal!) 🎬</label>
-                <input type="number" id="input-fps" value="24">
+                <input type="number" id="input-fps" value="15">
             </div>
             <div class="campo"><label>Largura</label><input type="number" id="input-largura"></div>
             <div class="campo"><label>Altura</label><input type="number" id="input-altura"></div>
@@ -133,14 +135,12 @@
             leitor.readAsDataURL(arquivo);
         });
 
-        // Grava o tamanho original do vídeo!
         playerVideo.addEventListener('loadedmetadata', function() {
             originalW = playerVideo.videoWidth;
             originalH = playerVideo.videoHeight;
             atualizarTamanho();
         });
 
-        // Se a pessoa mudar a opção de qualidade, atualiza na hora os números! :3
         selQualidade.addEventListener('change', atualizarTamanho);
 
         function atualizarTamanho() {
@@ -149,8 +149,12 @@
             let w = originalW;
             let h = originalH;
 
-            // Encolhendo o vídeo de acordo com o que escolheu!
-            if (val === "480" && originalW > 480) {
+            // O MODO BATATA TÁ ON! 🥔
+            if (val === "320" && originalW > 320) {
+                let proporcao = 320 / originalW;
+                w = 320;
+                h = Math.floor(originalH * proporcao);
+            } else if (val === "480" && originalW > 480) {
                 let proporcao = 480 / originalW;
                 w = 480;
                 h = Math.floor(originalH * proporcao);
@@ -160,7 +164,6 @@
                 h = Math.floor(originalH * proporcao);
             }
 
-            // O sistema Android gosta de números pares pra vídeos, então vamos arredondar!
             w = Math.floor(w / 2) * 2;
             h = Math.floor(h / 2) * 2;
 
@@ -188,7 +191,7 @@
             
             try {
                 const zip = new JSZip();
-                const fps = parseInt(document.getElementById('input-fps').value) || 24;
+                const fps = parseInt(document.getElementById('input-fps').value) || 15;
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
                 
