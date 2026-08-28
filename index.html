@@ -91,6 +91,7 @@
                 const altura = parseInt(document.getElementById('input-altura').value);
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
+                // Aqui a gente chama a nossa nova função Stop-Motion! :3
                 await paparazzoDeFrames(zip, largura, altura, fps);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
@@ -111,46 +112,54 @@
             }
         }
 
-        function paparazzoDeFrames(zip, largura, altura, fps) {
-            return new Promise((resolve) => {
-                const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
-                let c0 = 0, c1 = 0, c2 = 0;
-                let promessasDeFotos = []; 
-                playerVideo.playbackRate = 0.25; playerVideo.muted = true; 
-                let proximoTempoAlvo = tempos.inicio, processando = true, tirandoFoto = false;
+        // A NOVA MÁGICA: O Modo Stop-Motion Seguro! 📸✨
+        async function paparazzoDeFrames(zip, largura, altura, fps) {
+            const pasta0 = zip.folder("part0");
+            const pasta1 = zip.folder("part1");
+            const pasta2 = zip.folder("part2");
 
-                const capturarQuadro = async () => {
-                    if (!processando) return;
-                    if (playerVideo.currentTime >= tempos.fimParte2) {
-                        processando = false; playerVideo.pause(); playerVideo.playbackRate = 1.0; 
-                        btnMarcador.textContent = "⌛ Revelando fotos... owo";
-                        Promise.all(promessasDeFotos).then(() => resolve());
-                        return;
-                    }
-                    if (playerVideo.currentTime >= proximoTempoAlvo && !tirandoFoto) {
-                        tirandoFoto = true; 
-                        try {
-                            const img = await createImageBitmap(playerVideo);
-                            contexto.clearRect(0, 0, largura, altura);
-                            contexto.drawImage(img, 0, 0, largura, altura);
-                            img.close(); 
-                        } catch (e) { contexto.drawImage(playerVideo, 0, 0, largura, altura); }
+            let c0 = 0, c1 = 0, c2 = 0;
+            const intervalo = 1 / fps;
 
-                        let pastaAlvo = null, nome = "";
-                        if (playerVideo.currentTime < tempos.fimParte0) { pastaAlvo = pasta0; nome = String(c0++).padStart(5, '0'); } 
-                        else if (playerVideo.currentTime < tempos.fimParte1) { pastaAlvo = pasta1; nome = String(c1++).padStart(5, '0'); } 
-                        else { pastaAlvo = pasta2; nome = String(c2++).padStart(5, '0'); }
+            // Pausar o vídeo pra gente ter controle absoluto!
+            playerVideo.pause();
 
-                        promessasDeFotos.push(new Promise(res => {
-                            canvasInvisivel.toBlob((blob) => { if (blob) pastaAlvo.file(nome + '.png', blob); res(); }, 'image/png'); 
-                        }));
-                        proximoTempoAlvo += (1 / fps); tirandoFoto = false; 
-                    }
-                    requestAnimationFrame(capturarQuadro);
-                };
-                playerVideo.currentTime = tempos.inicio;
-                setTimeout(() => { playerVideo.play().then(capturarQuadro); }, 500);
-            });
+            for (let tempo = tempos.inicio; tempo <= tempos.fimParte2; tempo += intervalo) {
+                
+                // Vai para o frame exato
+                playerVideo.currentTime = tempo;
+
+                // Espera o celular carregar a imagem na tela (sem pressa pra não bugar!)
+                await new Promise(resolve => {
+                    const aoCarregar = () => {
+                        playerVideo.removeEventListener('seeked', aoCarregar);
+                        // Um tempinho extra de 20ms pro Chrome "respirar" e desenhar o frame :3
+                        setTimeout(resolve, 20); 
+                    };
+                    playerVideo.addEventListener('seeked', aoCarregar);
+                });
+
+                // Desenha no Canvas do jeito tradicional (o único que funciona 100% no Android)
+                contexto.clearRect(0, 0, largura, altura);
+                contexto.drawImage(playerVideo, 0, 0, largura, altura);
+
+                let pastaAlvo = null; 
+                let numFoto = 0;
+
+                if (tempo < tempos.fimParte0) { 
+                    pastaAlvo = pasta0; numFoto = c0++; btnMarcador.textContent = `📸 Part 0... (${numFoto})`; 
+                } else if (tempo < tempos.fimParte1) { 
+                    pastaAlvo = pasta1; numFoto = c1++; btnMarcador.textContent = `📸 Part 1... (${numFoto})`; 
+                } else { 
+                    pastaAlvo = pasta2; numFoto = c2++; btnMarcador.textContent = `📸 Part 2... (${numFoto})`; 
+                }
+
+                const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
+
+                // Transforma em imagem e guarda no ZIP, esperando acabar pra ir pro próximo!
+                const blob = await new Promise(res => canvasInvisivel.toBlob(res, 'image/png'));
+                if (blob) pastaAlvo.file(nomeArquivo, blob);
+            }
         }
     </script>
 </body>
