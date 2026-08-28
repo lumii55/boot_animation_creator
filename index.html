@@ -17,7 +17,7 @@
 
         .container { 
             width: 100%; max-width: 420px; display: flex; flex-direction: column; 
-            align-items: center; gap: 15px; 
+            align-items: center; gap: 15px; padding-bottom: 50px;
         }
 
         h1 { color: #bb86fc; text-align: center; font-size: 22px; margin-top: 10px; }
@@ -54,12 +54,16 @@
         button:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
+        .btn-teste { background-color: #ff5555; color: #fff; margin-top: 10px; }
+
         .container-progresso {
             width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px;
         }
         .texto-progresso { font-size: 12px; color: #03dac6; text-align: center; font-weight: 700; }
         .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
         .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
+
+        #img-teste { width: 100%; border-radius: 15px; margin-top: 10px; display: none; border: 2px solid #ff5555; }
     </style>
 </head>
 <body>
@@ -71,6 +75,10 @@
         <input type="file" id="upload-video" accept="video/*" hidden>
 
         <video id="player-video" controls playsinline></video>
+
+        <!-- O BOTÃO DE TESTE PARA INVESTIGAR O FIREFOX! 🕵️‍♀️ -->
+        <button id="btn-teste" class="btn-teste" style="display: none;">📸 Tirar Foto de Teste</button>
+        <img id="img-teste" alt="Foto de Teste">
 
         <div class="configuracoes">
             <div class="campo campo-fps"><label>Velocidade (FPS)</label><input type="number" id="input-fps" value="30"></div>
@@ -94,6 +102,8 @@
         const containerProgresso = document.getElementById('container-progresso');
         const barraPreenchimento = document.getElementById('barra-preenchimento');
         const textoProgresso = document.getElementById('texto-progresso');
+        const btnTeste = document.getElementById('btn-teste');
+        const imgTeste = document.getElementById('img-teste');
         
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d'); 
@@ -106,16 +116,35 @@
             if (!arquivo) return;
             playerVideo.src = URL.createObjectURL(arquivo);
             playerVideo.style.display = 'block';
+            btnTeste.style.display = 'block'; // Mostra o botão de teste!
             etapaAtual = 0;
             btnMarcador.textContent = "📍 Marcar Início da Animação";
             btnMarcador.classList.remove('btn-desativado');
             containerProgresso.style.display = 'none'; 
             barraPreenchimento.style.width = '0%';
+            imgTeste.style.display = 'none';
         });
 
         playerVideo.addEventListener('loadedmetadata', function() {
             document.getElementById('input-largura').value = playerVideo.videoWidth;
             document.getElementById('input-altura').value = playerVideo.videoHeight;
+        });
+
+        // O SISTEMA DE TESTE! 📸
+        btnTeste.addEventListener('click', () => {
+            canvasInvisivel.width = playerVideo.videoWidth;
+            canvasInvisivel.height = playerVideo.videoHeight;
+            
+            // Pinta um fundo de vermelho berrante!
+            contexto.fillStyle = "#ff0000";
+            contexto.fillRect(0, 0, canvasInvisivel.width, canvasInvisivel.height);
+            
+            // Tenta desenhar o vídeo por cima
+            contexto.drawImage(playerVideo, 0, 0, canvasInvisivel.width, canvasInvisivel.height);
+            
+            // Tira a foto e mostra na tela!
+            imgTeste.src = canvasInvisivel.toDataURL('image/png');
+            imgTeste.style.display = 'block';
         });
 
         btnMarcador.addEventListener('click', () => {
@@ -168,7 +197,6 @@
             }
         }
 
-        // A MÁGICA FINAL: O VÍDEO RODA SOZINHO! 🎬✨
         function paparazzoLentoEReal(zip, largura, altura, fps) {
             return new Promise((resolve) => {
                 const pasta0 = zip.folder("part0");
@@ -182,16 +210,13 @@
                 
                 let proximoTempoAlvo = tempos.inicio;
 
-                // Volta pro começo e toca beeeeem devagar pra não pular frames!
                 playerVideo.currentTime = tempos.inicio;
                 playerVideo.playbackRate = 0.25; 
                 playerVideo.muted = true; 
 
-                // Dá o Play!
                 playerVideo.play().then(() => {
                     
                     const vigiarTela = async () => {
-                        // Passou do final? Acabou!
                         if (playerVideo.currentTime >= tempos.fimParte2) {
                             playerVideo.pause();
                             playerVideo.playbackRate = 1.0;
@@ -199,11 +224,9 @@
                             return;
                         }
 
-                        // Chegou na hora da foto?
                         if (playerVideo.currentTime >= proximoTempoAlvo) {
-                            playerVideo.pause(); // Congela pra tirar a foto perfeitamente!
+                            playerVideo.pause(); 
 
-                            // Forçamos o fundo preto pra garantir!
                             contexto.fillStyle = "#000000";
                             contexto.fillRect(0, 0, largura, altura);
                             contexto.drawImage(playerVideo, 0, 0, largura, altura);
@@ -215,7 +238,6 @@
 
                             const nomeArquivo = String(numFoto).padStart(5, '0') + '.png';
                             
-                            // Aguarda salvar a foto antes de voltar a tocar o vídeo
                             await new Promise(res => {
                                 canvasInvisivel.toBlob((blob) => {
                                     if (blob) pastaAlvo.file(nomeArquivo, blob);
@@ -229,12 +251,10 @@
                             textoProgresso.textContent = `Tirando foto ${fotosTiradas} de ${totalFotos} (${porcentagem}%)`;
 
                             proximoTempoAlvo += intervalo;
-                            playerVideo.play(); // Volta a tocar!
+                            playerVideo.play(); 
                         }
-                        
-                        requestAnimationFrame(vigiarTela); // Fica de olho na tela!
+                        requestAnimationFrame(vigiarTela);
                     };
-                    
                     requestAnimationFrame(vigiarTela);
                 });
             });
