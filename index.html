@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✨ Forja de Boot Animations ✨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
+        body { background-color: #121212; color: #ffffff; font-family: 'Fredoka', sans-serif; display: flex; justify-content: center; padding: 20px; margin: 0; min-height: 100vh; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        h1 { color: #bb86fc; margin-bottom: 0; text-align: center; }
+        p { color: #aaaaaa; text-align: center; margin-top: 0; font-size: 14px; }
+        .btn-upload { background-color: #bb86fc; color: #000; padding: 15px 24px; border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; text-align: center; box-sizing: border-box; transition: 0.2s; }
+        .btn-upload:active { transform: scale(0.95); }
+        video { width: 100%; border-radius: 15px; display: none; background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .configuracoes { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .campo-fps { grid-column: span 2; }
+        .campo { display: flex; flex-direction: column; }
+        .campo label { color: #bb86fc; margin-bottom: 5px; text-align: center; font-size: 14px; }
+        .campo input { background: #2a2a2a; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 10px; text-align: center; font-family: 'Fredoka', sans-serif; font-size: 16px; }
+        button { background-color: #03dac6; color: #000; padding: 15px; border-radius: 20px; font-weight: 700; font-family: 'Fredoka', sans-serif; border: none; width: 100%; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+        .btn-desativado { background-color: #555555 !important; color: #999999 !important; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Forja de Animações ✨</h1>
+        <p>Faça sua própria Boot Animation perfeita! uwu</p>
+
+        <label for="upload-video" class="btn-upload">📂 Escolher Vídeo da Galeria</label>
+        <input type="file" id="upload-video" accept="video/*" hidden>
+
+        <video id="player-video" controls playsinline></video>
+
+        <div class="configuracoes">
+            <div class="campo campo-fps"><label>Velocidade (FPS)</label><input type="number" id="input-fps" value="30"></div>
+            <div class="campo"><label>Largura</label><input type="number" id="input-largura" readonly></div>
+            <div class="campo"><label>Altura</label><input type="number" id="input-altura" readonly></div>
+        </div>
+
+        <button id="btn-marcador" class="btn-desativado">Esperando vídeo... TwT</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        const inputVideo = document.getElementById('upload-video');
+        const playerVideo = document.getElementById('player-video');
+        const btnMarcador = document.getElementById('btn-marcador');
+        const canvasInvisivel = document.createElement('canvas');
+        const contexto = canvasInvisivel.getContext('2d', { willReadFrequently: true });
+        
+        let etapaAtual = 0;
+        let tempos = { inicio: 0, fimParte0: 0, fimParte1: 0, fimParte2: 0 };
+
+        inputVideo.addEventListener('change', function(evento) {
+            const arquivo = evento.target.files[0];
+            if (!arquivo) return;
+            playerVideo.src = URL.createObjectURL(arquivo);
+            playerVideo.style.display = 'block';
+            etapaAtual = 0;
+            btnMarcador.textContent = "📍 Marcar Início da Animação";
+            btnMarcador.classList.remove('btn-desativado');
+        });
+
+        playerVideo.addEventListener('loadedmetadata', function() {
+            document.getElementById('input-largura').value = playerVideo.videoWidth;
+            document.getElementById('input-altura').value = playerVideo.videoHeight;
+        });
+
+        btnMarcador.addEventListener('click', () => {
+            const tempoAtual = playerVideo.currentTime;
+            if (etapaAtual === 0) { tempos.inicio = tempoAtual; etapaAtual = 1; btnMarcador.textContent = "✂️ Marcar Fim do Início (Começo do Loop)"; }
+            else if (etapaAtual === 1) { tempos.fimParte0 = tempoAtual; etapaAtual = 2; btnMarcador.textContent = "🔁 Marcar Fim do Loop (Começo do Final)"; }
+            else if (etapaAtual === 2) { tempos.fimParte1 = tempoAtual; etapaAtual = 3; btnMarcador.textContent = "🏁 Marcar Fim da Animação"; }
+            else if (etapaAtual === 3) {
+                tempos.fimParte2 = tempoAtual; etapaAtual = 4;
+                btnMarcador.textContent = "🚀 GERAR E BAIXAR BOOT ANIMATION!";
+            } else if (etapaAtual === 4) {
+                iniciarGeracaoZip();
+            }
+        });
+
+        async function iniciarGeracaoZip() {
+            btnMarcador.classList.add('btn-desativado');
+            btnMarcador.textContent = "⏳ Tirando as fotos... uwu";
+            try {
+                const zip = new JSZip();
+                const fps = parseInt(document.getElementById('input-fps').value) || 30;
+                const largura = parseInt(document.getElementById('input-largura').value);
+                const altura = parseInt(document.getElementById('input-altura').value);
+                canvasInvisivel.width = largura; canvasInvisivel.height = altura;
+
+                await paparazzoDeFrames(zip, largura, altura, fps);
+
+                zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
+                btnMarcador.textContent = "📦 Compactando a magia... (Aguarde!)";
+                
+                const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
+                
+                const linkDownload = document.createElement("a");
+                linkDownload.href = URL.createObjectURL(conteudoZip);
+                linkDownload.download = "bootanimation.zip";
+                linkDownload.click();
+                
+                btnMarcador.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
+                setTimeout(() => { btnMarcador.classList.remove('btn-desativado'); }, 2000);
+            } catch (erro) {
+                console.error(erro);
+                btnMarcador.textContent = "❌ Deu erro! TwT";
+            }
+        }
+
+        function paparazzoDeFrames(zip, largura, altura, fps) {
+            return new Promise((resolve) => {
+                const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
+                let c0 = 0, c1 = 0, c2 = 0;
+                let promessasDeFotos = []; 
+                playerVideo.playbackRate = 0.25; playerVideo.muted = true; 
+                let proximoTempoAlvo = tempos.inicio, processando = true, tirandoFoto = false;
+
+                const capturarQuadro = async () => {
+                    if (!processando) return;
+                    if (playerVideo.currentTime >= tempos.fimParte2) {
+                        processando = false; playerVideo.pause(); playerVideo.playbackRate = 1.0; 
+                        btnMarcador.textContent = "⌛ Revelando fotos... owo";
+                        Promise.all(promessasDeFotos).then(() => resolve());
+                        return;
+                    }
+                    if (playerVideo.currentTime >= proximoTempoAlvo && !tirandoFoto) {
+                        tirandoFoto = true; 
+                        try {
+                            const img = await createImageBitmap(playerVideo);
+                            contexto.clearRect(0, 0, largura, altura);
+                            contexto.drawImage(img, 0, 0, largura, altura);
+                            img.close(); 
+                        } catch (e) { contexto.drawImage(playerVideo, 0, 0, largura, altura); }
+
+                        let pastaAlvo = null, nome = "";
+                        if (playerVideo.currentTime < tempos.fimParte0) { pastaAlvo = pasta0; nome = String(c0++).padStart(5, '0'); } 
+                        else if (playerVideo.currentTime < tempos.fimParte1) { pastaAlvo = pasta1; nome = String(c1++).padStart(5, '0'); } 
+                        else { pastaAlvo = pasta2; nome = String(c2++).padStart(5, '0'); }
+
+                        promessasDeFotos.push(new Promise(res => {
+                            canvasInvisivel.toBlob((blob) => { if (blob) pastaAlvo.file(nome + '.png', blob); res(); }, 'image/png'); 
+                        }));
+                        proximoTempoAlvo += (1 / fps); tirandoFoto = false; 
+                    }
+                    requestAnimationFrame(capturarQuadro);
+                };
+                playerVideo.currentTime = tempos.inicio;
+                setTimeout(() => { playerVideo.play().then(capturarQuadro); }, 500);
+            });
+        }
+    </script>
+</body>
+</html>
