@@ -116,7 +116,6 @@
         .btn-gerar:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
 
-        /* ✨ O ESCUDO ANTI-BUGS! ✨ */
         .bloqueado {
             pointer-events: none !important;
             opacity: 0.4 !important;
@@ -133,7 +132,7 @@
 <body>
     <div class="container">
         <h1>✨ Criador de animações de boot✨</h1>
-        <p>Crie sua animação de boot com facilidade!</p>
+        <p>Crie sua animação de boot com facilidade e rapidez!</p>
 
         <label for="upload-video" class="btn-upload">📂 Escolher Vídeo</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
@@ -218,18 +217,13 @@
         const configuracoes = document.getElementById('configuracoes');
         const btnGerar = document.getElementById('btn-gerar');
         
-        const canvasInvisivel = document.createElement('canvas');
-        const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
-        
         let marcadores = { m0: null, m1: null, m2: null, m3: null };
         let originalW = 0, originalH = 0;
         let isDraggingTimeline = false;
-        
-        // A TRAVA DE SEGURANÇA! 🛡️
         let isGenerating = false;
 
         playerVideo.addEventListener('click', () => {
-            if (isGenerating) return; // Ignora se estiver gerando!
+            if (isGenerating) return; 
             if (playerVideo.paused) { playerVideo.play(); playerVideo.classList.remove('pausado'); } 
             else { playerVideo.pause(); playerVideo.classList.add('pausado'); }
         });
@@ -275,7 +269,6 @@
             document.getElementById('container-progresso').style.display = 'none';
         });
 
-        // 🖱️ MAGIA DO ARRASTE PROTEGIDA 🛡️
         let isMouseDown = false;
         let startX;
         let scrollLeftPos;
@@ -288,7 +281,7 @@
         window.addEventListener('touchend', () => { isDraggingTimeline = false; });
         
         scrollTimeline.addEventListener('mousedown', (e) => {
-            if (isGenerating) return; // Blindado!
+            if (isGenerating) return; 
             isMouseDown = true;
             isDraggingTimeline = true;
             playerVideo.pause();
@@ -310,7 +303,7 @@
         });
 
         scrollTimeline.addEventListener('mousemove', (e) => {
-            if (!isMouseDown || isGenerating) return; // Blindado!
+            if (!isMouseDown || isGenerating) return; 
             e.preventDefault();
             const x = e.pageX - scrollTimeline.offsetLeft;
             const walk = (x - startX) * 1.5; 
@@ -338,8 +331,10 @@
             const larguraFrame = 60; 
             filmstrip.style.width = (numFrames * larguraFrame) + 'px';
             
-            canvasInvisivel.width = 100;
-            canvasInvisivel.height = Math.floor((originalH / originalW) * 100);
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 100;
+            tempCanvas.height = Math.floor((originalH / originalW) * 100);
+            const tempCtx = tempCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
             
             for (let i = 0; i < numFrames; i++) {
                 playerVideo.currentTime = (i / numFrames) * dur;
@@ -347,10 +342,10 @@
                     const cb = () => { playerVideo.removeEventListener('seeked', cb); r(); };
                     playerVideo.addEventListener('seeked', cb);
                 });
-                contexto.drawImage(playerVideo, 0, 0, canvasInvisivel.width, canvasInvisivel.height);
+                tempCtx.drawImage(playerVideo, 0, 0, tempCanvas.width, tempCanvas.height);
                 
                 const img = document.createElement('img');
-                img.src = canvasInvisivel.toDataURL('image/jpeg', 0.5);
+                img.src = tempCanvas.toDataURL('image/jpeg', 0.5);
                 img.style.width = (100 / numFrames) + '%';
                 filmstrip.appendChild(img);
             }
@@ -359,7 +354,7 @@
         }
 
         window.marcarTrecho = function(id) {
-            if (isGenerating) return; // Ignora os botões durante a forja! 🛡️
+            if (isGenerating) return; 
             marcadores[id] = playerVideo.currentTime;
             atualizarBotoesELinhas();
         }
@@ -416,11 +411,9 @@
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
-        // LÓGICA DE GERAR (COM ESCUDO 🛡️)
         btnGerar.addEventListener('click', async () => {
             if (btnGerar.classList.contains('btn-desativado') || isGenerating) return;
             
-            // ATIVANDO O ESCUDO! ❄️
             isGenerating = true;
             videoContainer.classList.add('bloqueado');
             timelineWrapper.classList.add('bloqueado');
@@ -428,13 +421,13 @@
             configuracoes.classList.add('bloqueado');
             
             btnGerar.classList.add('btn-desativado');
-            btnGerar.textContent = "Gerando frames... ⌛";
+            btnGerar.textContent = "Fotografando Frames Velozes! ⚡";
             document.getElementById('container-progresso').style.display = 'flex'; 
             
             try {
                 const zip = new JSZip();
                 let fps = parseInt(document.getElementById('input-fps').value) || 24;
-                fps = Math.min(60, Math.max(1, fps)); // Limite de 60 cravado! 🔒
+                fps = Math.min(60, Math.max(1, fps)); 
 
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
@@ -445,13 +438,11 @@
                 
                 const deveGerarGif = document.getElementById('input-gerar-gif').checked;
 
-                canvasInvisivel.width = largura; canvasInvisivel.height = altura;
-
-                await paparazzoDaTimeline(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
+                await paparazzoVeloz(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
-                document.getElementById('texto-progresso').textContent = "Compactando o .ZIP... (Aguarde!)";
+                document.getElementById('texto-progresso').textContent = "Compactando o .ZIP final... (Aguarde!)";
                 btnGerar.textContent = "Fechando o zíper... 📦";
                 
                 const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
@@ -462,9 +453,8 @@
                 linkDownload.click();
                 
                 document.getElementById('texto-progresso').textContent = "Tudo Pronto! :3";
-                btnGerar.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
+                btnGerar.textContent = "🎉 SUCESSO! ARQUIVOS BAIXADOS! >:3";
                 
-                // DESATIVANDO O ESCUDO APÓS O SUCESSO! 🛡️🔓
                 setTimeout(() => { 
                     btnGerar.classList.remove('btn-desativado'); 
                     btnGerar.textContent = "🚀 GERAR ANIMAÇÃO DE BOOT";
@@ -480,19 +470,19 @@
                 btnGerar.textContent = "Aconteceu um erro ❌";
                 document.getElementById('texto-progresso').style.color = "#ff5555";
                 
-                // DESATIVANDO O ESCUDO EM CASO DE ERRO TAMBÉM! 🛡️🔓
                 setTimeout(() => {
                     isGenerating = false;
                     videoContainer.classList.remove('bloqueado');
                     timelineWrapper.classList.remove('bloqueado');
                     gridMarcadores.classList.remove('bloqueado');
                     configuracoes.classList.remove('bloqueado');
-                    atualizarBotoesELinhas(); // Volta o botão pro estado certo
+                    atualizarBotoesELinhas(); 
                 }, 2500);
             }
         });
 
-        async function paparazzoDaTimeline(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
+        // ✨ O PAPARAZZO MULTI-CORE SUPER VELOZ ✨
+        async function paparazzoVeloz(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
             const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
             let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
             const intervalo = 1 / fps;
@@ -506,13 +496,16 @@
             let gifH = 250;
 
             if (deveGerarGif) {
-                document.getElementById('texto-progresso').textContent = "Iniciando motor de GIF... ⚙️";
+                document.getElementById('texto-progresso').textContent = "Iniciando motor multi-core de GIF... ⚙️";
                 try {
                     const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
                     gifH = Math.floor(altura * (250 / largura));
                     
+                    // Magia 2: Usa o máximo de núcleos do processador para explodir a velocidade do GIF!
+                    const nNucleos = navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 8) : 4;
+
                     gif = new GIF({
-                        workers: 2,
+                        workers: nNucleos, 
                         quality: 10,
                         width: gifW,
                         height: gifH,
@@ -528,6 +521,9 @@
 
             playerVideo.pause();
 
+            // Magia 1: Array que segura as compressões em segundo plano!
+            const compressoesParalelas = [];
+
             for (let tempo = marcadores.m0; tempo <= marcadores.m3; tempo += intervalo) {
                 playerVideo.currentTime = tempo;
                 await new Promise(resolve => {
@@ -535,9 +531,15 @@
                     playerVideo.addEventListener('seeked', cb);
                 });
 
-                contexto.fillStyle = "#000000";
-                contexto.fillRect(0, 0, largura, altura);
-                contexto.drawImage(playerVideo, 0, 0, largura, altura);
+                // Cria um Canvas individual pra não precisar esperar ele terminar de processar!
+                const canvasVeloz = document.createElement('canvas');
+                canvasVeloz.width = largura;
+                canvasVeloz.height = altura;
+                const ctxVeloz = canvasVeloz.getContext('2d', { alpha: false });
+
+                ctxVeloz.fillStyle = "#000000";
+                ctxVeloz.fillRect(0, 0, largura, altura);
+                ctxVeloz.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; let numFoto = 0;
                 if (tempo < marcadores.m1) { pastaAlvo = pasta0; numFoto = c0++; } 
@@ -545,31 +547,40 @@
                 else { pastaAlvo = pasta2; numFoto = c2++; }
 
                 const nome = String(numFoto).padStart(5, '0') + extensao;
-                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.8));
-                if (blob) pastaAlvo.file(nome, blob);
+                
+                // Manda converter pra JPEG de forma assíncrona enquanto o vídeo já pula pro próximo!
+                const promessa = new Promise(res => canvasVeloz.toBlob(res, mimeType, 0.8)).then(blob => {
+                    if (blob) pastaAlvo.file(nome, blob);
+                });
+                compressoesParalelas.push(promessa);
 
                 if (deveGerarGif && gif && ctxGif) {
                     ctxGif.fillStyle = "#000000";
                     ctxGif.fillRect(0, 0, gifW, gifH);
-                    ctxGif.drawImage(playerVideo, 0, 0, gifW, gifH);
+                    ctxGif.drawImage(canvasVeloz, 0, 0, gifW, gifH);
                     gif.addFrame(ctxGif, {delay: Math.round(1000 / fps), copy: true});
                 }
 
                 fotosTiradas++;
                 const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                 document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
-                document.getElementById('texto-progresso').textContent = `Criando... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
+                document.getElementById('texto-progresso').textContent = `Extraindo e Comprimindo... ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
             }
 
+            document.getElementById('texto-progresso').textContent = "Sincronizando tarefas paralelas... ⏳";
+            
+            // Aqui ele só espera os últimos JPEGs terminarem (o que é instantâneo na maioria das vezes)
+            await Promise.all(compressoesParalelas);
+
             if (deveGerarGif && gif) {
-                document.getElementById('texto-progresso').textContent = "Renderizando Preview em GIF... 🎬 (Pode demorar um tiquinho!)";
-                btnGerar.textContent = "Gerando GIF... 🖼️";
+                document.getElementById('texto-progresso').textContent = "Renderizando Preview em GIF com força total! 🎬";
+                btnGerar.textContent = "Renderizando GIF... 🖼️";
                 
                 return new Promise((resolve) => {
                     gif.on('progress', p => {
                         const pct = Math.round(p * 100);
                         document.getElementById('barra-preenchimento').style.width = pct + '%';
-                        document.getElementById('texto-progresso').textContent = `Processando GIF... ${pct}% :3`;
+                        document.getElementById('texto-progresso').textContent = `Renderizando GIF... ${pct}% :3`;
                     });
                     
                     gif.on('finished', function(blob) {
