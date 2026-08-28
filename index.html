@@ -200,9 +200,18 @@
                     const aoCarregar = () => {
                         playerVideo.removeEventListener('seeked', aoCarregar);
                         
-                        // O Cérebro da Operação atuando aqui! 🧠
                         if (isFirefox) {
-                            setTimeout(resolve, 150); // MODO RAPOSA: Mais lento, mas seguro!
+                            // A DANÇA DA RAPOSA! 🦊💃
+                            // Força o vídeo a dar play rapidinho só pro Firefox desenhar na tela
+                            playerVideo.play().then(() => {
+                                setTimeout(() => {
+                                    playerVideo.pause(); // Pausa correndo!
+                                    resolve();
+                                }, 50); // 50ms é tempo suficiente pro Firefox se assustar e pintar o frame
+                            }).catch(() => {
+                                // Se der ruim no play, espera na marra!
+                                setTimeout(resolve, 200);
+                            });
                         } else {
                             // MODO CHROME: Vai na velocidade da luz! ⚡
                             requestAnimationFrame(() => requestAnimationFrame(resolve));
@@ -213,8 +222,10 @@
                     playerVideo.currentTime = tempo;
                 });
 
+                // Fundo pretinho pra não ter risco nenhum!
                 contexto.fillStyle = "#000000";
                 contexto.fillRect(0, 0, largura, altura);
+                // Foto! 📸
                 contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                 let pastaAlvo = null; 
