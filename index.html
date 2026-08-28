@@ -31,7 +31,7 @@
         }
         .btn-upload:active { transform: scale(0.96); }
 
-        .video-container { position: relative; width: 100%; text-align: center; display: none; }
+        .video-container { position: relative; width: 100%; text-align: center; display: none; transition: 0.3s; }
         video { 
             width: 100%; max-height: 35vh; border-radius: 15px; 
             background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
@@ -43,7 +43,7 @@
         .timeline-wrapper {
             width: 100%; height: 60px; background: #222; border-radius: 10px;
             position: relative; display: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
-            border: 1px solid #444; overflow: hidden;
+            border: 1px solid #444; overflow: hidden; transition: 0.3s;
         }
         .playhead-centro {
             position: absolute; left: 50%; top: -5px; bottom: -5px; width: 3px;
@@ -62,7 +62,7 @@
         
         .filmstrip { 
             display: flex; height: 100%; position: relative; 
-            background-color: #111; user-select: none; /* Impede bugar o arraste */
+            background-color: #111; user-select: none;
         }
         .filmstrip img { height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none; flex: 1; }
         
@@ -75,7 +75,7 @@
         .linha-m2 { background: #ffb86c; }
         .linha-m3 { background: #ff5555; }
 
-        .grid-marcadores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; display: none; }
+        .grid-marcadores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; display: none; transition: 0.3s; }
         .btn-marc {
             padding: 12px 5px; border-radius: 12px; font-weight: bold; border: none;
             font-family: 'Fredoka', sans-serif; cursor: pointer; color: #000; font-size: 13px;
@@ -89,7 +89,7 @@
         
         .status-marc { font-size: 11px; display: block; opacity: 0.7; }
 
-        .configuracoes { display: none; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        .configuracoes { display: none; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; transition: 0.3s; }
         .campo-full { grid-column: span 2; }
         .campo { display: flex; flex-direction: column; }
         .campo label { color: #bb86fc; margin-bottom: 4px; text-align: center; font-size: 13px; font-weight: 700; }
@@ -115,6 +115,13 @@
         }
         .btn-gerar:active { transform: scale(0.96); }
         .btn-desativado { background-color: #444444 !important; color: #888888 !important; pointer-events: none; box-shadow: none; }
+
+        /* ✨ O ESCUDO ANTI-BUGS! ✨ */
+        .bloqueado {
+            pointer-events: none !important;
+            opacity: 0.4 !important;
+            filter: grayscale(50%);
+        }
 
         .container-progresso { width: 100%; display: none; flex-direction: column; gap: 5px; margin-top: 5px; }
         .texto-progresso { font-size: 12px; color: #03dac6; text-align: center; font-weight: 700; }
@@ -217,8 +224,12 @@
         let marcadores = { m0: null, m1: null, m2: null, m3: null };
         let originalW = 0, originalH = 0;
         let isDraggingTimeline = false;
+        
+        // A TRAVA DE SEGURANÇA! 🛡️
+        let isGenerating = false;
 
         playerVideo.addEventListener('click', () => {
+            if (isGenerating) return; // Ignora se estiver gerando!
             if (playerVideo.paused) { playerVideo.play(); playerVideo.classList.remove('pausado'); } 
             else { playerVideo.pause(); playerVideo.classList.add('pausado'); }
         });
@@ -264,17 +275,20 @@
             document.getElementById('container-progresso').style.display = 'none';
         });
 
-        // 🖱️ MAGIA DO ARRASTE COM O MOUSE (PC) E TOQUE (CELULAR) ✨
+        // 🖱️ MAGIA DO ARRASTE PROTEGIDA 🛡️
         let isMouseDown = false;
         let startX;
         let scrollLeftPos;
 
-        // Celular
-        scrollTimeline.addEventListener('touchstart', () => { isDraggingTimeline = true; playerVideo.pause(); }, {passive: true});
+        scrollTimeline.addEventListener('touchstart', () => { 
+            if (isGenerating) return; 
+            isDraggingTimeline = true; playerVideo.pause(); 
+        }, {passive: true});
+        
         window.addEventListener('touchend', () => { isDraggingTimeline = false; });
         
-        // PC (Mouse Normal)
         scrollTimeline.addEventListener('mousedown', (e) => {
+            if (isGenerating) return; // Blindado!
             isMouseDown = true;
             isDraggingTimeline = true;
             playerVideo.pause();
@@ -296,16 +310,15 @@
         });
 
         scrollTimeline.addEventListener('mousemove', (e) => {
-            if (!isMouseDown) return;
+            if (!isMouseDown || isGenerating) return; // Blindado!
             e.preventDefault();
             const x = e.pageX - scrollTimeline.offsetLeft;
-            const walk = (x - startX) * 1.5; // Velocidade do deslize
+            const walk = (x - startX) * 1.5; 
             scrollTimeline.scrollLeft = scrollLeftPos - walk;
         });
 
-        // A Timeline atualiza o vídeo!
         scrollTimeline.addEventListener('scroll', () => {
-            if (!isDraggingTimeline || !playerVideo.duration) return;
+            if (!isDraggingTimeline || !playerVideo.duration || isGenerating) return;
             const scrollMax = filmstrip.offsetWidth;
             let percent = scrollTimeline.scrollLeft / scrollMax;
             percent = Math.max(0, Math.min(1, percent));
@@ -313,7 +326,7 @@
         });
 
         playerVideo.addEventListener('timeupdate', () => {
-            if (isDraggingTimeline || !playerVideo.duration) return;
+            if (isDraggingTimeline || !playerVideo.duration || isGenerating) return;
             const percent = playerVideo.currentTime / playerVideo.duration;
             scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
         });
@@ -346,6 +359,7 @@
         }
 
         window.marcarTrecho = function(id) {
+            if (isGenerating) return; // Ignora os botões durante a forja! 🛡️
             marcadores[id] = playerVideo.currentTime;
             atualizarBotoesELinhas();
         }
@@ -402,8 +416,16 @@
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
+        // LÓGICA DE GERAR (COM ESCUDO 🛡️)
         btnGerar.addEventListener('click', async () => {
-            if (btnGerar.classList.contains('btn-desativado')) return;
+            if (btnGerar.classList.contains('btn-desativado') || isGenerating) return;
+            
+            // ATIVANDO O ESCUDO! ❄️
+            isGenerating = true;
+            videoContainer.classList.add('bloqueado');
+            timelineWrapper.classList.add('bloqueado');
+            gridMarcadores.classList.add('bloqueado');
+            configuracoes.classList.add('bloqueado');
             
             btnGerar.classList.add('btn-desativado');
             btnGerar.textContent = "Gerando frames... ⌛";
@@ -411,9 +433,8 @@
             
             try {
                 const zip = new JSZip();
-                // Limita o FPS até o 60 pra não dar ruim! owo
                 let fps = parseInt(document.getElementById('input-fps').value) || 24;
-                fps = Math.min(60, Math.max(1, fps));
+                fps = Math.min(60, Math.max(1, fps)); // Limite de 60 cravado! 🔒
 
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
@@ -440,10 +461,34 @@
                 linkDownload.download = `${nomeEscolhido}.zip`; 
                 linkDownload.click();
                 
+                document.getElementById('texto-progresso').textContent = "Tudo Pronto! :3";
+                btnGerar.textContent = "🎉 SUCESSO! ZIP BAIXADO! >:3";
+                
+                // DESATIVANDO O ESCUDO APÓS O SUCESSO! 🛡️🔓
+                setTimeout(() => { 
+                    btnGerar.classList.remove('btn-desativado'); 
+                    btnGerar.textContent = "🚀 GERAR ANIMAÇÃO DE BOOT";
+                    isGenerating = false;
+                    videoContainer.classList.remove('bloqueado');
+                    timelineWrapper.classList.remove('bloqueado');
+                    gridMarcadores.classList.remove('bloqueado');
+                    configuracoes.classList.remove('bloqueado');
+                }, 2000);
+                
             } catch (erro) {
                 console.error(erro);
                 btnGerar.textContent = "Aconteceu um erro ❌";
                 document.getElementById('texto-progresso').style.color = "#ff5555";
+                
+                // DESATIVANDO O ESCUDO EM CASO DE ERRO TAMBÉM! 🛡️🔓
+                setTimeout(() => {
+                    isGenerating = false;
+                    videoContainer.classList.remove('bloqueado');
+                    timelineWrapper.classList.remove('bloqueado');
+                    gridMarcadores.classList.remove('bloqueado');
+                    configuracoes.classList.remove('bloqueado');
+                    atualizarBotoesELinhas(); // Volta o botão pro estado certo
+                }, 2500);
             }
         });
 
