@@ -20,7 +20,6 @@
             align-items: center; gap: 15px; padding-bottom: 50px;
         }
 
-        /* BARRA DE IDIOMAS 🌍 */
         .topo-idioma {
             width: 100%; display: flex; justify-content: flex-end; align-items: center; gap: 8px;
         }
@@ -141,7 +140,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- SELETOR DE IDIOMA NO TOPO 🌍 -->
         <div class="topo-idioma">
             <span style="font-size: 13px; color: #888;">🌐</span>
             <select id="select-idioma" onchange="mudarIdioma(this.value)">
@@ -153,7 +151,7 @@
         </div>
 
         <h1 id="txt-titulo">✨ Boot Animation Creator ✨</h1>
-        <p id="txt-subtitulo">Create your boot animation easily and efficiently! :3</p>
+        <p id="txt-subtitulo">Create your boot animation easily!</p>
 
         <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
@@ -211,7 +209,7 @@
                 </select>
             </div>
             <div class="campo campo-full">
-                <label id="lbl-fps">Speed (FPS) 🎬</label>
+                <label id="lbl-fps">FPS 🎬</label>
                 <input type="number" id="input-fps" value="24" min="1" max="60">
             </div>
             <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" readonly></div>
@@ -227,11 +225,11 @@
     </div>
 
     <script>
-        // 🌍 DICIONÁRIO DE TRADUÇÕES POLIGLOTA! 🌟
+    
         const traducoes = {
-            en: { // Inglês agora é o rei da base mundial
+            en: {
                 titulo: "✨ Boot Animation Creator ✨",
-                subtitulo: "Create your boot animation easily and efficiently! :3",
+                subtitulo: "Create your boot animation easily!",
                 upload: "📂 Choose Video",
                 dicaVideo: "👆 Click video to Play or Pause!",
                 m0: "1. Start",
@@ -243,7 +241,7 @@
                 lblGerarGif: "Generate .GIF Preview? 🖼️",
                 lblFormato: "Frames Format 🖼️",
                 lblQualidade: "Resolution 📉",
-                lblFps: "Speed (FPS) 🎬",
+                lblFps: "FPS 🎬",
                 lblLargura: "Width",
                 lblAltura: "Height",
                 btnFaltam: "Missing Markers...",
@@ -251,18 +249,18 @@
                 btnGerarPronto: "🚀 GENERATE BOOT ANIMATION",
                 gerandoFrames: "Extracting frames... 📸",
                 fechandoZiper: "Closing zip... 📦",
-                sucesso: "🎉 SUCCESS! FILES DOWNLOADED! >:3",
+                sucesso: "🎉 SUCCESS! FILES DOWNLOADED!",
                 erro: "An error occurred ❌",
                 carregandoTimeline: "Loading Timeline... ⌛",
                 extraindo: "Extracting Frames...",
-                compactandoZip: "Compressing final .ZIP... (Wait!)",
+                compactandoZip: "Compressing final .ZIP...",
                 iniciandoGif: "Initializing GIF engine... ⚙️",
                 renderizandoGif: "Rendering GIF Preview... 🎬",
                 processandoGif: "Processing GIF..."
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
-                subtitulo: "Crie sua animação de boot com facilidade e eficiência! :3",
+                subtitulo: "Crie sua animação de boot com facilidade!",
                 upload: "📂 Escolher Vídeo",
                 dicaVideo: "👆 Clique no vídeo para dar Play ou Pausar!",
                 m0: "1. Início",
@@ -274,7 +272,7 @@
                 lblGerarGif: "Gerar Preview em .GIF? 🖼️",
                 lblFormato: "Formato dos Frames 🖼️",
                 lblQualidade: "Resolução 📉",
-                lblFps: "Velocidade (FPS) 🎬",
+                lblFps: "FPS 🎬",
                 lblLargura: "Largura",
                 lblAltura: "Altura",
                 btnFaltam: "Faltam Marcadores...",
@@ -282,18 +280,18 @@
                 btnGerarPronto: "🚀 GERAR ANIMAÇÃO DE BOOT",
                 gerandoFrames: "Extraindo os frames... 📸",
                 fechandoZiper: "Fechando o zíper... 📦",
-                sucesso: "🎉 SUCESSO! ARQUIVOS BAIXADOS! >:3",
+                sucesso: "🎉 SUCESSO! ARQUIVOS BAIXADOS!",
                 erro: "Aconteceu um erro ❌",
                 carregandoTimeline: "Carregando a Timeline... ⌛",
                 extraindo: "Extraindo Frames...",
-                compactandoZip: "Compactando o .ZIP final... (Aguarde!)",
+                compactandoZip: "Compactando o .ZIP final...",
                 iniciandoGif: "Iniciando motor de GIF... ⚙️",
                 renderizandoGif: "Renderizando Preview em GIF... 🎬",
                 processandoGif: "Processando GIF..."
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
-                subtitulo: "¡Crea tu animación de boot con facilidad y eficiencia! :3",
+                subtitulo: "¡Crea tu animación de boot con facilidad!",
                 upload: "📂 Elegir Video",
                 dicaVideo: "👆 ¡Haz clic en el video para Reproducir o Pausar!",
                 m0: "1. Inicio",
@@ -305,7 +303,7 @@
                 lblGerarGif: "¿Generar Vista Previa en .GIF? 🖼️",
                 lblFormato: "Formato de Fotogramas 🖼️",
                 lblQualidade: "Resolución 📉",
-                lblFps: "Velocidad (FPS) 🎬",
+                lblFps: "FPS 🎬",
                 lblLargura: "Ancho",
                 lblAltura: "Alto",
                 btnFaltam: "Faltan Marcadores...",
@@ -313,18 +311,18 @@
                 btnGerarPronto: "🚀 GENERAR ANIMACIÓN DE BOOT",
                 gerandoFrames: "Extrayendo fotogramas... 📸",
                 fechandoZiper: "Cerrando el zip... 📦",
-                sucesso: "🎉 ¡ÉXITO! ¡ARCHIVOS DESCARGADOS! >:3",
+                sucesso: "🎉 ¡ÉXITO! ¡ARCHIVOS DESCARGADOS!",
                 erro: "Ocurrió un error ❌",
                 carregandoTimeline: "Cargando Línea de Tiempo... ⌛",
                 extraindo: "Extrayendo Fotogramas...",
-                compactandoZip: "Comprimiendo .ZIP final... (¡Espera!)",
+                compactandoZip: "Comprimiendo .ZIP final...",
                 iniciandoGif: "Iniciando motor GIF... ⚙️",
                 renderizandoGif: "Renderizando Vista Previa GIF... 🎬",
                 processandoGif: "Procesando GIF..."
             },
-            fr: { // O belíssimo Francês pro seu projeto! 🥐
+            fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
-                subtitulo: "Créez votre animation de démarrage facilement et efficacement ! :3",
+                subtitulo: "Créez votre animation de démarrage facilement !",
                 upload: "📂 Choisir une Vidéo",
                 dicaVideo: "👆 Cliquez sur la vidéo pour Lire ou Mettre en pause !",
                 m0: "1. Début",
@@ -336,7 +334,7 @@
                 lblGerarGif: "Générer Aperçu .GIF ? 🖼️",
                 lblFormato: "Format des Images 🖼️",
                 lblQualidade: "Résolution 📉",
-                lblFps: "Vitesse (FPS) 🎬",
+                lblFps: "FPS 🎬",
                 lblLargura: "Largeur",
                 lblAltura: "Hauteur",
                 btnFaltam: "Marqueurs manquants...",
@@ -344,33 +342,29 @@
                 btnGerarPronto: "🚀 GÉNÉRER L'ANIMATION",
                 gerandoFrames: "Extraction des images... 📸",
                 fechandoZiper: "Fermeture du zip... 📦",
-                sucesso: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS ! >:3",
+                sucesso: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS !",
                 erro: "Une erreur s'est produite ❌",
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
-                compactandoZip: "Compression du .ZIP final... (Patientez !)",
+                compactandoZip: "Compression du .ZIP final...",
                 iniciandoGif: "Démarrage du moteur GIF... ⚙️",
                 renderizandoGif: "Rendu de l'Aperçu GIF... 🎬",
                 processandoGif: "Traitement du GIF..."
             }
         };
 
-        let idiomaAtual = 'en'; // Padrão global
+        let idiomaAtual = 'en';
 
-        // 🕵️ DETETIVE DE IDIOMA: Executa assim que a página carrega!
         window.addEventListener('DOMContentLoaded', () => {
-            // Puxa a linguagem do navegador (ex: "pt-BR" vira só "pt")
             const langNavegador = (navigator.language || navigator.userLanguage).split('-')[0];
             const idiomasSuportados = ['en', 'pt', 'es', 'fr'];
             
-            // Se o idioma for um dos nossos suportados, usa ele, senão cai pro inglês!
             if (idiomasSuportados.includes(langNavegador)) {
                 idiomaAtual = langNavegador;
             } else {
                 idiomaAtual = 'en';
             }
             
-            // Atualiza a barrinha lá em cima e traduz tudo na hora! ✨
             document.getElementById('select-idioma').value = idiomaAtual;
             mudarIdioma(idiomaAtual);
         });
@@ -652,7 +646,7 @@
                 linkDownload.download = `${nomeEscolhido}.zip`; 
                 linkDownload.click();
                 
-                document.getElementById('texto-progresso').textContent = "OK! :3";
+                document.getElementById('texto-progresso').textContent = "OK!";
                 btnGerar.textContent = t.sucesso;
                 
                 setTimeout(() => { 
@@ -768,7 +762,7 @@
                     gif.on('progress', p => {
                         const pct = Math.round(p * 100);
                         document.getElementById('barra-preenchimento').style.width = pct + '%';
-                        document.getElementById('texto-progresso').textContent = `${t.processandoGif} ${pct}% :3`;
+                        document.getElementById('texto-progresso').textContent = `${t.processandoGif} ${pct}%`;
                     });
                     
                     gif.on('finished', function(blob) {
