@@ -151,7 +151,7 @@
         </div>
 
         <h1 id="txt-titulo">✨ Boot Animation Creator ✨</h1>
-        <p id="txt-subtitulo">Create your boot animation easily!</p>
+        <p id="txt-subtitulo">Create a boot animation using a video file!</p>
 
         <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
@@ -195,17 +195,17 @@
             <div class="campo campo-full">
                 <label id="lbl-formato">Frames Format 🖼️</label>
                 <select id="input-formato">
-                    <option value="jpeg">JPEG (Android 10+ Lighter!) 🌟</option>
-                    <option value="png">PNG (Standard heavy) 🐢</option>
+                    <option value="jpeg" id="opt-jpeg">JPEG (Android 10+ Lighter!) 🌟</option>
+                    <option value="png" id="opt-png">PNG (Standard heavy) 🐢</option>
                 </select>
             </div>
             <div class="campo campo-full">
                 <label id="lbl-qualidade">Resolution 📉</label>
                 <select id="input-qualidade">
-                    <option value="320">Ultra Light (Potato! 320p)</option>
-                    <option value="480" selected>Light (Recommended! 480p)</option>
-                    <option value="720">Medium (Heavy! 720p)</option>
-                    <option value="1">Original (Giant!)</option>
+                    <option value="320" id="opt-320">Ultra Light (Potato! 320p)</option>
+                    <option value="480" id="opt-480" selected>Light (Recommended! 480p)</option>
+                    <option value="720" id="opt-720">Medium (Heavy! 720p)</option>
+                    <option value="1" id="opt-orig">Original (Giant!)</option>
                 </select>
             </div>
             <div class="campo campo-full">
@@ -225,11 +225,10 @@
     </div>
 
     <script>
-    
         const traducoes = {
-            en: {
+            en: { 
                 titulo: "✨ Boot Animation Creator ✨",
-                subtitulo: "Create your boot animation easily!",
+                subtitulo: "Create a boot animation using a video file!",
                 upload: "📂 Choose Video",
                 dicaVideo: "👆 Click video to Play or Pause!",
                 m0: "1. Start",
@@ -256,11 +255,17 @@
                 compactandoZip: "Compressing final .ZIP...",
                 iniciandoGif: "Initializing GIF engine... ⚙️",
                 renderizandoGif: "Rendering GIF Preview... 🎬",
-                processandoGif: "Processing GIF..."
+                processandoGif: "Processing GIF...",
+                optJpeg: "JPEG (Android 10+ Lighter!) 🌟",
+                optPng: "PNG (Standard heavy) 🐢",
+                opt320: "Ultra Light (Potato! 320p)",
+                opt480: "Light (Recommended! 480p)",
+                opt720: "Medium (Heavy! 720p)",
+                optOrig: "Original (Giant!)"
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
-                subtitulo: "Crie sua animação de boot com facilidade!",
+                subtitulo: "Crie uma animação de boot usando um arquivo de vídeo!",
                 upload: "📂 Escolher Vídeo",
                 dicaVideo: "👆 Clique no vídeo para dar Play ou Pausar!",
                 m0: "1. Início",
@@ -287,11 +292,17 @@
                 compactandoZip: "Compactando o .ZIP final...",
                 iniciandoGif: "Iniciando motor de GIF... ⚙️",
                 renderizandoGif: "Renderizando Preview em GIF... 🎬",
-                processandoGif: "Processando GIF..."
+                processandoGif: "Processando GIF...",
+                optJpeg: "JPEG (Android 10+ Mais leve!) 🌟",
+                optPng: "PNG (Padrão pesado) 🐢",
+                opt320: "Ultra Leve (Batata! 320p)",
+                opt480: "Leve (Recomendado! 480p)",
+                opt720: "Média (Pesado! 720p)",
+                optOrig: "Original (Gigante!)"
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
-                subtitulo: "¡Crea tu animación de boot con facilidad!",
+                subtitulo: "¡Crea una animación de arranque usando un archivo de vídeo!",
                 upload: "📂 Elegir Video",
                 dicaVideo: "👆 ¡Haz clic en el video para Reproducir o Pausar!",
                 m0: "1. Inicio",
@@ -315,14 +326,20 @@
                 erro: "Ocurrió un error ❌",
                 carregandoTimeline: "Cargando Línea de Tiempo... ⌛",
                 extraindo: "Extrayendo Fotogramas...",
-                compactandoZip: "Comprimiendo .ZIP final...",
+                compactandoZip: "Comprimiendo .ZIP final... (¡Espera!)",
                 iniciandoGif: "Iniciando motor GIF... ⚙️",
                 renderizandoGif: "Renderizando Vista Previa GIF... 🎬",
-                processandoGif: "Procesando GIF..."
+                processandoGif: "Procesando GIF...",
+                optJpeg: "JPEG (¡Android 10+ Más ligero!) 🌟",
+                optPng: "PNG (Estándar pesado) 🐢",
+                opt320: "Ultra Ligero (¡Patata! 320p)",
+                opt480: "Ligero (¡Recomendado! 480p)",
+                opt720: "Medio (¡Pesado! 720p)",
+                optOrig: "Original (¡Gigante!)"
             },
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
-                subtitulo: "Créez votre animation de démarrage facilement !",
+                subtitulo: "Créez une animation de démarrage à l'aide d'un fichier vidéo !",
                 upload: "📂 Choisir une Vidéo",
                 dicaVideo: "👆 Cliquez sur la vidéo pour Lire ou Mettre en pause !",
                 m0: "1. Début",
@@ -346,14 +363,20 @@
                 erro: "Une erreur s'est produite ❌",
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
-                compactandoZip: "Compression du .ZIP final...",
+                compactandoZip: "Compression du .ZIP final... (Patientez !)",
                 iniciandoGif: "Démarrage du moteur GIF... ⚙️",
                 renderizandoGif: "Rendu de l'Aperçu GIF... 🎬",
-                processandoGif: "Traitement du GIF..."
+                processandoGif: "Traitement du GIF...",
+                optJpeg: "JPEG (Android 10+ Plus léger !) 🌟",
+                optPng: "PNG (Standard lourd) 🐢",
+                opt320: "Ultra Léger (Patate ! 320p)",
+                opt480: "Léger (Recommandé ! 480p)",
+                opt720: "Moyen (Lourd ! 720p)",
+                optOrig: "Original (Géant !)"
             }
         };
 
-        let idiomaAtual = 'en';
+        let idiomaAtual = 'en'; 
 
         window.addEventListener('DOMContentLoaded', () => {
             const langNavegador = (navigator.language || navigator.userLanguage).split('-')[0];
@@ -390,6 +413,14 @@
             document.getElementById('lbl-fps').textContent = t.lblFps;
             document.getElementById('lbl-largura').textContent = t.lblLargura;
             document.getElementById('lbl-altura').textContent = t.lblAltura;
+
+            document.getElementById('opt-jpeg').textContent = t.optJpeg;
+            document.getElementById('opt-png').textContent = t.optPng;
+            
+            document.getElementById('opt-320').textContent = t.opt320;
+            document.getElementById('opt-480').textContent = t.opt480;
+            document.getElementById('opt-720').textContent = t.opt720;
+            document.getElementById('opt-orig').textContent = t.optOrig;
 
             atualizarBotoesELinhas();
         }
