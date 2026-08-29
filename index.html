@@ -31,6 +31,23 @@
         h1 { color: #bb86fc; text-align: center; font-size: 22px; margin-top: 5px; }
         p { color: #aaaaaa; text-align: center; font-size: 13px; margin-bottom: 5px; }
 
+        /* ✨ CAIXA DE DICAS PARA LEIGOS ✨ */
+        .dicas-container {
+            background: #1e1e1e;
+            border-left: 4px solid #bb86fc;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #cccccc;
+            margin-bottom: 5px;
+            width: 100%;
+        }
+        .dicas-container h3 { color: #bb86fc; margin-bottom: 10px; font-size: 15px; text-align: center; }
+        .dicas-container ul { list-style-type: none; padding-left: 0; }
+        .dicas-container li { margin-bottom: 10px; position: relative; padding-left: 22px; line-height: 1.4; }
+        .dicas-container li::before { content: "💡"; position: absolute; left: 0; top: 0; font-size: 14px; }
+        .dicas-container li:last-child { margin-bottom: 0; }
+
         .btn-upload { 
             background-color: #bb86fc; color: #000; padding: 14px 20px; 
             border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; 
@@ -153,6 +170,16 @@
         <h1 id="txt-titulo">✨ Boot Animation Creator ✨</h1>
         <p id="txt-subtitulo">Create a boot animation using a video file!</p>
 
+        <div class="dicas-container" id="dicas-iniciais">
+            <h3 id="txt-dicas-titulo">Tips for Beginners</h3>
+            <ul>
+                <li id="txt-dica1"><strong>Requirement:</strong> To apply the animation, your phone must be Rooted (Magisk, KernelSU, etc). If you don't know what this is, research before trying!</li>
+                <li id="txt-dica2"><strong>Size matters:</strong> Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.</li>
+                <li id="txt-dica3"><strong>Screen aspect:</strong> Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.</li>
+                <li id="txt-dica4"><strong>Performance:</strong> Keeping resolution at 'Light' and 24-30 FPS ensures a fast and smooth boot.</li>
+            </ul>
+        </div>
+
         <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
@@ -229,6 +256,11 @@
             en: { 
                 titulo: "✨ Boot Animation Creator ✨",
                 subtitulo: "Create a boot animation using a video file!",
+                dicasTitulo: "Tips for Beginners",
+                dica1: "Requirement: To apply the animation, your phone must be Rooted (Magisk, KernelSU, etc). If you don't know what this is, research before trying!",
+                dica2: "Size matters: Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.",
+                dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.",
+                dica4: "Performance: Keeping resolution at 'Light' and 24-30 FPS ensures a fast and smooth boot.",
                 upload: "📂 Choose Video",
                 dicaVideo: "👆 Click video to Play or Pause!",
                 m0: "1. Start",
@@ -266,6 +298,11 @@
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
                 subtitulo: "Crie uma animação de boot usando um arquivo de vídeo!",
+                dicasTitulo: "Dicas para Principiantes",
+                dica1: "Requisito Mínimo: Para aplicar a animação gerada, você precisará de acesso Root (Magisk, KernelSU, etc). Se não sabe o que é isso, pesquise antes!",
+                dica2: "Tamanho Importa: Evite arquivos maiores que 20MB. Animações muito pesadas podem engasgar o Android ou causar bootloops.",
+                dica3: "Formato da Tela: Celulares ficam em pé! Dê preferência a vídeos verticais (formato Reels/TikTok) para a imagem não ficar esticada.",
+                dica4: "Desempenho: Manter a resolução em 'Leve' e 24 a 30 FPS garante que a animação carregue de forma rápida e fluida.",
                 upload: "📂 Escolher Vídeo",
                 dicaVideo: "👆 Clique no vídeo para dar Play ou Pausar!",
                 m0: "1. Início",
@@ -303,6 +340,11 @@
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
                 subtitulo: "¡Crea una animación de arranque usando un archivo de vídeo!",
+                dicasTitulo: "Consejos para Principiantes",
+                dica1: "Requisito Mínimo: Para aplicar la animación, tu teléfono debe tener Root (Magisk, KernelSU, etc). ¡Si no sabes qué es, investiga primero!",
+                dica2: "El Tamaño Importa: Evita archivos de más de 20MB. Los archivos muy pesados pueden trabar Android o causar bootloops.",
+                dica3: "Formato de Pantalla: ¡Los teléfonos son verticales! Prefiere videos verticales (formato TikTok/Reels) para que no se estiren.",
+                dica4: "Rendimiento: Mantener la resolución en 'Ligero' y 24-30 FPS garantiza una carga rápida y fluida.",
                 upload: "📂 Elegir Video",
                 dicaVideo: "👆 ¡Haz clic en el video para Reproducir o Pausar!",
                 m0: "1. Inicio",
@@ -340,6 +382,11 @@
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
                 subtitulo: "Créez une animation de démarrage à l'aide d'un fichier vidéo !",
+                dicasTitulo: "Conseils pour Débutants",
+                dica1: "Prérequis : Pour appliquer l'animation, votre téléphone doit être Rooté (Magisk, KernelSU, etc). Si vous ne savez pas ce que c'est, renseignez-vous d'abord !",
+                dica2: "La Taille Compte : Évitez les fichiers de plus de 20 Mo. Les fichiers lourds peuvent faire ramer Android ou causer des bootloops.",
+                dica3: "Format d'Écran : Privilégiez les vidéos verticales (format TikTok/Reels) pour que votre animation ne soit pas déformée.",
+                dica4: "Performance : Garder la résolution sur 'Léger' et 24-30 FPS assure un démarrage rapide et fluide.",
                 upload: "📂 Choisir une Vidéo",
                 dicaVideo: "👆 Cliquez sur la vidéo pour Lire ou Mettre en pause !",
                 m0: "1. Début",
@@ -398,6 +445,20 @@
 
             document.getElementById('txt-titulo').textContent = t.titulo;
             document.getElementById('txt-subtitulo').textContent = t.subtitulo;
+            
+            // Textos das Dicas
+            document.getElementById('txt-dicas-titulo').innerHTML = t.dicasTitulo;
+            document.getElementById('txt-dica1').innerHTML = `<strong>Root:</strong> ${t.dica1.split(': ')[1] || t.dica1}`;
+            document.getElementById('txt-dica2').innerHTML = `<strong>20MB:</strong> ${t.dica2.split(': ')[1] || t.dica2}`;
+            document.getElementById('txt-dica3').innerHTML = `<strong>Ratio:</strong> ${t.dica3.split(': ')[1] || t.dica3}`;
+            document.getElementById('txt-dica4').innerHTML = `<strong>FPS:</strong> ${t.dica4.split(': ')[1] || t.dica4}`;
+            
+            // Recriando os textos exatos formatados bonitinhos na UI
+            document.getElementById('txt-dica1').innerHTML = `<strong>${t.dica1.split(': ')[0]}:</strong> ${t.dica1.split(': ')[1]}`;
+            document.getElementById('txt-dica2').innerHTML = `<strong>${t.dica2.split(': ')[0]}:</strong> ${t.dica2.split(': ')[1]}`;
+            document.getElementById('txt-dica3').innerHTML = `<strong>${t.dica3.split(': ')[0]}:</strong> ${t.dica3.split(': ')[1]}`;
+            document.getElementById('txt-dica4').innerHTML = `<strong>${t.dica4.split(': ')[0]}:</strong> ${t.dica4.split(': ')[1]}`;
+
             document.getElementById('lbl-upload').textContent = t.upload;
             document.getElementById('txt-dicavideo').textContent = t.dicaVideo;
             
@@ -434,6 +495,7 @@
         const gridMarcadores = document.getElementById('grid-marcadores');
         const configuracoes = document.getElementById('configuracoes');
         const btnGerar = document.getElementById('btn-gerar');
+        const dicasIniciais = document.getElementById('dicas-iniciais');
         
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
@@ -465,6 +527,9 @@
 
             const leitor = new FileReader();
             leitor.onload = function(e) {
+                // Esconde as dicas para dar espaço ao editor! ✨
+                dicasIniciais.style.display = 'none';
+
                 playerVideo.src = e.target.result; 
                 videoContainer.style.display = 'block';
                 timelineWrapper.style.display = 'block';
