@@ -31,7 +31,6 @@
         h1 { color: #bb86fc; text-align: center; font-size: 22px; margin-top: 5px; }
         p { color: #aaaaaa; text-align: center; font-size: 13px; margin-bottom: 5px; }
 
-        /* ✨ CAIXA DE DICAS PARA LEIGOS ✨ */
         .dicas-container {
             background: #1e1e1e;
             border-left: 4px solid #bb86fc;
@@ -215,7 +214,7 @@
             <div class="campo campo-full">
                 <div class="checkbox-container">
                     <label style="margin:0;" id="lbl-gerargif">Generate .GIF Preview? 🖼️</label>
-                    <input type="checkbox" id="input-gerar-gif" checked>
+                    <input type="checkbox" id="input-gerar-gif">
                 </div>
             </div>
 
@@ -425,16 +424,35 @@
 
         let idiomaAtual = 'en'; 
 
+        // ✨ O TRUQUE NINJA ANTI-BRAVE! 🥷✨
         window.addEventListener('DOMContentLoaded', () => {
-            const langNavegador = (navigator.language || navigator.userLanguage).split('-')[0];
+            let langDetectada = 'en';
             const idiomasSuportados = ['en', 'pt', 'es', 'fr'];
-            
-            if (idiomasSuportados.includes(langNavegador)) {
-                idiomaAtual = langNavegador;
-            } else {
-                idiomaAtual = 'en';
+
+            try {
+                const linguasNavegador = navigator.languages || [navigator.language || navigator.userLanguage];
+                
+                let idiomaSistema = null;
+                if (window.Intl && Intl.DateTimeFormat) {
+                    idiomaSistema = Intl.DateTimeFormat().resolvedOptions().locale;
+                }
+                
+                const todasPistas = [...linguasNavegador, idiomaSistema];
+
+                for (let pista of todasPistas) {
+                    if (pista) {
+                        const base = pista.split('-')[0];
+                        if (idiomasSuportados.includes(base)) {
+                            langDetectada = base;
+                            if (base !== 'en') break; 
+                        }
+                    }
+                }
+            } catch (e) {
+                langDetectada = 'en';
             }
             
+            idiomaAtual = langDetectada;
             document.getElementById('select-idioma').value = idiomaAtual;
             mudarIdioma(idiomaAtual);
         });
@@ -446,14 +464,7 @@
             document.getElementById('txt-titulo').textContent = t.titulo;
             document.getElementById('txt-subtitulo').textContent = t.subtitulo;
             
-            // Textos das Dicas
             document.getElementById('txt-dicas-titulo').innerHTML = t.dicasTitulo;
-            document.getElementById('txt-dica1').innerHTML = `<strong>Root:</strong> ${t.dica1.split(': ')[1] || t.dica1}`;
-            document.getElementById('txt-dica2').innerHTML = `<strong>20MB:</strong> ${t.dica2.split(': ')[1] || t.dica2}`;
-            document.getElementById('txt-dica3').innerHTML = `<strong>Ratio:</strong> ${t.dica3.split(': ')[1] || t.dica3}`;
-            document.getElementById('txt-dica4').innerHTML = `<strong>FPS:</strong> ${t.dica4.split(': ')[1] || t.dica4}`;
-            
-            // Recriando os textos exatos formatados bonitinhos na UI
             document.getElementById('txt-dica1').innerHTML = `<strong>${t.dica1.split(': ')[0]}:</strong> ${t.dica1.split(': ')[1]}`;
             document.getElementById('txt-dica2').innerHTML = `<strong>${t.dica2.split(': ')[0]}:</strong> ${t.dica2.split(': ')[1]}`;
             document.getElementById('txt-dica3').innerHTML = `<strong>${t.dica3.split(': ')[0]}:</strong> ${t.dica3.split(': ')[1]}`;
@@ -527,7 +538,6 @@
 
             const leitor = new FileReader();
             leitor.onload = function(e) {
-                // Esconde as dicas para dar espaço ao editor! ✨
                 dicasIniciais.style.display = 'none';
 
                 playerVideo.src = e.target.result; 
@@ -852,7 +862,7 @@
 
             if (deveGerarGif && gif) {
                 document.getElementById('texto-progresso').textContent = t.renderizandoGif;
-                btnGerar.textContent = "Renderizando GIF... 🖼️";
+                btnGerar.textContent = "Rendering GIF... 🖼️";
                 
                 return new Promise((resolve) => {
                     gif.on('progress', p => {
