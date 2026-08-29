@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Criador de animações de boot ✨</title>
+    <title>✨ Boot Animation Creator ✨</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
         
@@ -145,21 +145,22 @@
         <div class="topo-idioma">
             <span style="font-size: 13px; color: #888;">🌐</span>
             <select id="select-idioma" onchange="mudarIdioma(this.value)">
-                <option value="pt" selected>Português (BR)</option>
                 <option value="en">English (US)</option>
+                <option value="pt">Português (BR)</option>
                 <option value="es">Español</option>
+                <option value="fr">Français</option>
             </select>
         </div>
 
-        <h1 id="txt-titulo">✨ Criador de animações de boot✨</h1>
-        <p id="txt-subtitulo">Crie sua animação de boot com facilidade e eficiência! :3</p>
+        <h1 id="txt-titulo">✨ Boot Animation Creator ✨</h1>
+        <p id="txt-subtitulo">Create your boot animation easily and efficiently! :3</p>
 
-        <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Escolher Vídeo</label>
+        <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
         <input type="file" id="upload-video" accept="video/*" hidden>
 
         <div class="video-container" id="video-container">
             <video id="player-video" playsinline class="pausado"></video>
-            <p class="dica-video" id="txt-dicavideo">👆 Clique no vídeo para dar Play ou Pausar!</p>
+            <p class="dica-video" id="txt-dicavideo">👆 Click video to Play or Pause!</p>
         </div>
 
         <div class="timeline-wrapper" id="timeline-wrapper">
@@ -174,50 +175,50 @@
         </div>
 
         <div class="grid-marcadores" id="grid-marcadores">
-            <button class="btn-marc btn-m0" onclick="marcarTrecho('m0')">📍 <span id="lbl-m0">1. Início</span><span class="status-marc" id="st-m0">Não marcado</span></button>
-            <button class="btn-marc btn-m1" onclick="marcarTrecho('m1')">✂️ <span id="lbl-m1">2. Fim Início</span><span class="status-marc" id="st-m1">Não marcado</span></button>
-            <button class="btn-marc btn-m2" onclick="marcarTrecho('m2')">🔁 <span id="lbl-m2">3. Fim Loop</span><span class="status-marc" id="st-m2">Não marcado</span></button>
-            <button class="btn-marc btn-m3" onclick="marcarTrecho('m3')">🏁 <span id="lbl-m3">4. Final</span><span class="status-marc" id="st-m3">Não marcado</span></button>
+            <button class="btn-marc btn-m0" onclick="marcarTrecho('m0')">📍 <span id="lbl-m0">1. Start</span><span class="status-marc" id="st-m0">Not marked</span></button>
+            <button class="btn-marc btn-m1" onclick="marcarTrecho('m1')">✂️ <span id="lbl-m1">2. End Intro</span><span class="status-marc" id="st-m1">Not marked</span></button>
+            <button class="btn-marc btn-m2" onclick="marcarTrecho('m2')">🔁 <span id="lbl-m2">3. End Loop</span><span class="status-marc" id="st-m2">Not marked</span></button>
+            <button class="btn-marc btn-m3" onclick="marcarTrecho('m3')">🏁 <span id="lbl-m3">4. Final</span><span class="status-marc" id="st-m3">Not marked</span></button>
         </div>
 
         <div class="configuracoes" id="configuracoes">
             <div class="campo campo-full">
-                <label id="lbl-nome">Nome do Arquivo 📝 (Sem .zip)</label>
-                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: minha_animacao_boot">
+                <label id="lbl-nome">File Name 📝 (Without .zip)</label>
+                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: my_boot_animation">
             </div>
 
             <div class="campo campo-full">
                 <div class="checkbox-container">
-                    <label style="margin:0;" id="lbl-gerargif">Gerar Preview em .GIF? 🖼️</label>
+                    <label style="margin:0;" id="lbl-gerargif">Generate .GIF Preview? 🖼️</label>
                     <input type="checkbox" id="input-gerar-gif" checked>
                 </div>
             </div>
 
             <div class="campo campo-full">
-                <label id="lbl-formato">Formato dos Frames 🖼️</label>
+                <label id="lbl-formato">Frames Format 🖼️</label>
                 <select id="input-formato">
-                    <option value="jpeg">JPEG (Android 10+ Mais leve!) 🌟</option>
-                    <option value="png">PNG (Padrão pesado) 🐢</option>
+                    <option value="jpeg">JPEG (Android 10+ Lighter!) 🌟</option>
+                    <option value="png">PNG (Standard heavy) 🐢</option>
                 </select>
             </div>
             <div class="campo campo-full">
-                <label id="lbl-qualidade">Resolução 📉</label>
+                <label id="lbl-qualidade">Resolution 📉</label>
                 <select id="input-qualidade">
-                    <option value="320">Ultra Leve (Batata! 320p)</option>
-                    <option value="480" selected>Leve (Recomendado! 480p)</option>
-                    <option value="720">Média (Pesado! 720p)</option>
-                    <option value="1">Original (Gigante!)</option>
+                    <option value="320">Ultra Light (Potato! 320p)</option>
+                    <option value="480" selected>Light (Recommended! 480p)</option>
+                    <option value="720">Medium (Heavy! 720p)</option>
+                    <option value="1">Original (Giant!)</option>
                 </select>
             </div>
             <div class="campo campo-full">
-                <label id="lbl-fps">Velocidade (FPS) 🎬</label>
+                <label id="lbl-fps">Speed (FPS) 🎬</label>
                 <input type="number" id="input-fps" value="24" min="1" max="60">
             </div>
-            <div class="campo"><label id="lbl-largura">Largura</label><input type="number" id="input-largura" readonly></div>
-            <div class="campo"><label id="lbl-altura">Altura</label><input type="number" id="input-altura" readonly></div>
+            <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" readonly></div>
+            <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" readonly></div>
         </div>
 
-        <button id="btn-gerar" class="btn-gerar btn-desativado">Faltam Marcadores...</button>
+        <button id="btn-gerar" class="btn-gerar btn-desativado">Missing Markers...</button>
         
         <div class="container-progresso" id="container-progresso">
             <div class="texto-progresso" id="texto-progresso">0%</div>
@@ -228,6 +229,37 @@
     <script>
         // 🌍 DICIONÁRIO DE TRADUÇÕES POLIGLOTA! 🌟
         const traducoes = {
+            en: { // Inglês agora é o rei da base mundial
+                titulo: "✨ Boot Animation Creator ✨",
+                subtitulo: "Create your boot animation easily and efficiently! :3",
+                upload: "📂 Choose Video",
+                dicaVideo: "👆 Click video to Play or Pause!",
+                m0: "1. Start",
+                m1: "2. End Intro",
+                m2: "3. End Loop",
+                m3: "4. Final",
+                naoMarcado: "Not marked",
+                lblNome: "File Name 📝 (Without .zip)",
+                lblGerarGif: "Generate .GIF Preview? 🖼️",
+                lblFormato: "Frames Format 🖼️",
+                lblQualidade: "Resolution 📉",
+                lblFps: "Speed (FPS) 🎬",
+                lblLargura: "Width",
+                lblAltura: "Height",
+                btnFaltam: "Missing Markers...",
+                btnOrdem: "⚠️ Wrong order! Start (1) must come before Final (4)!",
+                btnGerarPronto: "🚀 GENERATE BOOT ANIMATION",
+                gerandoFrames: "Extracting frames... 📸",
+                fechandoZiper: "Closing zip... 📦",
+                sucesso: "🎉 SUCCESS! FILES DOWNLOADED! >:3",
+                erro: "An error occurred ❌",
+                carregandoTimeline: "Loading Timeline... ⌛",
+                extraindo: "Extracting Frames...",
+                compactandoZip: "Compressing final .ZIP... (Wait!)",
+                iniciandoGif: "Initializing GIF engine... ⚙️",
+                renderizandoGif: "Rendering GIF Preview... 🎬",
+                processandoGif: "Processing GIF..."
+            },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
                 subtitulo: "Crie sua animação de boot com facilidade e eficiência! :3",
@@ -259,37 +291,6 @@
                 renderizandoGif: "Renderizando Preview em GIF... 🎬",
                 processandoGif: "Processando GIF..."
             },
-            en: {
-                titulo: "✨ Boot Animation Creator ✨",
-                subtitulo: "Create your boot animation easily and efficiently! :3",
-                upload: "📂 Choose Video",
-                dicaVideo: "👆 Click video to Play or Pause!",
-                m0: "1. Start",
-                m1: "2. End Intro",
-                m2: "3. End Loop",
-                m3: "4. Final",
-                naoMarcado: "Not marked",
-                lblNome: "File Name 📝 (Without .zip)",
-                lblGerarGif: "Generate .GIF Preview? 🖼️",
-                lblFormato: "Frames Format 🖼️",
-                lblQualidade: "Resolution 📉",
-                lblFps: "Speed (FPS) 🎬",
-                lblLargura: "Width",
-                lblAltura: "Height",
-                btnFaltam: "Missing Markers...",
-                btnOrdem: "⚠️ Wrong order! Start (1) must come before Final (4)!",
-                btnGerarPronto: "🚀 GENERATE BOOT ANIMATION",
-                gerandoFrames: "Extracting frames... 📸",
-                fechandoZiper: "Closing zip... 📦",
-                sucesso: "🎉 SUCCESS! FILES DOWNLOADED! >:3",
-                erro: "An error occurred ❌",
-                carregandoTimeline: "Loading Timeline... ⌛",
-                extraindo: "Extracting Frames...",
-                compactandoZip: "Compressing final .ZIP... (Wait!)",
-                iniciandoGif: "Initializing GIF engine... ⚙️",
-                renderizandoGif: "Rendering GIF Preview... 🎬",
-                processandoGif: "Processing GIF..."
-            },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
                 subtitulo: "¡Crea tu animación de boot con facilidad y eficiencia! :3",
@@ -308,7 +309,7 @@
                 lblLargura: "Ancho",
                 lblAltura: "Alto",
                 btnFaltam: "Faltan Marcadores...",
-                btnOrdem: "⚠️ ¡Orden incorrecto! ¡El inicio (1) debe ir antes del final (4)!",
+                btnOrdem: "⚠️ ¡Orden incorrecto! ¡El Inicio (1) debe ir antes del Final (4)!",
                 btnGerarPronto: "🚀 GENERAR ANIMACIÓN DE BOOT",
                 gerandoFrames: "Extrayendo fotogramas... 📸",
                 fechandoZiper: "Cerrando el zip... 📦",
@@ -320,10 +321,59 @@
                 iniciandoGif: "Iniciando motor GIF... ⚙️",
                 renderizandoGif: "Renderizando Vista Previa GIF... 🎬",
                 processandoGif: "Procesando GIF..."
+            },
+            fr: { // O belíssimo Francês pro seu projeto! 🥐
+                titulo: "✨ Créateur d'Animations de Démarrage ✨",
+                subtitulo: "Créez votre animation de démarrage facilement et efficacement ! :3",
+                upload: "📂 Choisir une Vidéo",
+                dicaVideo: "👆 Cliquez sur la vidéo pour Lire ou Mettre en pause !",
+                m0: "1. Début",
+                m1: "2. Fin Intro",
+                m2: "3. Fin Boucle",
+                m3: "4. Fin",
+                naoMarcado: "Non marqué",
+                lblNome: "Nom du Fichier 📝 (Sans .zip)",
+                lblGerarGif: "Générer Aperçu .GIF ? 🖼️",
+                lblFormato: "Format des Images 🖼️",
+                lblQualidade: "Résolution 📉",
+                lblFps: "Vitesse (FPS) 🎬",
+                lblLargura: "Largeur",
+                lblAltura: "Hauteur",
+                btnFaltam: "Marqueurs manquants...",
+                btnOrdem: "⚠️ Mauvais ordre ! Le Début (1) doit précéder la Fin (4) !",
+                btnGerarPronto: "🚀 GÉNÉRER L'ANIMATION",
+                gerandoFrames: "Extraction des images... 📸",
+                fechandoZiper: "Fermeture du zip... 📦",
+                sucesso: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS ! >:3",
+                erro: "Une erreur s'est produite ❌",
+                carregandoTimeline: "Chargement de la timeline... ⌛",
+                extraindo: "Extraction des Images...",
+                compactandoZip: "Compression du .ZIP final... (Patientez !)",
+                iniciandoGif: "Démarrage du moteur GIF... ⚙️",
+                renderizandoGif: "Rendu de l'Aperçu GIF... 🎬",
+                processandoGif: "Traitement du GIF..."
             }
         };
 
-        let idiomaAtual = 'pt';
+        let idiomaAtual = 'en'; // Padrão global
+
+        // 🕵️ DETETIVE DE IDIOMA: Executa assim que a página carrega!
+        window.addEventListener('DOMContentLoaded', () => {
+            // Puxa a linguagem do navegador (ex: "pt-BR" vira só "pt")
+            const langNavegador = (navigator.language || navigator.userLanguage).split('-')[0];
+            const idiomasSuportados = ['en', 'pt', 'es', 'fr'];
+            
+            // Se o idioma for um dos nossos suportados, usa ele, senão cai pro inglês!
+            if (idiomasSuportados.includes(langNavegador)) {
+                idiomaAtual = langNavegador;
+            } else {
+                idiomaAtual = 'en';
+            }
+            
+            // Atualiza a barrinha lá em cima e traduz tudo na hora! ✨
+            document.getElementById('select-idioma').value = idiomaAtual;
+            mudarIdioma(idiomaAtual);
+        });
 
         function mudarIdioma(lang) {
             idiomaAtual = lang;
@@ -586,7 +636,9 @@
                 
                 const deveGerarGif = document.getElementById('input-gerar-gif').checked;
 
-                await paparazzoMultilanguage(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
+                canvasInvisivel.width = largura; canvasInvisivel.height = altura;
+
+                await paparazzoOtimizado(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
 
                 zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
@@ -600,7 +652,7 @@
                 linkDownload.download = `${nomeEscolhido}.zip`; 
                 linkDownload.click();
                 
-                document.getElementById('texto-progresso').textContent = "Tudo Pronto! :3";
+                document.getElementById('texto-progresso').textContent = "OK! :3";
                 btnGerar.textContent = t.sucesso;
                 
                 setTimeout(() => { 
@@ -629,7 +681,7 @@
             }
         });
 
-        async function paparazzoMultilanguage(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
+        async function paparazzoOtimizado(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
             const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
             let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
             const intervalo = 1 / fps;
