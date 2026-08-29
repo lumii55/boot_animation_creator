@@ -1,2 +1,3 @@
-# boot-animation-creator
-Apenas um repositório para hospedar um site de criação de animações de boot ;3
+# Boot Animation Creator
+
+This repository exists for the sole purpose of hosting the website: https://lumii55.github.io/boot_animation_creator/
