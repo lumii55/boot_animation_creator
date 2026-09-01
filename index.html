@@ -265,7 +265,6 @@
                 <label id="lbl-fps">FPS 🎬</label>
                 <input type="number" id="input-fps" value="30" min="1" max="60">
             </div>
-            <!-- ✨ As caixinhas agora não têm mais o "readonly" e aceitam valores personalizados! ✨ -->
             <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" oninput="aoMudarTamanhoManual()"></div>
             <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" oninput="aoMudarTamanhoManual()"></div>
         </div>
@@ -558,7 +557,7 @@
             const inputNome = document.getElementById('input-nome');
             if (isModulo) {
                 inputNome.disabled = true;
-                inputNome.value = "Magisk_BootAnimation";
+                inputNome.value = "Root_BootAnimation";
                 inputNome.style.opacity = "0.5";
             } else {
                 inputNome.disabled = false;
@@ -768,12 +767,11 @@
             }
         }
 
-        // ✨ MAGIA DA RESOLUÇÃO PERSONALIZADA ✨
         function atualizarTamanho() {
             if (!originalW || !originalH) return;
             let val = document.getElementById('input-qualidade').value;
             
-            if (val === "custom") return; // Deixa o usuário brincar nas caixinhas!
+            if (val === "custom") return;
 
             let w = originalW; let h = originalH;
 
@@ -785,16 +783,34 @@
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
-        // Observador pra ver se o usuário digitou uma largura que bate com os botões!
+        // ✨ O NOVO E MAGNÍFICO OBSERVADOR DE LARGURA E ALTURA! ✨
         window.aoMudarTamanhoManual = function() {
+            if (originalW === 0 || originalH === 0) return;
+            
             let w = parseInt(document.getElementById('input-largura').value) || 0;
+            let h = parseInt(document.getElementById('input-altura').value) || 0;
+            
             let wOrig = Math.floor(originalW / 2) * 2;
+            let hOrig = Math.floor(originalH / 2) * 2;
+            
             let seletor = document.getElementById('input-qualidade');
+            
+            let checarProporcao = (alvoW) => {
+                if (originalW <= alvoW) return { w: wOrig, h: hOrig };
+                return { 
+                    w: alvoW, 
+                    h: Math.floor(Math.floor(originalH * (alvoW / originalW)) / 2) * 2 
+                };
+            };
 
-            if (w === 320) seletor.value = "320";
-            else if (w === 480) seletor.value = "480";
-            else if (w === 720) seletor.value = "720";
-            else if (w === wOrig && wOrig !== 0) seletor.value = "1";
+            let p320 = checarProporcao(320);
+            let p480 = checarProporcao(480);
+            let p720 = checarProporcao(720);
+
+            if (w === p320.w && h === p320.h && p320.w !== 0) seletor.value = "320";
+            else if (w === p480.w && h === p480.h && p480.w !== 0) seletor.value = "480";
+            else if (w === p720.w && h === p720.h && p720.w !== 0) seletor.value = "720";
+            else if (w === wOrig && h === hOrig && wOrig !== 0) seletor.value = "1";
             else seletor.value = "custom";
         }
 
@@ -817,7 +833,6 @@
                 let fps = parseInt(document.getElementById('input-fps').value) || 30;
                 fps = Math.min(60, Math.max(1, fps)); 
 
-                // Agora pegamos o que estiver na caixinha, seja original ou personalizado!
                 const largura = parseInt(document.getElementById('input-largura').value) || originalW;
                 const altura = parseInt(document.getElementById('input-altura').value) || originalH;
                 const formato = document.getElementById('input-formato').value;
