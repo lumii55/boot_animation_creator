@@ -150,6 +150,26 @@
         .texto-progresso { font-size: 12px; color: #03dac6; text-align: center; font-weight: 700; }
         .barra-fundo { width: 100%; height: 12px; background-color: #2a2a2a; border-radius: 10px; overflow: hidden; }
         .barra-preenchimento { height: 100%; width: 0%; background-color: #bb86fc; border-radius: 10px; transition: width 0.1s linear; }
+
+        /* ✨ ESTILOS DO MODAL DE PREVIEW ✨ */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); display: none; justify-content: center;
+            align-items: center; z-index: 100; backdrop-filter: blur(5px);
+        }
+        .modal-box {
+            background: #1e1e1e; border: 2px solid #bb86fc; border-radius: 20px;
+            padding: 20px; display: flex; flex-direction: column; align-items: center;
+            max-width: 90%; max-height: 90vh; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .modal-box h2 { color: #03dac6; font-size: 18px; margin-bottom: 15px; text-align: center; }
+        .modal-img { max-width: 100%; max-height: 60vh; border-radius: 10px; margin-bottom: 15px; background: #000; }
+        .btn-fechar-modal {
+            background-color: #ff5555; color: #fff; padding: 10px 30px; border-radius: 15px;
+            font-weight: 700; font-family: 'Fredoka', sans-serif; border: none; cursor: pointer;
+            transition: 0.2s; font-size: 15px;
+        }
+        .btn-fechar-modal:active { transform: scale(0.95); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
@@ -173,6 +193,7 @@
             <h3 id="txt-dicas-titulo">Tips for Beginners</h3>
             <ul>
                 <li id="txt-dica1"><strong>Requirement:</strong> To apply the animation, your phone must be Rooted (Magisk, KernelSU, etc). If you don't know what this is, research before trying!</li>
+                <li id="txt-dica5"><strong>Samsung Devices:</strong> Samsung uses proprietary .qmg formats. The file generated here might require a Custom ROM or Custom Kernel to work on Samsung.</li>
                 <li id="txt-dica2"><strong>Size matters:</strong> Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.</li>
                 <li id="txt-dica3"><strong>Screen aspect:</strong> Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.</li>
                 <li id="txt-dica4"><strong>Performance:</strong> Keeping resolution at 'Light' and 24-30 FPS ensures a fast and smooth boot.</li>
@@ -207,15 +228,25 @@
 
         <div class="configuracoes" id="configuracoes">
             <div class="campo campo-full">
-                <label id="lbl-nome">File Name 📝 (Without .zip)</label>
-                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: my_boot_animation">
+                <label id="lbl-fabricante">Device Manufacturer 📱</label>
+                <select id="input-fabricante">
+                    <option value="aosp" id="opt-aosp">Default (Motorola, Pixel, Custom ROMs)</option>
+                    <option value="xiaomi" id="opt-xiaomi">Xiaomi / POCO / Redmi</option>
+                    <option value="oneplus" id="opt-oneplus">OnePlus / Oppo / Realme</option>
+                    <option value="samsung" id="opt-samsung">Samsung (Requires Custom Kernel)</option>
+                </select>
             </div>
 
             <div class="campo campo-full">
                 <div class="checkbox-container">
-                    <label style="margin:0;" id="lbl-gerargif">Generate .GIF Preview? 🖼️</label>
-                    <input type="checkbox" id="input-gerar-gif">
+                    <label style="margin:0;" id="lbl-gerarmodulo">Generate Magisk Module? 🧲</label>
+                    <input type="checkbox" id="input-gerar-modulo" onchange="verificarModulo()">
                 </div>
+            </div>
+
+            <div class="campo campo-full">
+                <label id="lbl-nome">File Name 📝 (Without extension)</label>
+                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: my_boot_animation">
             </div>
 
             <div class="campo campo-full">
@@ -250,6 +281,14 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-preview">
+        <div class="modal-box">
+            <h2 id="lbl-modal-titulo">Preview of your Animation! 🎬</h2>
+            <img class="modal-img" id="img-preview-gif" src="" alt="Preview">
+            <button class="btn-fechar-modal" id="btn-fechar-modal" onclick="fecharModal()">Close</button>
+        </div>
+    </div>
+
     <script>
         const traducoes = {
             en: { 
@@ -257,6 +296,7 @@
                 subtitulo: "Create a boot animation using a video file!",
                 dicasTitulo: "Tips for Beginners",
                 dica1: "Requirement: To apply the animation, your phone must be Rooted (Magisk, KernelSU, etc). If you don't know what this is, research before trying!",
+                dica5: "Samsung Devices: Samsung uses proprietary .qmg formats. The file generated here might require a Custom ROM or Custom Kernel to work on Samsung.",
                 dica2: "Size matters: Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.",
                 dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.",
                 dica4: "Performance: Keeping resolution at 'Light' and 24-30 FPS ensures a fast and smooth boot.",
@@ -267,8 +307,13 @@
                 m2: "3. End Loop",
                 m3: "4. Final",
                 naoMarcado: "Not marked",
-                lblNome: "File Name 📝 (Without .zip)",
-                lblGerarGif: "Generate .GIF Preview? 🖼️",
+                lblFabricante: "Device Manufacturer 📱",
+                optAosp: "Default (Motorola, Pixel, Custom ROMs)",
+                optXiaomi: "Xiaomi / POCO / Redmi",
+                optOneplus: "OnePlus / Oppo / Realme",
+                optSamsung: "Samsung (Requires Custom Kernel)",
+                lblGerarModulo: "Generate Magisk Module? 🧲",
+                lblNome: "File Name 📝 (Without extension)",
                 lblFormato: "Frames Format 🖼️",
                 lblQualidade: "Resolution 📉",
                 lblFps: "FPS 🎬",
@@ -284,9 +329,10 @@
                 carregandoTimeline: "Loading Timeline... ⌛",
                 extraindo: "Extracting Frames...",
                 compactandoZip: "Compressing final .ZIP...",
-                iniciandoGif: "Initializing GIF engine... ⚙️",
-                renderizandoGif: "Rendering GIF Preview... 🎬",
-                processandoGif: "Processing GIF...",
+                renderizandoGif: "Rendering Preview... 🎬",
+                processandoGif: "Processing Preview...",
+                modalTitulo: "Preview of your Animation! 🎬",
+                btnFechar: "Close",
                 optJpeg: "JPEG (Android 10+ Lighter!) 🌟",
                 optPng: "PNG (Standard heavy) 🐢",
                 opt320: "Ultra Light (Potato! 320p)",
@@ -299,7 +345,8 @@
                 subtitulo: "Crie uma animação de boot usando um arquivo de vídeo!",
                 dicasTitulo: "Dicas para Principiantes",
                 dica1: "Requisito Mínimo: Para aplicar a animação gerada, você precisará de acesso Root (Magisk, KernelSU, etc). Se não sabe o que é isso, pesquise antes!",
-                dica2: "Tamanho Importa: Evite arquivos maiores que 20MB. Animações muito pesadas podem engasgar o Android ou causar bootloops.",
+                dica5: "Celulares Samsung: A Samsung usa o formato próprio .qmg. O arquivo gerado aqui pode exigir uma Custom ROM ou Kernel Customizado para funcionar nela.",
+                dica2: "Tamanho Importa: Evite arquivos maiores que 20MB. Animações pesadas podem engasgar o Android ou causar bootloops.",
                 dica3: "Formato da Tela: Celulares ficam em pé! Dê preferência a vídeos verticais (formato Reels/TikTok) para a imagem não ficar esticada.",
                 dica4: "Desempenho: Manter a resolução em 'Leve' e 24 a 30 FPS garante que a animação carregue de forma rápida e fluida.",
                 upload: "📂 Escolher Vídeo",
@@ -309,8 +356,13 @@
                 m2: "3. Fim Loop",
                 m3: "4. Final",
                 naoMarcado: "Não marcado",
-                lblNome: "Nome do Arquivo 📝 (Sem .zip)",
-                lblGerarGif: "Gerar Preview em .GIF? 🖼️",
+                lblFabricante: "Fabricante do Celular 📱",
+                optAosp: "Padrão (Motorola, Pixel, Custom ROMs)",
+                optXiaomi: "Xiaomi / POCO / Redmi",
+                optOneplus: "OnePlus / Oppo / Realme",
+                optSamsung: "Samsung (Requer Kernel Customizado)",
+                lblGerarModulo: "Gerar Módulo do Magisk? 🧲",
+                lblNome: "Nome do Arquivo 📝 (Sem extensão)",
                 lblFormato: "Formato dos Frames 🖼️",
                 lblQualidade: "Resolução 📉",
                 lblFps: "FPS 🎬",
@@ -326,9 +378,10 @@
                 carregandoTimeline: "Carregando a Timeline... ⌛",
                 extraindo: "Extraindo Frames...",
                 compactandoZip: "Compactando o .ZIP final...",
-                iniciandoGif: "Iniciando motor de GIF... ⚙️",
-                renderizandoGif: "Renderizando Preview em GIF... 🎬",
-                processandoGif: "Processando GIF...",
+                renderizandoGif: "Renderizando Preview... 🎬",
+                processandoGif: "Processando Preview...",
+                modalTitulo: "Preview da sua Animação! 🎬",
+                btnFechar: "Fechar",
                 optJpeg: "JPEG (Android 10+ Mais leve!) 🌟",
                 optPng: "PNG (Padrão pesado) 🐢",
                 opt320: "Ultra Leve (Batata! 320p)",
@@ -341,6 +394,7 @@
                 subtitulo: "¡Crea una animación de arranque usando un archivo de vídeo!",
                 dicasTitulo: "Consejos para Principiantes",
                 dica1: "Requisito Mínimo: Para aplicar la animación, tu teléfono debe tener Root (Magisk, KernelSU, etc). ¡Si no sabes qué es, investiga primero!",
+                dica5: "Teléfonos Samsung: Samsung usa su formato .qmg. El archivo generado aquí podría requerir un Kernel Customizado para funcionar.",
                 dica2: "El Tamaño Importa: Evita archivos de más de 20MB. Los archivos muy pesados pueden trabar Android o causar bootloops.",
                 dica3: "Formato de Pantalla: ¡Los teléfonos son verticales! Prefiere videos verticales (formato TikTok/Reels) para que no se estiren.",
                 dica4: "Rendimiento: Mantener la resolución en 'Ligero' y 24-30 FPS garantiza una carga rápida y fluida.",
@@ -351,8 +405,13 @@
                 m2: "3. Fin Loop",
                 m3: "4. Final",
                 naoMarcado: "No marcado",
-                lblNome: "Nombre del Archivo 📝 (Sin .zip)",
-                lblGerarGif: "¿Generar Vista Previa en .GIF? 🖼️",
+                lblFabricante: "Fabricante del Teléfono 📱",
+                optAosp: "Por Defecto (Motorola, Pixel, Custom ROMs)",
+                optXiaomi: "Xiaomi / POCO / Redmi",
+                optOneplus: "OnePlus / Oppo / Realme",
+                optSamsung: "Samsung (Requiere Kernel Customizado)",
+                lblGerarModulo: "¿Generar Módulo Magisk? 🧲",
+                lblNome: "Nombre del Archivo 📝 (Sin extensión)",
                 lblFormato: "Formato de Fotogramas 🖼️",
                 lblQualidade: "Resolución 📉",
                 lblFps: "FPS 🎬",
@@ -368,9 +427,10 @@
                 carregandoTimeline: "Cargando Línea de Tiempo... ⌛",
                 extraindo: "Extrayendo Fotogramas...",
                 compactandoZip: "Comprimiendo .ZIP final...",
-                iniciandoGif: "Iniciando motor GIF... ⚙️",
-                renderizandoGif: "Renderizando Vista Previa GIF... 🎬",
-                processandoGif: "Procesando GIF...",
+                renderizandoGif: "Renderizando Vista Previa... 🎬",
+                processandoGif: "Procesando Vista Previa...",
+                modalTitulo: "¡Vista Previa de tu Animación! 🎬",
+                btnFechar: "Cerrar",
                 optJpeg: "JPEG (¡Android 10+ Más ligero!) 🌟",
                 optPng: "PNG (Estándar pesado) 🐢",
                 opt320: "Ultra Ligero (¡Patata! 320p)",
@@ -382,7 +442,8 @@
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
                 subtitulo: "Créez une animation de démarrage à l'aide d'un fichier vidéo !",
                 dicasTitulo: "Conseils pour Débutants",
-                dica1: "Prérequis : Pour appliquer l'animation, votre téléphone doit être Rooté (Magisk, KernelSU, etc). Si vous ne savez pas ce que c'est, renseignez-vous d'abord !",
+                dica1: "Prérequis : Pour appliquer l'animation, votre téléphone doit être Rooté (Magisk, KernelSU, etc). Renseignez-vous d'abord !",
+                dica5: "Appareils Samsung : Samsung utilise des formats .qmg. Le fichier généré ici peut nécessiter un Kernel Custom pour fonctionner.",
                 dica2: "La Taille Compte : Évitez les fichiers de plus de 20 Mo. Les fichiers lourds peuvent faire ramer Android ou causer des bootloops.",
                 dica3: "Format d'Écran : Privilégiez les vidéos verticales (format TikTok/Reels) pour que votre animation ne soit pas déformée.",
                 dica4: "Performance : Garder la résolution sur 'Léger' et 24-30 FPS assure un démarrage rapide et fluide.",
@@ -393,8 +454,13 @@
                 m2: "3. Fin Boucle",
                 m3: "4. Fin",
                 naoMarcado: "Non marqué",
-                lblNome: "Nom du Fichier 📝 (Sans .zip)",
-                lblGerarGif: "Générer Aperçu .GIF ? 🖼️",
+                lblFabricante: "Fabricant de l'Appareil 📱",
+                optAosp: "Par Défaut (Motorola, Pixel, Custom ROMs)",
+                optXiaomi: "Xiaomi / POCO / Redmi",
+                optOneplus: "OnePlus / Oppo / Realme",
+                optSamsung: "Samsung (Nécessite un Kernel Custom)",
+                lblGerarModulo: "Générer un Module Magisk ? 🧲",
+                lblNome: "Nom du Fichier 📝 (Sans extension)",
                 lblFormato: "Format des Images 🖼️",
                 lblQualidade: "Résolution 📉",
                 lblFps: "FPS 🎬",
@@ -410,9 +476,10 @@
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
                 compactandoZip: "Compression du .ZIP final...",
-                iniciandoGif: "Démarrage du moteur GIF... ⚙️",
-                renderizandoGif: "Rendu de l'Aperçu GIF... 🎬",
-                processandoGif: "Traitement du GIF...",
+                renderizandoGif: "Rendu de l'Aperçu... 🎬",
+                processandoGif: "Traitement de l'Aperçu...",
+                modalTitulo: "Aperçu de votre Animation ! 🎬",
+                btnFechar: "Fermer",
                 optJpeg: "JPEG (Android 10+ Plus léger !) 🌟",
                 optPng: "PNG (Standard lourd) 🐢",
                 opt320: "Ultra Léger (Patate ! 320p)",
@@ -424,19 +491,16 @@
 
         let idiomaAtual = 'en'; 
 
-        // ✨ O TRUQUE NINJA ANTI-BRAVE! 🥷✨
         window.addEventListener('DOMContentLoaded', () => {
             let langDetectada = 'en';
             const idiomasSuportados = ['en', 'pt', 'es', 'fr'];
 
             try {
                 const linguasNavegador = navigator.languages || [navigator.language || navigator.userLanguage];
-                
                 let idiomaSistema = null;
                 if (window.Intl && Intl.DateTimeFormat) {
                     idiomaSistema = Intl.DateTimeFormat().resolvedOptions().locale;
                 }
-                
                 const todasPistas = [...linguasNavegador, idiomaSistema];
 
                 for (let pista of todasPistas) {
@@ -466,6 +530,7 @@
             
             document.getElementById('txt-dicas-titulo').innerHTML = t.dicasTitulo;
             document.getElementById('txt-dica1').innerHTML = `<strong>${t.dica1.split(': ')[0]}:</strong> ${t.dica1.split(': ')[1]}`;
+            document.getElementById('txt-dica5').innerHTML = `<strong>${t.dica5.split(': ')[0]}:</strong> ${t.dica5.split(': ')[1]}`;
             document.getElementById('txt-dica2').innerHTML = `<strong>${t.dica2.split(': ')[0]}:</strong> ${t.dica2.split(': ')[1]}`;
             document.getElementById('txt-dica3').innerHTML = `<strong>${t.dica3.split(': ')[0]}:</strong> ${t.dica3.split(': ')[1]}`;
             document.getElementById('txt-dica4').innerHTML = `<strong>${t.dica4.split(': ')[0]}:</strong> ${t.dica4.split(': ')[1]}`;
@@ -478,8 +543,14 @@
             document.getElementById('lbl-m2').textContent = t.m2;
             document.getElementById('lbl-m3').textContent = t.m3;
 
+            document.getElementById('lbl-fabricante').textContent = t.lblFabricante;
+            document.getElementById('opt-aosp').textContent = t.optAosp;
+            document.getElementById('opt-xiaomi').textContent = t.optXiaomi;
+            document.getElementById('opt-oneplus').textContent = t.optOneplus;
+            document.getElementById('opt-samsung').textContent = t.optSamsung;
+            
+            document.getElementById('lbl-gerarmodulo').textContent = t.lblGerarModulo;
             document.getElementById('lbl-nome').textContent = t.lblNome;
-            document.getElementById('lbl-gerargif').textContent = t.lblGerarGif;
             document.getElementById('lbl-formato').textContent = t.lblFormato;
             document.getElementById('lbl-qualidade').textContent = t.lblQualidade;
             document.getElementById('lbl-fps').textContent = t.lblFps;
@@ -488,13 +559,33 @@
 
             document.getElementById('opt-jpeg').textContent = t.optJpeg;
             document.getElementById('opt-png').textContent = t.optPng;
-            
             document.getElementById('opt-320').textContent = t.opt320;
             document.getElementById('opt-480').textContent = t.opt480;
             document.getElementById('opt-720').textContent = t.opt720;
             document.getElementById('opt-orig').textContent = t.optOrig;
 
+            document.getElementById('lbl-modal-titulo').textContent = t.modalTitulo;
+            document.getElementById('btn-fechar-modal').textContent = t.btnFechar;
+
             atualizarBotoesELinhas();
+        }
+
+        function verificarModulo() {
+            const isModulo = document.getElementById('input-gerar-modulo').checked;
+            const inputNome = document.getElementById('input-nome');
+            if (isModulo) {
+                inputNome.disabled = true;
+                inputNome.value = "Magisk_BootAnimation";
+                inputNome.style.opacity = "0.5";
+            } else {
+                inputNome.disabled = false;
+                inputNome.value = "bootanimation";
+                inputNome.style.opacity = "1";
+            }
+        }
+
+        function fecharModal() {
+            document.getElementById('modal-preview').style.display = 'none';
         }
 
         const inputVideo = document.getElementById('upload-video');
@@ -723,38 +814,68 @@
             document.getElementById('container-progresso').style.display = 'flex'; 
             
             try {
-                const zip = new JSZip();
+                const innerZip = new JSZip();
                 let fps = parseInt(document.getElementById('input-fps').value) || 24;
                 fps = Math.min(60, Math.max(1, fps)); 
 
                 const largura = parseInt(document.getElementById('input-largura').value);
                 const altura = parseInt(document.getElementById('input-altura').value);
                 const formato = document.getElementById('input-formato').value;
+                const fabricante = document.getElementById('input-fabricante').value;
+                const isModuloMagisk = document.getElementById('input-gerar-modulo').checked;
                 
                 let nomeEscolhido = document.getElementById('input-nome').value.trim();
                 if (!nomeEscolhido) nomeEscolhido = "bootanimation";
                 
-                const deveGerarGif = document.getElementById('input-gerar-gif').checked;
-
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                await paparazzoOtimizado(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido);
+                // Agora o paparazzo retorna o Blob do GIF pronto para a preview!
+                const gifBlob = await paparazzoOtimizado(innerZip, largura, altura, fps, formato, t);
 
-                zip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
+                innerZip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
                 document.getElementById('texto-progresso').textContent = t.compactandoZip;
                 btnGerar.textContent = t.fechandoZiper;
                 
-                const conteudoZip = await zip.generateAsync({ type: "blob", compression: "STORE" });
+                // Gera o conteúdo do bootanimation original
+                const bootAnimBlob = await innerZip.generateAsync({ type: "blob", compression: "STORE" });
                 
-                const linkDownload = document.createElement("a");
-                linkDownload.href = URL.createObjectURL(conteudoZip);
-                linkDownload.download = `${nomeEscolhido}.zip`; 
-                linkDownload.click();
+                let extensaoOEM = ".zip";
+                let nomeInterno = "bootanimation";
+                
+                if (fabricante === "samsung") {
+                    extensaoOEM = ".qmg";
+                    nomeInterno = "bootsamsung";
+                }
+
+                if (isModuloMagisk) {
+                    const magiskZip = new JSZip();
+                    magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
+                    
+                    magiskZip.folder("system").folder("media").file(`${nomeInterno}${extensaoOEM}`, bootAnimBlob);
+                    
+                    const finalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
+                    
+                    const linkDownload = document.createElement("a");
+                    linkDownload.href = URL.createObjectURL(finalBlob);
+                    linkDownload.download = `${nomeEscolhido}.zip`; 
+                    linkDownload.click();
+                } else {
+                    const linkDownload = document.createElement("a");
+                    linkDownload.href = URL.createObjectURL(bootAnimBlob);
+                    linkDownload.download = `${nomeEscolhido}${extensaoOEM}`; 
+                    linkDownload.click();
+                }
                 
                 document.getElementById('texto-progresso').textContent = "OK!";
                 btnGerar.textContent = t.sucesso;
                 
+                // A MÁGICA DO POP-UP DO GIF! ✨
+                if (gifBlob) {
+                    document.getElementById('img-preview-gif').src = URL.createObjectURL(gifBlob);
+                    document.getElementById('modal-preview').style.display = 'flex';
+                }
+
                 setTimeout(() => { 
                     btnGerar.classList.remove('btn-desativado'); 
                     btnGerar.textContent = t.btnGerarPronto;
@@ -781,45 +902,30 @@
             }
         });
 
-        async function paparazzoOtimizado(zip, largura, altura, fps, formato, deveGerarGif, nomeEscolhido) {
+        async function paparazzoOtimizado(zip, largura, altura, fps, formato, t) {
             const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
             let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
             const intervalo = 1 / fps;
             const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
             const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
             const extensao = formato === 'jpeg' ? '.jpg' : '.png';
-            const t = traducoes[idiomaAtual];
 
             let gif = null;
             let canvasGif = null, ctxGif = null;
             let gifW = 250; 
-            let gifH = 250;
+            let gifH = Math.floor(altura * (250 / largura));
             
             const puloFramesGif = fps > 15 ? Math.round(fps / 12) : 1;
             const delayEfetivoGif = Math.round((1000 / fps) * puloFramesGif);
 
-            if (deveGerarGif) {
-                document.getElementById('texto-progresso').textContent = t.iniciandoGif;
-                try {
-                    const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
-                    gifH = Math.floor(altura * (250 / largura));
-                    
-                    const nNucleos = navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 8) : 4;
-
-                    gif = new GIF({
-                        workers: nNucleos, 
-                        quality: 10,
-                        width: gifW,
-                        height: gifH,
-                        workerScript: URL.createObjectURL(workerBlob)
-                    });
-
-                    canvasGif = document.createElement('canvas');
-                    canvasGif.width = gifW;
-                    canvasGif.height = gifH;
-                    ctxGif = canvasGif.getContext('2d', { alpha: false });
-                } catch(e) { console.error("Erro no motor de GIF", e); gif = null; }
-            }
+            try {
+                const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
+                const nNucleos = navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 8) : 4;
+                gif = new GIF({ workers: nNucleos, quality: 10, width: gifW, height: gifH, workerScript: URL.createObjectURL(workerBlob) });
+                canvasGif = document.createElement('canvas');
+                canvasGif.width = gifW; canvasGif.height = gifH;
+                ctxGif = canvasGif.getContext('2d', { alpha: false });
+            } catch(e) { console.error("Erro GIF", e); gif = null; }
 
             playerVideo.pause();
             let contadorFrameGeral = 0;
@@ -845,7 +951,7 @@
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.72));
                 if (blob) pastaAlvo.file(nome, blob);
 
-                if (deveGerarGif && gif && ctxGif && (contadorFrameGeral % puloFramesGif === 0)) {
+                if (gif && ctxGif && (contadorFrameGeral % puloFramesGif === 0)) {
                     ctxGif.fillStyle = "#000000";
                     ctxGif.fillRect(0, 0, gifW, gifH);
                     ctxGif.drawImage(canvasInvisivel, 0, 0, gifW, gifH);
@@ -860,9 +966,9 @@
                 document.getElementById('texto-progresso').textContent = `${t.extraindo} ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
             }
 
-            if (deveGerarGif && gif) {
+            if (gif) {
                 document.getElementById('texto-progresso').textContent = t.renderizandoGif;
-                btnGerar.textContent = "Rendering GIF... 🖼️";
+                btnGerar.textContent = "🎬...";
                 
                 return new Promise((resolve) => {
                     gif.on('progress', p => {
@@ -872,15 +978,12 @@
                     });
                     
                     gif.on('finished', function(blob) {
-                        const linkGif = document.createElement("a");
-                        linkGif.href = URL.createObjectURL(blob);
-                        linkGif.download = `${nomeEscolhido}.gif`;
-                        linkGif.click();
-                        resolve();
+                        resolve(blob);
                     });
                     gif.render();
                 });
             }
+            return null;
         }
     </script>
 </body>
