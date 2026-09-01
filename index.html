@@ -191,7 +191,7 @@
         <div class="dicas-container" id="dicas-iniciais">
             <h3 id="txt-dicas-titulo">Tips for Beginners</h3>
             <ul>
-                <li id="txt-dica1"><strong>Requirement:</strong> To apply the animation, your phone must be Rooted (Magisk, KernelSU, etc). If you don't know what this is, research before trying!</li>
+                <li id="txt-dica1"><strong>Important (Samsung):</strong> Because .qmg is a closed format, this site doesn't generate animations for stock Samsung. You MUST be on a Custom ROM/GSI! Root access is required.</li>
                 <li id="txt-dica2"><strong>Size matters:</strong> Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.</li>
                 <li id="txt-dica3"><strong>Screen aspect:</strong> Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.</li>
             </ul>
@@ -224,19 +224,21 @@
         </div>
 
         <div class="configuracoes" id="configuracoes">
-            <div class="campo campo-full">
-                <label id="lbl-fabricante">Device Manufacturer 📱</label>
-                <select id="input-fabricante">
-                    <option value="aosp" id="opt-aosp">Default</option>
-                    <option value="samsung" id="opt-samsung">Samsung</option>
-                </select>
-            </div>
-
+            
             <div class="campo campo-full">
                 <div class="checkbox-container">
                     <label style="margin:0;" id="lbl-gerarmodulo">Generate Root Module? 🧲</label>
                     <input type="checkbox" id="input-gerar-modulo" onchange="verificarModulo()">
                 </div>
+            </div>
+
+            <div class="campo campo-full" id="container-fabricante" style="display: none;">
+                <label id="lbl-fabricante">Device/Path 📱</label>
+                <select id="input-fabricante">
+                    <option value="padrao" id="opt-padrao">Default (/system/media/)</option>
+                    <option value="pixel" id="opt-pixel">Google Pixel (/product/media/)</option>
+                    <option value="oem" id="opt-oem">Moto/OnePlus (/oem/media/)</option>
+                </select>
             </div>
 
             <div class="campo campo-full">
@@ -291,7 +293,7 @@
                 titulo: "✨ Boot Animation Creator ✨",
                 subtitulo: "Create a boot animation using a video file!",
                 dicasTitulo: "Tips for Beginners",
-                dica1: "Requirement: To apply the animation, your phone must be Rooted (Magisk, KernelSU, etc). If you don't know what this is, research before trying!",
+                dica1: "Important (Samsung): Because .qmg is a closed format, this site doesn't generate animations for stock Samsung. You MUST be on a Custom ROM/GSI! Root access is required.",
                 dica2: "Size matters: Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.",
                 dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.",
                 upload: "📂 Choose Video",
@@ -301,9 +303,10 @@
                 m2: "3. End Loop",
                 m3: "4. Final",
                 naoMarcado: "Not marked",
-                lblFabricante: "Device Manufacturer 📱",
-                optAosp: "Default",
-                optSamsung: "Samsung",
+                lblFabricante: "Device/Path 📱",
+                optPadrao: "Default (/system/media/)",
+                optPixel: "Google Pixel (/product/media/)",
+                optOem: "Moto/OnePlus (/oem/media/)",
                 lblGerarModulo: "Generate Root Module? 🧲",
                 lblNome: "File Name 📝 (Without extension)",
                 lblFormato: "Frames Format 🖼️",
@@ -337,7 +340,7 @@
                 titulo: "✨ Criador de animações de boot ✨",
                 subtitulo: "Crie uma animação de boot usando um arquivo de vídeo!",
                 dicasTitulo: "Dicas para Principiantes",
-                dica1: "Requisito Mínimo: Para aplicar a animação gerada, você precisará de acesso Root (Magisk, KernelSU, APatch). Se não sabe o que é, pesquise antes!",
+                dica1: "Aviso Samsung: Como o formato .qmg é fechado, o site não gera animações para Samsung de fábrica. Você DEVE usar uma Custom ROM/GSI! Requer acesso Root.",
                 dica2: "Tamanho Importa: Evite arquivos maiores que 20MB. Animações pesadas podem engasgar o Android ou causar bootloops.",
                 dica3: "Formato da Tela: Celulares ficam em pé! Dê preferência a vídeos verticais (formato Reels/TikTok) para a imagem não ficar esticada.",
                 upload: "📂 Escolher Vídeo",
@@ -347,9 +350,10 @@
                 m2: "3. Fim Loop",
                 m3: "4. Final",
                 naoMarcado: "Não marcado",
-                lblFabricante: "Fabricante do Celular 📱",
-                optAosp: "Padrão",
-                optSamsung: "Samsung",
+                lblFabricante: "Aparelho/Caminho 📱",
+                optPadrao: "Padrão (/system/media/)",
+                optPixel: "Google Pixel (/product/media/)",
+                optOem: "Moto/OnePlus (/oem/media/)",
                 lblGerarModulo: "Gerar Módulo Root? 🧲",
                 lblNome: "Nome do Arquivo 📝 (Sem extensão)",
                 lblFormato: "Formato dos Frames 🖼️",
@@ -383,7 +387,7 @@
                 titulo: "✨ Creador de Animaciones de Boot ✨",
                 subtitulo: "¡Crea una animación de arranque usando un archivo de vídeo!",
                 dicasTitulo: "Consejos para Principiantes",
-                dica1: "Requisito Mínimo: Para aplicar la animación, tu teléfono debe tener Root (Magisk, KernelSU, etc). ¡Si no sabes qué es, investiga primero!",
+                dica1: "Aviso Samsung: Como .qmg es un formato cerrado, el sitio no genera animaciones para Samsung de fábrica. ¡DEBES usar una Custom ROM/GSI! Requiere Root.",
                 dica2: "El Tamaño Importa: Evita archivos de más de 20MB. Los archivos muy pesados pueden trabar Android o causar bootloops.",
                 dica3: "Formato de Pantalla: ¡Los teléfonos son verticales! Prefiere videos verticales (formato TikTok/Reels) para que no se estiren.",
                 upload: "📂 Elegir Video",
@@ -393,9 +397,10 @@
                 m2: "3. Fin Loop",
                 m3: "4. Final",
                 naoMarcado: "No marcado",
-                lblFabricante: "Fabricante del Teléfono 📱",
-                optAosp: "Por Defecto",
-                optSamsung: "Samsung",
+                lblFabricante: "Dispositivo/Ruta 📱",
+                optPadrao: "Por Defecto (/system/media/)",
+                optPixel: "Google Pixel (/product/media/)",
+                optOem: "Moto/OnePlus (/oem/media/)",
                 lblGerarModulo: "¿Generar Módulo Root? 🧲",
                 lblNome: "Nombre del Archivo 📝 (Sin extensión)",
                 lblFormato: "Formato de Fotogramas 🖼️",
@@ -429,7 +434,7 @@
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
                 subtitulo: "Créez une animation de démarrage à l'aide d'un fichier vidéo !",
                 dicasTitulo: "Conseils pour Débutants",
-                dica1: "Prérequis : Pour appliquer l'animation, votre téléphone doit être Rooté (Magisk, KernelSU, etc). Renseignez-vous d'abord !",
+                dica1: "Avis Samsung : Le format .qmg étant fermé, le site ne génère pas d'animations pour Samsung d'origine. Vous DEVEZ être sur une Custom ROM/GSI ! Root requis.",
                 dica2: "La Taille Compte : Évitez les fichiers de plus de 20 Mo. Les fichiers lourds peuvent faire ramer Android ou causer des bootloops.",
                 dica3: "Format d'Écran : Privilégiez les vidéos verticales (format TikTok/Reels) pour que votre animation ne soit pas déformée.",
                 upload: "📂 Choisir une Vidéo",
@@ -439,9 +444,10 @@
                 m2: "3. Fin Boucle",
                 m3: "4. Fin",
                 naoMarcado: "Non marqué",
-                lblFabricante: "Fabricant de l'Appareil 📱",
-                optAosp: "Par Défaut",
-                optSamsung: "Samsung",
+                lblFabricante: "Appareil/Chemin 📱",
+                optPadrao: "Par Défaut (/system/media/)",
+                optPixel: "Google Pixel (/product/media/)",
+                optOem: "Moto/OnePlus (/oem/media/)",
                 lblGerarModulo: "Générer un Module Root ? 🧲",
                 lblNome: "Nom du Fichier 📝 (Sans extension)",
                 lblFormato: "Format des Images 🖼️",
@@ -526,8 +532,9 @@
             document.getElementById('lbl-m3').textContent = t.m3;
 
             document.getElementById('lbl-fabricante').textContent = t.lblFabricante;
-            document.getElementById('opt-aosp').textContent = t.optAosp;
-            document.getElementById('opt-samsung').textContent = t.optSamsung;
+            document.getElementById('opt-padrao').textContent = t.optPadrao;
+            document.getElementById('opt-pixel').textContent = t.optPixel;
+            document.getElementById('opt-oem').textContent = t.optOem;
             
             document.getElementById('lbl-gerarmodulo').textContent = t.lblGerarModulo;
             document.getElementById('lbl-nome').textContent = t.lblNome;
@@ -554,14 +561,18 @@
         function verificarModulo() {
             const isModulo = document.getElementById('input-gerar-modulo').checked;
             const inputNome = document.getElementById('input-nome');
+            const containerFabricante = document.getElementById('container-fabricante');
+            
             if (isModulo) {
                 inputNome.disabled = true;
                 inputNome.value = "Root_BootAnimation";
                 inputNome.style.opacity = "0.5";
+                containerFabricante.style.display = "flex";
             } else {
                 inputNome.disabled = false;
                 inputNome.value = "bootanimation";
                 inputNome.style.opacity = "1";
+                containerFabricante.style.display = "none";
             }
         }
 
@@ -851,34 +862,31 @@
                 
                 const rawBootAnimBlob = await innerZip.generateAsync({ type: "blob", compression: "STORE" });
                 
-                let extensaoOEM = ".zip";
-                let nomeInterno = "bootanimation";
-                
-                if (fabricante === "samsung") {
-                    extensaoOEM = ".qmg";
-                    nomeInterno = "bootsamsung";
-                }
-
                 if (isModuloMagisk) {
                     const magiskZip = new JSZip();
                     magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
                     
-                    magiskZip.folder("system").folder("media").file(`${nomeInterno}${extensaoOEM}`, rawBootAnimBlob);
+                    let caminhoAlvo = "system/media";
+                    if (fabricante === "pixel") caminhoAlvo = "system/product/media";
+                    else if (fabricante === "oem") caminhoAlvo = "system/oem/media";
+                    
+                    let pastaAtual = magiskZip;
+                    const partesCaminho = caminhoAlvo.split('/');
+                    for (let p of partesCaminho) {
+                        pastaAtual = pastaAtual.folder(p);
+                    }
+                    pastaAtual.file("bootanimation.zip", rawBootAnimBlob);
                     
                     const rawFinalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
                     
-                    // ✨ TRUQUE NINJA: Força o tipo octet-stream para não virar zip automático
-                    const finalBlob = new Blob([rawFinalBlob], { type: "application/octet-stream" });
                     const linkDownload = document.createElement("a");
-                    linkDownload.href = URL.createObjectURL(finalBlob);
+                    linkDownload.href = URL.createObjectURL(rawFinalBlob);
                     linkDownload.download = `${nomeEscolhido}.zip`; 
                     linkDownload.click();
                 } else {
-                    // ✨ TRUQUE NINJA PARA SAMSUNG
-                    const bootAnimBlobSafe = new Blob([rawBootAnimBlob], { type: "application/octet-stream" });
                     const linkDownload = document.createElement("a");
-                    linkDownload.href = URL.createObjectURL(bootAnimBlobSafe);
-                    linkDownload.download = `${nomeEscolhido}${extensaoOEM}`; 
+                    linkDownload.href = URL.createObjectURL(rawBootAnimBlob);
+                    linkDownload.download = `${nomeEscolhido}.zip`; 
                     linkDownload.click();
                 }
                 
@@ -962,7 +970,6 @@
 
                 const nome = String(numFoto).padStart(5, '0') + extensao;
                 
-                // ✨ TRUQUE NINJA DAS CORES: Agora a qualidade do JPEG é 95% em vez de 72%
                 const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.95));
                 if (blob) pastaAlvo.file(nome, blob);
 
