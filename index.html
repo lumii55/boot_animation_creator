@@ -234,7 +234,7 @@
 
             <div class="campo campo-full">
                 <div class="checkbox-container">
-                    <label style="margin:0;" id="lbl-gerarmodulo">Generate Magisk Module? 🧲</label>
+                    <label style="margin:0;" id="lbl-gerarmodulo">Generate Root Module? 🧲</label>
                     <input type="checkbox" id="input-gerar-modulo" onchange="verificarModulo()">
                 </div>
             </div>
@@ -253,19 +253,21 @@
             </div>
             <div class="campo campo-full">
                 <label id="lbl-qualidade">Resolution 📉</label>
-                <select id="input-qualidade">
+                <select id="input-qualidade" onchange="atualizarTamanho()">
                     <option value="320" id="opt-320">320p</option>
                     <option value="480" id="opt-480">480p</option>
                     <option value="720" id="opt-720">720p</option>
                     <option value="1" id="opt-orig" selected>Original</option>
+                    <option value="custom" id="opt-custom">Custom</option>
                 </select>
             </div>
             <div class="campo campo-full">
                 <label id="lbl-fps">FPS 🎬</label>
                 <input type="number" id="input-fps" value="30" min="1" max="60">
             </div>
-            <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" readonly></div>
-            <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" readonly></div>
+            <!-- ✨ As caixinhas agora não têm mais o "readonly" e aceitam valores personalizados! ✨ -->
+            <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" oninput="aoMudarTamanhoManual()"></div>
+            <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" oninput="aoMudarTamanhoManual()"></div>
         </div>
 
         <button id="btn-gerar" class="btn-gerar btn-desativado">Missing Markers...</button>
@@ -304,7 +306,7 @@
                 lblFabricante: "Device Manufacturer 📱",
                 optAosp: "Default",
                 optSamsung: "Samsung",
-                lblGerarModulo: "Generate Magisk Module? 🧲",
+                lblGerarModulo: "Generate Root Module? 🧲",
                 lblNome: "File Name 📝 (Without extension)",
                 lblFormato: "Frames Format 🖼️",
                 lblQualidade: "Resolution 📉",
@@ -330,13 +332,14 @@
                 opt320: "320p",
                 opt480: "480p",
                 opt720: "720p",
-                optOrig: "Original"
+                optOrig: "Original",
+                optCustom: "Custom"
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
                 subtitulo: "Crie uma animação de boot usando um arquivo de vídeo!",
                 dicasTitulo: "Dicas para Principiantes",
-                dica1: "Requisito Mínimo: Para aplicar a animação gerada, você precisará de acesso Root (Magisk, KernelSU, etc). Se não sabe o que é isso, pesquise antes!",
+                dica1: "Requisito Mínimo: Para aplicar a animação gerada, você precisará de acesso Root (Magisk, KernelSU, APatch). Se não sabe o que é, pesquise antes!",
                 dica2: "Tamanho Importa: Evite arquivos maiores que 20MB. Animações pesadas podem engasgar o Android ou causar bootloops.",
                 dica3: "Formato da Tela: Celulares ficam em pé! Dê preferência a vídeos verticais (formato Reels/TikTok) para a imagem não ficar esticada.",
                 upload: "📂 Escolher Vídeo",
@@ -349,7 +352,7 @@
                 lblFabricante: "Fabricante do Celular 📱",
                 optAosp: "Padrão",
                 optSamsung: "Samsung",
-                lblGerarModulo: "Gerar Módulo do Magisk? 🧲",
+                lblGerarModulo: "Gerar Módulo Root? 🧲",
                 lblNome: "Nome do Arquivo 📝 (Sem extensão)",
                 lblFormato: "Formato dos Frames 🖼️",
                 lblQualidade: "Resolução 📉",
@@ -375,7 +378,8 @@
                 opt320: "320p",
                 opt480: "480p",
                 opt720: "720p",
-                optOrig: "Original"
+                optOrig: "Original",
+                optCustom: "Personalizado"
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
@@ -394,7 +398,7 @@
                 lblFabricante: "Fabricante del Teléfono 📱",
                 optAosp: "Por Defecto",
                 optSamsung: "Samsung",
-                lblGerarModulo: "¿Generar Módulo Magisk? 🧲",
+                lblGerarModulo: "¿Generar Módulo Root? 🧲",
                 lblNome: "Nombre del Archivo 📝 (Sin extensión)",
                 lblFormato: "Formato de Fotogramas 🖼️",
                 lblQualidade: "Resolución 📉",
@@ -420,7 +424,8 @@
                 opt320: "320p",
                 opt480: "480p",
                 opt720: "720p",
-                optOrig: "Original"
+                optOrig: "Original",
+                optCustom: "Personalizado"
             },
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
@@ -439,7 +444,7 @@
                 lblFabricante: "Fabricant de l'Appareil 📱",
                 optAosp: "Par Défaut",
                 optSamsung: "Samsung",
-                lblGerarModulo: "Générer un Module Magisk ? 🧲",
+                lblGerarModulo: "Générer un Module Root ? 🧲",
                 lblNome: "Nom du Fichier 📝 (Sans extension)",
                 lblFormato: "Format des Images 🖼️",
                 lblQualidade: "Résolution 📉",
@@ -465,7 +470,8 @@
                 opt320: "320p",
                 opt480: "480p",
                 opt720: "720p",
-                optOrig: "Original"
+                optOrig: "Original",
+                optCustom: "Personnalisé"
             }
         };
 
@@ -539,6 +545,7 @@
             document.getElementById('opt-480').textContent = t.opt480;
             document.getElementById('opt-720').textContent = t.opt720;
             document.getElementById('opt-orig').textContent = t.optOrig;
+            document.getElementById('opt-custom').textContent = t.optCustom;
 
             document.getElementById('lbl-modal-titulo').textContent = t.modalTitulo;
             document.getElementById('btn-fechar-modal').textContent = t.btnFechar;
@@ -761,10 +768,13 @@
             }
         }
 
-        document.getElementById('input-qualidade').addEventListener('change', atualizarTamanho);
+        // ✨ MAGIA DA RESOLUÇÃO PERSONALIZADA ✨
         function atualizarTamanho() {
             if (!originalW || !originalH) return;
             let val = document.getElementById('input-qualidade').value;
+            
+            if (val === "custom") return; // Deixa o usuário brincar nas caixinhas!
+
             let w = originalW; let h = originalH;
 
             if (val === "320" && originalW > 320) { w = 320; h = Math.floor(originalH * (320/originalW)); } 
@@ -773,6 +783,19 @@
 
             w = Math.floor(w / 2) * 2; h = Math.floor(h / 2) * 2;
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
+        }
+
+        // Observador pra ver se o usuário digitou uma largura que bate com os botões!
+        window.aoMudarTamanhoManual = function() {
+            let w = parseInt(document.getElementById('input-largura').value) || 0;
+            let wOrig = Math.floor(originalW / 2) * 2;
+            let seletor = document.getElementById('input-qualidade');
+
+            if (w === 320) seletor.value = "320";
+            else if (w === 480) seletor.value = "480";
+            else if (w === 720) seletor.value = "720";
+            else if (w === wOrig && wOrig !== 0) seletor.value = "1";
+            else seletor.value = "custom";
         }
 
         btnGerar.addEventListener('click', async () => {
@@ -794,8 +817,9 @@
                 let fps = parseInt(document.getElementById('input-fps').value) || 30;
                 fps = Math.min(60, Math.max(1, fps)); 
 
-                const largura = parseInt(document.getElementById('input-largura').value);
-                const altura = parseInt(document.getElementById('input-altura').value);
+                // Agora pegamos o que estiver na caixinha, seja original ou personalizado!
+                const largura = parseInt(document.getElementById('input-largura').value) || originalW;
+                const altura = parseInt(document.getElementById('input-altura').value) || originalH;
                 const formato = document.getElementById('input-formato').value;
                 const fabricante = document.getElementById('input-fabricante').value;
                 const isModuloMagisk = document.getElementById('input-gerar-modulo').checked;
