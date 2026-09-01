@@ -879,11 +879,11 @@
                     magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
                     
                     const caminhosPorVariante = {
-                        standard: ["system/product/media", "system/media"],
-                        miui: ["system/product/media", "system/media", "system/system_ext/media", "system/media/theme"],
-                        mtk: ["system/product/media", "system/media", "system/custom/media"],
-                        motorola: ["system/product/media", "system/media", "system/oem/media"],
-                        emui: ["system/product/media", "system/media", "system/etc/media"]
+                        standard: ["product/media", "system/media", "apex/com.android.bootanimation/etc"],
+                        miui: ["product/media", "system/media", "system_ext/media", "system/media/theme", "apex/com.android.bootanimation/etc"],
+                        mtk: ["product/media", "system/media", "custom/media", "apex/com.android.bootanimation/etc"],
+                        motorola: ["product/media", "system/media", "oem/media", "apex/com.android.bootanimation/etc"],
+                        emui: ["product/media", "system/media", "system/etc/media", "apex/com.android.bootanimation/etc"]
                     };
 
                     const caminhosAUsar = caminhosPorVariante[fabricante] || caminhosPorVariante['standard'];
