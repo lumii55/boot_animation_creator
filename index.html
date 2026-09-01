@@ -59,7 +59,7 @@
         video { 
             width: 100%; max-height: 35vh; border-radius: 15px; 
             background-color: #000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-            object-fit: contain; cursor: pointer; transition: 0.2s;
+            object-fit: contain; cursor: pointer; transition: opacity 0.3s;
         }
         video.pausado { border: 2px solid #03dac6; }
         .dica-video { font-size: 11px; color: #aaaaaa; margin-top: 5px; opacity: 0.8; }
@@ -91,8 +91,9 @@
         .filmstrip img { height: 100%; object-fit: cover; opacity: 0.6; pointer-events: none; flex: 1; }
         
         .linha-marcador {
-            position: absolute; top: 0; bottom: 0; width: 4px; z-index: 10;
-            transform: translateX(-50%); border-radius: 2px; opacity: 0.9;
+            position: absolute; top: 0; bottom: 0; width: 6px; z-index: 10;
+            transform: translateX(-50%); border-radius: 3px; opacity: 0.9;
+            box-shadow: 0 0 5px rgba(0,0,0,0.8);
         }
         .linha-m0 { background: #03dac6; }
         .linha-m1 { background: #bb86fc; }
@@ -278,6 +279,15 @@
         <div class="container-progresso" id="container-progresso">
             <div class="texto-progresso" id="texto-progresso">0%</div>
             <div class="barra-fundo"><div class="barra-preenchimento" id="barra-preenchimento"></div></div>
+        </div>
+    </div>
+
+    <!-- ✨ CapCut Loading Overlay ✨ -->
+    <div class="modal-overlay" id="loading-overlay" style="z-index: 200;">
+        <div class="modal-box" style="background: transparent; border: none; box-shadow: none;">
+            <div style="width: 50px; height: 50px; border: 5px solid #444; border-top: 5px solid #03dac6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
+            <h2 id="txt-loading-timeline" style="color: #03dac6; font-size: 16px; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8);">Loading Timeline... ⌛</h2>
+            <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
         </div>
     </div>
 
@@ -566,24 +576,18 @@
 
             document.getElementById('lbl-modal-titulo').textContent = t.modalTitulo;
             document.getElementById('btn-fechar-modal').textContent = t.btnFechar;
+            document.getElementById('txt-loading-timeline').textContent = t.carregandoTimeline;
 
             atualizarBotoesELinhas();
         }
 
         function verificarModulo() {
             const isModulo = document.getElementById('input-gerar-modulo').checked;
-            const inputNome = document.getElementById('input-nome');
             const containerFabricante = document.getElementById('container-fabricante');
             
             if (isModulo) {
-                inputNome.disabled = true;
-                inputNome.value = "Root_BootAnimation";
-                inputNome.style.opacity = "0.5";
                 containerFabricante.style.display = "flex";
             } else {
-                inputNome.disabled = false;
-                inputNome.value = "bootanimation";
-                inputNome.style.opacity = "1";
                 containerFabricante.style.display = "none";
             }
         }
@@ -636,6 +640,7 @@
                 dicasIniciais.style.display = 'none';
 
                 playerVideo.src = e.target.result; 
+                
                 videoContainer.style.display = 'block';
                 timelineWrapper.style.display = 'block';
                 gridMarcadores.style.display = 'grid';
@@ -654,10 +659,17 @@
             atualizarTamanho();
             ajustarPaddings();
             
-            document.getElementById('texto-progresso').textContent = traducoes[idiomaAtual].carregandoTimeline;
-            document.getElementById('container-progresso').style.display = 'flex';
+            // Mostrar tela de loading CapCut style
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            // Ocultar o player temporariamente para não mostrar a extração
+            playerVideo.style.opacity = '0'; 
+            
             await desenharFilmstrip();
-            document.getElementById('container-progresso').style.display = 'none';
+            
+            // Restaura
+            playerVideo.style.opacity = '1';
+            document.getElementById('loading-overlay').style.display = 'none';
         });
 
         let isMouseDown = false;
@@ -701,12 +713,20 @@
             scrollTimeline.scrollLeft = scrollLeftPos - walk;
         });
 
+        let isSeeking = false;
         scrollTimeline.addEventListener('scroll', () => {
             if (!isDraggingTimeline || !playerVideo.duration || isGenerating) return;
             const scrollMax = filmstrip.offsetWidth;
             let percent = scrollTimeline.scrollLeft / scrollMax;
             percent = Math.max(0, Math.min(1, percent));
-            playerVideo.currentTime = percent * playerVideo.duration;
+            
+            if (!isSeeking) {
+                isSeeking = true;
+                requestAnimationFrame(() => {
+                    playerVideo.currentTime = percent * playerVideo.duration;
+                    isSeeking = false;
+                });
+            }
         });
 
         playerVideo.addEventListener('timeupdate', () => {
@@ -746,7 +766,16 @@
 
         window.marcarTrecho = function(id) {
             if (isGenerating) return; 
-            marcadores[id] = playerVideo.currentTime;
+            
+            // Correção EXATA dos frames: se o vídeo está pausado ou sendo arrastado na barra, 
+            // baseamos o tempo diretamente nos pixels da barra de rolagem (CapCut Style)!
+            if (playerVideo.paused) {
+                const scrollMax = filmstrip.offsetWidth;
+                let percent = scrollTimeline.scrollLeft / scrollMax;
+                marcadores[id] = Math.max(0, Math.min(1, percent)) * playerVideo.duration;
+            } else {
+                marcadores[id] = playerVideo.currentTime;
+            }
             atualizarBotoesELinhas();
         }
 
@@ -768,6 +797,17 @@
                     const linha = document.createElement('div');
                     linha.className = `linha-marcador linha-${id}`;
                     linha.style.left = ((tempo / playerVideo.duration) * 100) + '%';
+                    
+                    // ✨ MÁGICA DO CLIQUE ✨ 
+                    // Agora você pode clicar na linha pra pular o vídeo exatamente pra esse marcador!
+                    linha.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (isGenerating) return;
+                        playerVideo.currentTime = tempo;
+                        playerVideo.pause();
+                    });
+                    linha.style.cursor = 'pointer';
+                    
                     filmstrip.appendChild(linha);
                 } else {
                     spanStatus.textContent = t.naoMarcado;
