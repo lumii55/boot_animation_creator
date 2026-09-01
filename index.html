@@ -277,7 +277,6 @@
         </div>
     </div>
 
-    <!-- ✨ MODAL DE PREVIEW ✨ -->
     <div class="modal-overlay" id="modal-preview">
         <div class="modal-box">
             <h2 id="lbl-modal-titulo">Preview of your Animation! 🎬</h2>
@@ -783,7 +782,6 @@
             document.getElementById('input-largura').value = w; document.getElementById('input-altura').value = h;
         }
 
-        // ✨ O NOVO E MAGNÍFICO OBSERVADOR DE LARGURA E ALTURA! ✨
         window.aoMudarTamanhoManual = function() {
             if (originalW === 0 || originalH === 0) return;
             
@@ -851,7 +849,7 @@
                 document.getElementById('texto-progresso').textContent = t.compactandoZip;
                 btnGerar.textContent = t.fechandoZiper;
                 
-                const bootAnimBlob = await innerZip.generateAsync({ type: "blob", compression: "STORE" });
+                const rawBootAnimBlob = await innerZip.generateAsync({ type: "blob", compression: "STORE" });
                 
                 let extensaoOEM = ".zip";
                 let nomeInterno = "bootanimation";
@@ -865,17 +863,21 @@
                     const magiskZip = new JSZip();
                     magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
                     
-                    magiskZip.folder("system").folder("media").file(`${nomeInterno}${extensaoOEM}`, bootAnimBlob);
+                    magiskZip.folder("system").folder("media").file(`${nomeInterno}${extensaoOEM}`, rawBootAnimBlob);
                     
-                    const finalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
+                    const rawFinalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
                     
+                    // ✨ TRUQUE NINJA: Força o tipo octet-stream para não virar zip automático
+                    const finalBlob = new Blob([rawFinalBlob], { type: "application/octet-stream" });
                     const linkDownload = document.createElement("a");
                     linkDownload.href = URL.createObjectURL(finalBlob);
                     linkDownload.download = `${nomeEscolhido}.zip`; 
                     linkDownload.click();
                 } else {
+                    // ✨ TRUQUE NINJA PARA SAMSUNG
+                    const bootAnimBlobSafe = new Blob([rawBootAnimBlob], { type: "application/octet-stream" });
                     const linkDownload = document.createElement("a");
-                    linkDownload.href = URL.createObjectURL(bootAnimBlob);
+                    linkDownload.href = URL.createObjectURL(bootAnimBlobSafe);
                     linkDownload.download = `${nomeEscolhido}${extensaoOEM}`; 
                     linkDownload.click();
                 }
@@ -960,7 +962,8 @@
 
                 const nome = String(numFoto).padStart(5, '0') + extensao;
                 
-                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.72));
+                // ✨ TRUQUE NINJA DAS CORES: Agora a qualidade do JPEG é 95% em vez de 72%
+                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.95));
                 if (blob) pastaAlvo.file(nome, blob);
 
                 if (gif && ctxGif && (contadorFrameGeral % puloFramesGif === 0)) {
