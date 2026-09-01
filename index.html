@@ -233,11 +233,13 @@
             </div>
 
             <div class="campo campo-full" id="container-fabricante" style="display: none;">
-                <label id="lbl-fabricante">Device/Path 📱</label>
+                <label id="lbl-fabricante">Device Variant 📱</label>
                 <select id="input-fabricante">
-                    <option value="padrao" id="opt-padrao">Default (/system/media/)</option>
-                    <option value="pixel" id="opt-pixel">Google Pixel (/product/media/)</option>
-                    <option value="oem" id="opt-oem">Moto/OnePlus (/oem/media/)</option>
+                    <option value="standard" id="opt-standard">Standard (AOSP/Pixel/OnePlus)</option>
+                    <option value="miui" id="opt-miui">MIUI (Xiaomi)</option>
+                    <option value="mtk" id="opt-mtk">MTK (MediaTek Stock)</option>
+                    <option value="motorola" id="opt-motorola">Motorola</option>
+                    <option value="emui" id="opt-emui">EMUI (Huawei)</option>
                 </select>
             </div>
 
@@ -303,10 +305,12 @@
                 m2: "3. End Loop",
                 m3: "4. Final",
                 naoMarcado: "Not marked",
-                lblFabricante: "Device/Path 📱",
-                optPadrao: "Default (/system/media/)",
-                optPixel: "Google Pixel (/product/media/)",
-                optOem: "Moto/OnePlus (/oem/media/)",
+                lblFabricante: "Device Variant 📱",
+                optStandard: "Standard (AOSP/Pixel/OnePlus)",
+                optMiui: "MIUI (Xiaomi)",
+                optMtk: "MTK (MediaTek Stock)",
+                optMotorola: "Motorola",
+                optEmui: "EMUI (Huawei)",
                 lblGerarModulo: "Generate Root Module? 🧲",
                 lblNome: "File Name 📝 (Without extension)",
                 lblFormato: "Frames Format 🖼️",
@@ -350,10 +354,12 @@
                 m2: "3. Fim Loop",
                 m3: "4. Final",
                 naoMarcado: "Não marcado",
-                lblFabricante: "Aparelho/Caminho 📱",
-                optPadrao: "Padrão (/system/media/)",
-                optPixel: "Google Pixel (/product/media/)",
-                optOem: "Moto/OnePlus (/oem/media/)",
+                lblFabricante: "Variante do Aparelho 📱",
+                optStandard: "Padrão (AOSP/Pixel/OnePlus)",
+                optMiui: "MIUI (Xiaomi)",
+                optMtk: "MTK (MediaTek Stock)",
+                optMotorola: "Motorola",
+                optEmui: "EMUI (Huawei)",
                 lblGerarModulo: "Gerar Módulo Root? 🧲",
                 lblNome: "Nome do Arquivo 📝 (Sem extensão)",
                 lblFormato: "Formato dos Frames 🖼️",
@@ -397,10 +403,12 @@
                 m2: "3. Fin Loop",
                 m3: "4. Final",
                 naoMarcado: "No marcado",
-                lblFabricante: "Dispositivo/Ruta 📱",
-                optPadrao: "Por Defecto (/system/media/)",
-                optPixel: "Google Pixel (/product/media/)",
-                optOem: "Moto/OnePlus (/oem/media/)",
+                lblFabricante: "Variante del Dispositivo 📱",
+                optStandard: "Estándar (AOSP/Pixel/OnePlus)",
+                optMiui: "MIUI (Xiaomi)",
+                optMtk: "MTK (MediaTek Stock)",
+                optMotorola: "Motorola",
+                optEmui: "EMUI (Huawei)",
                 lblGerarModulo: "¿Generar Módulo Root? 🧲",
                 lblNome: "Nombre del Archivo 📝 (Sin extensión)",
                 lblFormato: "Formato de Fotogramas 🖼️",
@@ -444,10 +452,12 @@
                 m2: "3. Fin Boucle",
                 m3: "4. Fin",
                 naoMarcado: "Non marqué",
-                lblFabricante: "Appareil/Chemin 📱",
-                optPadrao: "Par Défaut (/system/media/)",
-                optPixel: "Google Pixel (/product/media/)",
-                optOem: "Moto/OnePlus (/oem/media/)",
+                lblFabricante: "Variante d'Appareil 📱",
+                optStandard: "Standard (AOSP/Pixel/OnePlus)",
+                optMiui: "MIUI (Xiaomi)",
+                optMtk: "MTK (MediaTek Stock)",
+                optMotorola: "Motorola",
+                optEmui: "EMUI (Huawei)",
                 lblGerarModulo: "Générer un Module Root ? 🧲",
                 lblNome: "Nom du Fichier 📝 (Sans extension)",
                 lblFormato: "Format des Images 🖼️",
@@ -532,9 +542,11 @@
             document.getElementById('lbl-m3').textContent = t.m3;
 
             document.getElementById('lbl-fabricante').textContent = t.lblFabricante;
-            document.getElementById('opt-padrao').textContent = t.optPadrao;
-            document.getElementById('opt-pixel').textContent = t.optPixel;
-            document.getElementById('opt-oem').textContent = t.optOem;
+            document.getElementById('opt-standard').textContent = t.optStandard;
+            document.getElementById('opt-miui').textContent = t.optMiui;
+            document.getElementById('opt-mtk').textContent = t.optMtk;
+            document.getElementById('opt-motorola').textContent = t.optMotorola;
+            document.getElementById('opt-emui').textContent = t.optEmui;
             
             document.getElementById('lbl-gerarmodulo').textContent = t.lblGerarModulo;
             document.getElementById('lbl-nome').textContent = t.lblNome;
@@ -866,16 +878,24 @@
                     const magiskZip = new JSZip();
                     magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
                     
-                    let caminhoAlvo = "system/media";
-                    if (fabricante === "pixel") caminhoAlvo = "system/product/media";
-                    else if (fabricante === "oem") caminhoAlvo = "system/oem/media";
-                    
-                    let pastaAtual = magiskZip;
-                    const partesCaminho = caminhoAlvo.split('/');
-                    for (let p of partesCaminho) {
-                        pastaAtual = pastaAtual.folder(p);
+                    const caminhosPorVariante = {
+                        standard: ["system/product/media", "system/media"],
+                        miui: ["system/product/media", "system/media", "system/system_ext/media", "system/media/theme"],
+                        mtk: ["system/product/media", "system/media", "system/custom/media"],
+                        motorola: ["system/product/media", "system/media", "system/oem/media"],
+                        emui: ["system/product/media", "system/media", "system/etc/media"]
+                    };
+
+                    const caminhosAUsar = caminhosPorVariante[fabricante] || caminhosPorVariante['standard'];
+
+                    for (let caminho of caminhosAUsar) {
+                        let pastaAtual = magiskZip;
+                        const partesCaminho = caminho.split('/');
+                        for (let p of partesCaminho) {
+                            pastaAtual = pastaAtual.folder(p);
+                        }
+                        pastaAtual.file("bootanimation.zip", rawBootAnimBlob);
                     }
-                    pastaAtual.file("bootanimation.zip", rawBootAnimBlob);
                     
                     const rawFinalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
                     
