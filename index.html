@@ -51,7 +51,7 @@
             background-color: #bb86fc; color: #000; padding: 14px 20px; 
             border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; 
             text-align: center; font-size: 15px; transition: 0.2s; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: none; font-family: 'Fredoka', sans-serif;
         }
         .btn-upload:active { transform: scale(0.96); }
 
@@ -204,125 +204,140 @@
             </ul>
         </div>
 
-        <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
-        <input type="file" id="upload-video" accept="video/*" hidden>
-
-        <div class="video-container" id="video-container">
-            <video id="player-video" playsinline class="pausado"></video>
-            <p class="dica-video" id="txt-dicavideo">👆 Click video to Play or Pause!</p>
+        <!-- NEW: INITIAL STATE UI -->
+        <div id="initial-state" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 5px;">
+            <button class="btn-upload" id="btn-connect" onclick="connectToPhone()" style="background-color: #03dac6;">🔌 Connect to Phone</button>
+            <button class="btn-upload" id="btn-manual" onclick="startManualMode()" style="background-color: #333; color: #fff;">📦 Just Create .ZIP</button>
         </div>
 
-        <div class="timeline-wrapper" id="timeline-wrapper">
-            <div class="playhead-centro"></div>
-            <div class="timeline-scroll" id="timeline-scroll">
-                <div class="filmstrip-container">
-                    <div class="pad-spacer" id="pad-left"></div>
-                    <div class="filmstrip" id="filmstrip"></div>
-                    <div class="pad-spacer" id="pad-right"></div>
-                </div>
-            </div>
+        <!-- NEW: CONNECTED STATE UI -->
+        <div id="connected-state" style="width: 100%; display: none; flex-direction: column; gap: 10px; margin-bottom: 5px;">
+            <div style="background-color: #28a745; padding: 12px; border-radius: 15px; font-weight: bold; text-align: center; color: white; font-size: 15px;" id="status-connected">🟢 Phone Connected!</div>
+            <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff;">🗑️ Remove Current Animation</button>
         </div>
 
-        <div class="grid-marcadores" id="grid-marcadores">
-            <button class="btn-marc btn-m0" onclick="marcarTrecho('m0')">📍 <span id="lbl-m0">1. Start</span><span class="status-marc" id="st-m0">Not marked</span></button>
-            <button class="btn-marc btn-m1" onclick="marcarTrecho('m1')">✂️ <span id="lbl-m1">2. End Intro</span><span class="status-marc" id="st-m1">Not marked</span></button>
-            <button class="btn-marc btn-m2" onclick="marcarTrecho('m2')">🔁 <span id="lbl-m2">3. End Loop</span><span class="status-marc" id="st-m2">Not marked</span></button>
-            <button class="btn-marc btn-m3" onclick="marcarTrecho('m3')">🏁 <span id="lbl-m3">4. Final</span><span class="status-marc" id="st-m3">Not marked</span></button>
-        </div>
+        <!-- EDITOR SECTION -->
+        <div id="editor-section" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 15px;">
+            <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
+            <input type="file" id="upload-video" accept="video/*" hidden>
 
-        <div class="configuracoes" id="configuracoes">
-            <div class="campo campo-full">
-                <div class="checkbox-container">
-                    <label style="margin:0;" id="lbl-gerarmodulo">Generate Root Module? 🧲</label>
-                    <input type="checkbox" id="input-gerar-modulo" onchange="verificarModulo()">
+            <div class="video-container" id="video-container">
+                <video id="player-video" playsinline class="pausado"></video>
+                <p class="dica-video" id="txt-dicavideo">👆 Click video to Play or Pause!</p>
+            </div>
+
+            <div class="timeline-wrapper" id="timeline-wrapper">
+                <div class="playhead-centro"></div>
+                <div class="timeline-scroll" id="timeline-scroll">
+                    <div class="filmstrip-container">
+                        <div class="pad-spacer" id="pad-left"></div>
+                        <div class="filmstrip" id="filmstrip"></div>
+                        <div class="pad-spacer" id="pad-right"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="campo campo-full" id="container-fabricante" style="display: none;">
-                <label id="lbl-fabricante">Device Variant 📱</label>
-                <select id="input-fabricante">
-                    <option value="standard" id="opt-standard">Standard (AOSP/Pixel/OnePlus)</option>
-                    <option value="miui" id="opt-miui">MIUI (Xiaomi)</option>
-                    <option value="mtk" id="opt-mtk">MTK (MediaTek Stock)</option>
-                    <option value="motorola" id="opt-motorola">Motorola</option>
-                    <option value="emui" id="opt-emui">EMUI (Huawei)</option>
-                </select>
+            <div class="grid-marcadores" id="grid-marcadores">
+                <button class="btn-marc btn-m0" onclick="marcarTrecho('m0')">📍 <span id="lbl-m0">1. Start</span><span class="status-marc" id="st-m0">Not marked</span></button>
+                <button class="btn-marc btn-m1" onclick="marcarTrecho('m1')">✂️ <span id="lbl-m1">2. End Intro</span><span class="status-marc" id="st-m1">Not marked</span></button>
+                <button class="btn-marc btn-m2" onclick="marcarTrecho('m2')">🔁 <span id="lbl-m2">3. End Loop</span><span class="status-marc" id="st-m2">Not marked</span></button>
+                <button class="btn-marc btn-m3" onclick="marcarTrecho('m3')">🏁 <span id="lbl-m3">4. Final</span><span class="status-marc" id="st-m3">Not marked</span></button>
             </div>
 
-            <div class="campo campo-full">
-                <div class="checkbox-container">
-                    <label style="margin:0;" id="lbl-usar-som">Use sound in animation? 🎵</label>
-                    <input type="checkbox" id="input-usar-som" onchange="verificarPainelAudio()">
+            <div class="configuracoes" id="configuracoes">
+                <div class="campo campo-full" id="wrap-gerar-modulo">
+                    <div class="checkbox-container">
+                        <label style="margin:0;" id="lbl-gerarmodulo">Generate Root Module? 🧲</label>
+                        <input type="checkbox" id="input-gerar-modulo" onchange="verificarModulo()">
+                    </div>
                 </div>
-            </div>
-            
-            <div class="painel-audio" id="painel-audio">
-                <div class="campo">
-                    <label id="lbl-audio-intro">Intro Audio:</label>
-                    <select id="sel-audio-intro" onchange="handleAudioSelect('intro')">
-                        <option value="none" id="opt-none-intro">None</option>
-                        <option value="video" id="opt-vid-intro">Video's Audio</option>
-                        <option value="file" id="opt-file-intro">Audio File...</option>
+
+                <div class="campo campo-full" id="container-fabricante" style="display: none;">
+                    <label id="lbl-fabricante">Device Variant 📱</label>
+                    <select id="input-fabricante">
+                        <option value="standard" id="opt-standard">Standard (AOSP/Pixel/OnePlus)</option>
+                        <option value="miui" id="opt-miui">MIUI (Xiaomi)</option>
+                        <option value="mtk" id="opt-mtk">MTK (MediaTek Stock)</option>
+                        <option value="motorola" id="opt-motorola">Motorola</option>
+                        <option value="emui" id="opt-emui">EMUI (Huawei)</option>
                     </select>
-                    <input type="file" id="file-audio-intro" accept="audio/*" hidden onchange="fileAudioSelecionado('intro')">
+                </div>
+
+                <div class="campo campo-full">
+                    <div class="checkbox-container">
+                        <label style="margin:0;" id="lbl-usar-som">Use sound in animation? 🎵</label>
+                        <input type="checkbox" id="input-usar-som" onchange="verificarPainelAudio()">
+                    </div>
                 </div>
                 
-                <div class="campo">
-                    <label id="lbl-audio-loop">Loop Audio:</label>
-                    <select id="sel-audio-loop" onchange="handleAudioSelect('loop')">
-                        <option value="none" id="opt-none-loop">None</option>
-                        <option value="video" id="opt-vid-loop">Video's Audio</option>
-                        <option value="file" id="opt-file-loop">Audio File...</option>
-                    </select>
-                    <input type="file" id="file-audio-loop" accept="audio/*" hidden onchange="fileAudioSelecionado('loop')">
+                <div class="painel-audio" id="painel-audio">
+                    <div class="campo">
+                        <label id="lbl-audio-intro">Intro Audio:</label>
+                        <select id="sel-audio-intro" onchange="handleAudioSelect('intro')">
+                            <option value="none" id="opt-none-intro">None</option>
+                            <option value="video" id="opt-vid-intro">Video's Audio</option>
+                            <option value="file" id="opt-file-intro">Audio File...</option>
+                        </select>
+                        <input type="file" id="file-audio-intro" accept="audio/*" hidden onchange="fileAudioSelecionado('intro')">
+                    </div>
+                    
+                    <div class="campo">
+                        <label id="lbl-audio-loop">Loop Audio:</label>
+                        <select id="sel-audio-loop" onchange="handleAudioSelect('loop')">
+                            <option value="none" id="opt-none-loop">None</option>
+                            <option value="video" id="opt-vid-loop">Video's Audio</option>
+                            <option value="file" id="opt-file-loop">Audio File...</option>
+                        </select>
+                        <input type="file" id="file-audio-loop" accept="audio/*" hidden onchange="fileAudioSelecionado('loop')">
+                    </div>
+
+                    <div class="campo">
+                        <label id="lbl-audio-final">Outro Audio:</label>
+                        <select id="sel-audio-final" onchange="handleAudioSelect('final')">
+                            <option value="none" id="opt-none-final">None</option>
+                            <option value="video" id="opt-vid-final">Video's Audio</option>
+                            <option value="file" id="opt-file-final">Audio File...</option>
+                        </select>
+                        <input type="file" id="file-audio-final" accept="audio/*" hidden onchange="fileAudioSelecionado('final')">
+                    </div>
                 </div>
 
-                <div class="campo">
-                    <label id="lbl-audio-final">Outro Audio:</label>
-                    <select id="sel-audio-final" onchange="handleAudioSelect('final')">
-                        <option value="none" id="opt-none-final">None</option>
-                        <option value="video" id="opt-vid-final">Video's Audio</option>
-                        <option value="file" id="opt-file-final">Audio File...</option>
-                    </select>
-                    <input type="file" id="file-audio-final" accept="audio/*" hidden onchange="fileAudioSelecionado('final')">
+                <div class="campo campo-full">
+                    <label id="lbl-nome">File Name 📝 (Without extension)</label>
+                    <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: my_boot_animation">
                 </div>
+
+                <div class="campo campo-full">
+                    <label id="lbl-formato">Frames Format 🖼️</label>
+                    <select id="input-formato">
+                        <option value="jpeg" id="opt-jpeg">JPEG (Lighter!)</option>
+                        <option value="png" id="opt-png">PNG (Heavy)</option>
+                    </select>
+                </div>
+                <div class="campo campo-full">
+                    <label id="lbl-qualidade">Resolution 📉</label>
+                    <select id="input-qualidade" onchange="atualizarTamanho()">
+                        <option value="320" id="opt-320">320p</option>
+                        <option value="480" id="opt-480">480p</option>
+                        <option value="720" id="opt-720">720p</option>
+                        <option value="1" id="opt-orig" selected>Original</option>
+                        <option value="custom" id="opt-custom">Custom</option>
+                    </select>
+                </div>
+                <div class="campo campo-full">
+                    <label id="lbl-fps">FPS 🎬</label>
+                    <input type="number" id="input-fps" value="30" min="1" max="60">
+                </div>
+                <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" oninput="aoMudarTamanhoManual()"></div>
+                <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" oninput="aoMudarTamanhoManual()"></div>
             </div>
 
-            <div class="campo campo-full">
-                <label id="lbl-nome">File Name 📝 (Without extension)</label>
-                <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: my_boot_animation">
+            <button id="btn-gerar" class="btn-gerar btn-desativado">Missing Markers...</button>
+            
+            <div class="container-progresso" id="container-progresso">
+                <div class="texto-progresso" id="texto-progresso">0%</div>
+                <div class="barra-fundo"><div class="barra-preenchimento" id="barra-preenchimento"></div></div>
             </div>
-
-            <div class="campo campo-full">
-                <label id="lbl-formato">Frames Format 🖼️</label>
-                <select id="input-formato">
-                    <option value="jpeg" id="opt-jpeg">JPEG (Lighter!)</option>
-                    <option value="png" id="opt-png">PNG (Heavy)</option>
-                </select>
-            </div>
-            <div class="campo campo-full">
-                <label id="lbl-qualidade">Resolution 📉</label>
-                <select id="input-qualidade" onchange="atualizarTamanho()">
-                    <option value="320" id="opt-320">320p</option>
-                    <option value="480" id="opt-480">480p</option>
-                    <option value="720" id="opt-720">720p</option>
-                    <option value="1" id="opt-orig" selected>Original</option>
-                    <option value="custom" id="opt-custom">Custom</option>
-                </select>
-            </div>
-            <div class="campo campo-full">
-                <label id="lbl-fps">FPS 🎬</label>
-                <input type="number" id="input-fps" value="30" min="1" max="60">
-            </div>
-            <div class="campo"><label id="lbl-largura">Width</label><input type="number" id="input-largura" oninput="aoMudarTamanhoManual()"></div>
-            <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" oninput="aoMudarTamanhoManual()"></div>
-        </div>
-
-        <button id="btn-gerar" class="btn-gerar btn-desativado">Missing Markers...</button>
-        
-        <div class="container-progresso" id="container-progresso">
-            <div class="texto-progresso" id="texto-progresso">0%</div>
-            <div class="barra-fundo"><div class="barra-preenchimento" id="barra-preenchimento"></div></div>
         </div>
     </div>
 
@@ -383,7 +398,8 @@
                 btnGerarPronto: "🚀 GENERATE BOOT ANIMATION",
                 gerandoFrames: "Extracting frames... 📸",
                 fechandoZiper: "Closing zip... 📦",
-                sucesso: "🎉 SUCCESS! FILES DOWNLOADED!",
+                msgSuccessDownload: "🎉 SUCCESS! FILES DOWNLOADED!",
+                msgSuccessInject: "🎉 SUCCESS! INJECTED!",
                 erro: "An error occurred ❌",
                 carregandoTimeline: "Loading Timeline... ⌛",
                 extraindo: "Extracting Frames...",
@@ -397,7 +413,17 @@
                 opt480: "480p",
                 opt720: "720p",
                 optOrig: "Original",
-                optCustom: "Custom"
+                optCustom: "Custom",
+                btnConnect: "🔌 Connect to Phone",
+                btnManual: "📦 Just Create .ZIP",
+                statusConnected: "🟢 Phone Connected!",
+                btnRemove: "🗑️ Remove Current Animation",
+                btnInjectReady: "⚡ INJECT INTO PHONE",
+                msgSearching: "Searching... 🔍",
+                msgNotFound: "Module not found! Is the server running in the background?",
+                msgConfirmRemove: "Are you sure you want to remove the current animation and restore the default?",
+                msgInjecting: "Injecting... ⚡",
+                msgInjectError: "Error injecting animation! ❌"
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
@@ -438,7 +464,8 @@
                 btnGerarPronto: "🚀 GERAR ANIMAÇÃO DE BOOT",
                 gerandoFrames: "Extraindo os frames... 📸",
                 fechandoZiper: "Fechando o zíper... 📦",
-                sucesso: "🎉 SUCESSO! ARQUIVOS BAIXADOS!",
+                msgSuccessDownload: "🎉 SUCESSO! ARQUIVOS BAIXADOS!",
+                msgSuccessInject: "🎉 SUCESSO! INJEÇÃO CONCLUÍDA!",
                 erro: "Aconteceu um erro ❌",
                 carregandoTimeline: "Carregando a Timeline... ⌛",
                 extraindo: "Extraindo Frames...",
@@ -452,7 +479,17 @@
                 opt480: "480p",
                 opt720: "720p",
                 optOrig: "Original",
-                optCustom: "Personalizado"
+                optCustom: "Personalizado",
+                btnConnect: "🔌 Conectar ao Celular",
+                btnManual: "📦 Apenas Criar .ZIP",
+                statusConnected: "🟢 Celular Conectado!",
+                btnRemove: "🗑️ Remover Animação Atual",
+                btnInjectReady: "⚡ INJETAR NO CELULAR",
+                msgSearching: "Procurando... 🔍",
+                msgNotFound: "Módulo não encontrado! O servidor está rodando no fundo?",
+                msgConfirmRemove: "Quer mesmo apagar a animação atual e voltar para a de fábrica?",
+                msgInjecting: "Injetando... ⚡",
+                msgInjectError: "Erro ao injetar a animação! ❌"
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
@@ -493,7 +530,8 @@
                 btnGerarPronto: "🚀 GENERAR ANIMACIÓN DE BOOT",
                 gerandoFrames: "Extrayendo fotogramas... 📸",
                 fechandoZiper: "Cerrando el zip... 📦",
-                sucesso: "🎉 ¡ÉXITO! ¡ARCHIVOS DESCARGADOS!",
+                msgSuccessDownload: "🎉 ¡ÉXITO! ¡ARCHIVOS DESCARGADOS!",
+                msgSuccessInject: "🎉 ¡INYECCIÓN EXITOSA!",
                 erro: "Ocurrió un error ❌",
                 carregandoTimeline: "Cargando Línea de Tiempo... ⌛",
                 extraindo: "Extrayendo Fotogramas...",
@@ -507,7 +545,17 @@
                 opt480: "480p",
                 opt720: "720p",
                 optOrig: "Original",
-                optCustom: "Personalizado"
+                optCustom: "Personalizado",
+                btnConnect: "🔌 Conectar al Celular",
+                btnManual: "📦 Solo Crear .ZIP",
+                statusConnected: "🟢 ¡Celular Conectado!",
+                btnRemove: "🗑️ Eliminar Animación Actual",
+                btnInjectReady: "⚡ INYECTAR EN EL CELULAR",
+                msgSearching: "Buscando... 🔍",
+                msgNotFound: "¡Módulo no encontrado! ¿El servidor se está ejecutando en segundo plano?",
+                msgConfirmRemove: "¿Estás seguro de que quieres eliminar la animación actual y restaurar la de fábrica?",
+                msgInjecting: "Inyectando... ⚡",
+                msgInjectError: "¡Error al inyectar la animación! ❌"
             },
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
@@ -548,8 +596,9 @@
                 btnGerarPronto: "🚀 GÉNÉRER L'ANIMATION",
                 gerandoFrames: "Extraction des images... 📸",
                 fechandoZiper: "Fermeture du zip... 📦",
-                sucesso: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS !",
-                erro: "Une erreur s me produite ❌",
+                msgSuccessDownload: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS !",
+                msgSuccessInject: "🎉 INJECTION RÉUSSIE !",
+                erro: "Une erreur est survenue ❌",
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
                 processandoAudio: "Conversion Audio en .WAV... 🎵",
@@ -562,11 +611,23 @@
                 opt480: "480p",
                 opt720: "720p",
                 optOrig: "Original",
-                optCustom: "Personnalisé"
+                optCustom: "Personnalisé",
+                btnConnect: "🔌 Connecter au Téléphone",
+                btnManual: "📦 Juste Créer un .ZIP",
+                statusConnected: "🟢 Téléphone Connecté !",
+                btnRemove: "🗑️ Supprimer l'Animation Actuelle",
+                btnInjectReady: "⚡ INJECTER DANS LE TÉLÉPHONE",
+                msgSearching: "Recherche... 🔍",
+                msgNotFound: "Module introuvable ! Le serveur tourne-t-il en arrière-plan ?",
+                msgConfirmRemove: "Êtes-vous sûr de vouloir supprimer l'animation actuelle et restaurer celle par défaut ?",
+                msgInjecting: "Injection... ⚡",
+                msgInjectError: "Erreur lors de l'injection ! ❌"
             }
         };
 
         let idiomaAtual = 'en'; 
+        let isConnectedMode = false;
+        const IP_LOCAL = "http://127.0.0.1:4040";
 
         window.addEventListener('beforeunload', function (e) {
             if (document.getElementById('upload-video').files.length > 0) {
@@ -643,6 +704,11 @@
             document.getElementById('lbl-audio-loop').textContent = t.lblAudioLoop;
             document.getElementById('lbl-audio-final').textContent = t.lblAudioFinal;
             
+            document.getElementById('btn-connect').textContent = t.btnConnect;
+            document.getElementById('btn-manual').textContent = t.btnManual;
+            document.getElementById('status-connected').textContent = t.statusConnected;
+            document.getElementById('btn-remove').textContent = t.btnRemove;
+
             ['intro', 'loop', 'final'].forEach(part => {
                 const optNone = document.getElementById(`opt-none-${part}`);
                 const optVid = document.getElementById(`opt-vid-${part}`);
@@ -652,6 +718,53 @@
                 if(optFile.textContent !== optFile.getAttribute('data-custom')) optFile.textContent = t.optFile;
             });
             atualizarBotoesELinhas();
+        }
+
+        async function connectToPhone() {
+            const btn = document.getElementById('btn-connect');
+            const t = traducoes[idiomaAtual];
+            const textOrig = btn.textContent;
+            btn.textContent = t.msgSearching;
+
+            try {
+                let response = await fetch(IP_LOCAL + '/ping');
+                let data = await response.json();
+
+                if (data.status === 'ok') {
+                    isConnectedMode = true;
+                    document.getElementById('initial-state').style.display = 'none';
+                    document.getElementById('connected-state').style.display = 'flex';
+                    document.getElementById('editor-section').style.display = 'flex';
+                    document.getElementById('wrap-gerar-modulo').style.display = 'none';
+                    atualizarBotoesELinhas();
+                } else {
+                    alert(t.msgNotFound);
+                    btn.textContent = textOrig;
+                }
+            } catch (error) {
+                alert(t.msgNotFound);
+                btn.textContent = textOrig;
+            }
+        }
+
+        function startManualMode() {
+            isConnectedMode = false;
+            document.getElementById('initial-state').style.display = 'none';
+            document.getElementById('editor-section').style.display = 'flex';
+            atualizarBotoesELinhas();
+        }
+
+        async function removeAnimation() {
+            const t = traducoes[idiomaAtual];
+            if(confirm(t.msgConfirmRemove)) {
+                try {
+                    let response = await fetch(IP_LOCAL + '/remove');
+                    let data = await response.json();
+                    alert(data.message || "Done!");
+                } catch (error) {
+                    alert("Error! ❌");
+                }
+            }
         }
 
         function verificarModulo() {
@@ -717,7 +830,6 @@
         let isGenerating = false;
         let animationFrameId = null;
 
-        // TRAVAS ANTI-BUG DA TIMELINE ✨
         let isBuildingTimeline = false;
         let isProgrammaticScroll = false;
 
@@ -850,7 +962,6 @@
             scrollTimeline.scrollLeft = scrollLeftPos - walk;
         });
 
-        // ✨ O Sistema Anti-Bug das Rolagens ✨
         let isSeeking = false;
         let targetTime = 0;
 
@@ -875,7 +986,6 @@
             }
         });
 
-        // ✨ O Pulo do Gato (+0.5) no Meio do Bloco + Trava Silenciosa ✨
         async function desenharFilmstrip() {
             isBuildingTimeline = true;
             filmstrip.innerHTML = '';
@@ -967,7 +1077,7 @@
             if (tudoMarcado) {
                 if (temposOrdem[0] <= temposOrdem[1] && temposOrdem[1] <= temposOrdem[2] && temposOrdem[2] <= temposOrdem[3]) {
                     btnGerar.classList.remove('btn-desativado');
-                    btnGerar.textContent = t.btnGerarPronto;
+                    btnGerar.textContent = isConnectedMode ? t.btnInjectReady : t.btnGerarPronto;
                 } else {
                     btnGerar.classList.add('btn-desativado');
                     btnGerar.textContent = t.btnOrdem;
@@ -1105,7 +1215,11 @@
 
                 await paparazzoOtimizado(innerZip, largura, altura, fps, formato, t);
                 
-                innerZip.file("desc.txt", `${largura} ${altura} ${fps}\nc 1 0 part0\np 0 0 part1\nc 1 0 part2\n`);
+                innerZip.file("desc.txt", `${largura} ${altura} ${fps}
+c 1 0 part0
+p 0 0 part1
+c 1 0 part2
+`);
 
                 if (isSomAtivo) {
                     document.getElementById('texto-progresso').textContent = t.processandoAudio;
@@ -1134,39 +1248,60 @@
                 
                 const rawBootAnimBlob = await innerZip.generateAsync({ type: "blob", compression: "STORE" });
                 
-                if (isModuloMagisk) {
-                    const magiskZip = new JSZip();
-                    magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
-                    
-                    const caminhosPorVariante = {
-                        standard: ["product/media", "system/media", "apex/com.android.bootanimation/etc"],
-                        miui: ["product/media", "system/media", "system_ext/media", "system/media/theme", "apex/com.android.bootanimation/etc"],
-                        mtk: ["product/media", "system/media", "custom/media", "apex/com.android.bootanimation/etc"],
-                        motorola: ["product/media", "system/media", "oem/media", "apex/com.android.bootanimation/etc"],
-                        emui: ["product/media", "system/media", "system/etc/media", "apex/com.android.bootanimation/etc"]
-                    };
-
-                    const caminhosAUsar = caminhosPorVariante[fabricante] || caminhosPorVariante['standard'];
-                    for (let caminho of caminhosAUsar) {
-                        let pastaAtual = magiskZip;
-                        for (let p of caminho.split('/')) { pastaAtual = pastaAtual.folder(p); }
-                        pastaAtual.file("bootanimation.zip", rawBootAnimBlob);
+                if (isConnectedMode) {
+                    document.getElementById('texto-progresso').textContent = t.msgInjecting;
+                    const formData = new FormData();
+                    formData.append('bootanimation', rawBootAnimBlob, 'bootanimation.zip');
+                    try {
+                        let response = await fetch(IP_LOCAL + "/upload", {
+                            method: "POST",
+                            body: formData
+                        });
+                        let result = await response.json();
+                        alert(result.message || t.msgSuccessInject);
+                    } catch (e) {
+                        alert(t.msgInjectError);
                     }
-                    
-                    const rawFinalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
-                    const linkDownload = document.createElement("a");
-                    linkDownload.href = URL.createObjectURL(rawFinalBlob);
-                    linkDownload.download = `${nomeEscolhido}.zip`; 
-                    linkDownload.click();
                 } else {
-                    const linkDownload = document.createElement("a");
-                    linkDownload.href = URL.createObjectURL(rawBootAnimBlob);
-                    linkDownload.download = `${nomeEscolhido}.zip`; 
-                    linkDownload.click();
+                    if (isModuloMagisk) {
+                        const magiskZip = new JSZip();
+                        magiskZip.file("module.prop", `id=custom_bootanim
+name=Custom Bootanimation Module
+version=1.0
+versionCode=1
+author=BootAnimCreator
+description=Animacao de boot customizada gerada pelo site.`);
+                        
+                        const caminhosPorVariante = {
+                            standard: ["product/media", "system/media", "apex/com.android.bootanimation/etc"],
+                            miui: ["product/media", "system/media", "system_ext/media", "system/media/theme", "apex/com.android.bootanimation/etc"],
+                            mtk: ["product/media", "system/media", "custom/media", "apex/com.android.bootanimation/etc"],
+                            motorola: ["product/media", "system/media", "oem/media", "apex/com.android.bootanimation/etc"],
+                            emui: ["product/media", "system/media", "system/etc/media", "apex/com.android.bootanimation/etc"]
+                        };
+
+                        const caminhosAUsar = caminhosPorVariante[fabricante] || caminhosPorVariante['standard'];
+                        for (let caminho of caminhosAUsar) {
+                            let pastaAtual = magiskZip;
+                            for (let p of caminho.split('/')) { pastaAtual = pastaAtual.folder(p); }
+                            pastaAtual.file("bootanimation.zip", rawBootAnimBlob);
+                        }
+                        
+                        const rawFinalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
+                        const linkDownload = document.createElement("a");
+                        linkDownload.href = URL.createObjectURL(rawFinalBlob);
+                        linkDownload.download = `${nomeEscolhido}.zip`; 
+                        linkDownload.click();
+                    } else {
+                        const linkDownload = document.createElement("a");
+                        linkDownload.href = URL.createObjectURL(rawBootAnimBlob);
+                        linkDownload.download = `${nomeEscolhido}.zip`; 
+                        linkDownload.click();
+                    }
                 }
                 
                 document.getElementById('texto-progresso').textContent = "OK!";
-                btnGerar.textContent = t.sucesso;
+                btnGerar.textContent = isConnectedMode ? t.msgSuccessInject : t.msgSuccessDownload;
                 
                 videoPreview.src = playerVideo.src;
                 videoPreview.currentTime = marcadores.m0;
@@ -1177,7 +1312,7 @@
 
                 setTimeout(() => { 
                     btnGerar.classList.remove('btn-desativado'); 
-                    btnGerar.textContent = t.btnGerarPronto;
+                    btnGerar.textContent = isConnectedMode ? t.btnInjectReady : t.btnGerarPronto;
                     isGenerating = false;
                     videoContainer.classList.remove('bloqueado');
                     timelineWrapper.classList.remove('bloqueado');
