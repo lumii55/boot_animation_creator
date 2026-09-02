@@ -204,13 +204,13 @@
             </ul>
         </div>
 
-        <!-- NEW: INITIAL STATE UI -->
+        <!-- INITIAL STATE UI -->
         <div id="initial-state" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <button class="btn-upload" id="btn-connect" onclick="connectToPhone()" style="background-color: #03dac6;">🔌 Connect to Phone</button>
             <button class="btn-upload" id="btn-manual" onclick="startManualMode()" style="background-color: #333; color: #fff;">📦 Just Create .ZIP</button>
         </div>
 
-        <!-- NEW: CONNECTED STATE UI -->
+        <!-- CONNECTED STATE UI -->
         <div id="connected-state" style="width: 100%; display: none; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <div style="background-color: #28a745; padding: 12px; border-radius: 15px; font-weight: bold; text-align: center; color: white; font-size: 15px;" id="status-connected">🟢 Phone Connected!</div>
             <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff;">🗑️ Remove Current Animation</button>
@@ -302,7 +302,7 @@
                     </div>
                 </div>
 
-                <div class="campo campo-full">
+                <div class="campo campo-full" id="wrap-nome">
                     <label id="lbl-nome">File Name 📝 (Without extension)</label>
                     <input type="text" id="input-nome" value="bootanimation" placeholder="Ex: my_boot_animation">
                 </div>
@@ -399,7 +399,6 @@
                 gerandoFrames: "Extracting frames... 📸",
                 fechandoZiper: "Closing zip... 📦",
                 msgSuccessDownload: "🎉 SUCCESS! FILES DOWNLOADED!",
-                msgSuccessInject: "🎉 SUCCESS! INJECTED!",
                 erro: "An error occurred ❌",
                 carregandoTimeline: "Loading Timeline... ⌛",
                 extraindo: "Extracting Frames...",
@@ -423,7 +422,9 @@
                 msgNotFound: "Module not found! Is the server running in the background?",
                 msgConfirmRemove: "Are you sure you want to remove the current animation and restore the default?",
                 msgInjecting: "Injecting... ⚡",
-                msgInjectError: "Error injecting animation! ❌"
+                msgInjectError: "Error injecting animation! ❌",
+                msgPinPrompt: "🔒 Connection Locked!\nEnter the 4-digit PIN that appeared in your phone's notification:",
+                msgPinError: "❌ Incorrect PIN!"
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
@@ -465,7 +466,6 @@
                 gerandoFrames: "Extraindo os frames... 📸",
                 fechandoZiper: "Fechando o zíper... 📦",
                 msgSuccessDownload: "🎉 SUCESSO! ARQUIVOS BAIXADOS!",
-                msgSuccessInject: "🎉 SUCESSO! INJEÇÃO CONCLUÍDA!",
                 erro: "Aconteceu um erro ❌",
                 carregandoTimeline: "Carregando a Timeline... ⌛",
                 extraindo: "Extraindo Frames...",
@@ -489,7 +489,9 @@
                 msgNotFound: "Módulo não encontrado! O servidor está rodando no fundo?",
                 msgConfirmRemove: "Quer mesmo apagar a animação atual e voltar para a de fábrica?",
                 msgInjecting: "Injetando... ⚡",
-                msgInjectError: "Erro ao injetar a animação! ❌"
+                msgInjectError: "Erro ao injetar a animação! ❌",
+                msgPinPrompt: "🔒 Conexão Bloqueada!\nDigite o PIN de 4 dígitos que apareceu na notificação do celular:",
+                msgPinError: "❌ PIN Incorreto!"
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
@@ -531,7 +533,6 @@
                 gerandoFrames: "Extrayendo fotogramas... 📸",
                 fechandoZiper: "Cerrando el zip... 📦",
                 msgSuccessDownload: "🎉 ¡ÉXITO! ¡ARCHIVOS DESCARGADOS!",
-                msgSuccessInject: "🎉 ¡INYECCIÓN EXITOSA!",
                 erro: "Ocurrió un error ❌",
                 carregandoTimeline: "Cargando Línea de Tiempo... ⌛",
                 extraindo: "Extrayendo Fotogramas...",
@@ -555,7 +556,9 @@
                 msgNotFound: "¡Módulo no encontrado! ¿El servidor se está ejecutando en segundo plano?",
                 msgConfirmRemove: "¿Estás seguro de que quieres eliminar la animación actual y restaurar la de fábrica?",
                 msgInjecting: "Inyectando... ⚡",
-                msgInjectError: "¡Error al inyectar la animación! ❌"
+                msgInjectError: "¡Error al inyectar la animación! ❌",
+                msgPinPrompt: "🔒 ¡Conexión Bloqueada!\nIngresa el PIN de 4 dígitos que apareció en la notificación de tu celular:",
+                msgPinError: "❌ ¡PIN Incorrecto!"
             },
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
@@ -597,7 +600,6 @@
                 gerandoFrames: "Extraction des images... 📸",
                 fechandoZiper: "Fermeture du zip... 📦",
                 msgSuccessDownload: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS !",
-                msgSuccessInject: "🎉 INJECTION RÉUSSIE !",
                 erro: "Une erreur est survenue ❌",
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
@@ -621,7 +623,9 @@
                 msgNotFound: "Module introuvable ! Le serveur tourne-t-il en arrière-plan ?",
                 msgConfirmRemove: "Êtes-vous sûr de vouloir supprimer l'animation actuelle et restaurer celle par défaut ?",
                 msgInjecting: "Injection... ⚡",
-                msgInjectError: "Erreur lors de l'injection ! ❌"
+                msgInjectError: "Erreur lors de l'injection ! ❌",
+                msgPinPrompt: "🔒 Connexion Verrouillée !\nEntrez le code PIN à 4 chiffres qui est apparu dans la notification de votre téléphone :",
+                msgPinError: "❌ Code PIN Incorrect !"
             }
         };
 
@@ -730,12 +734,32 @@
                 let response = await fetch(IP_LOCAL + '/ping');
                 let data = await response.json();
 
+                if (data.status === 'auth_required') {
+                    let pin = prompt(t.msgPinPrompt);
+                    if (!pin) {
+                        btn.textContent = textOrig;
+                        return;
+                    }
+                    let authRes = await fetch(IP_LOCAL + '/auth?pin=' + pin);
+                    data = await authRes.json();
+                    
+                    if (data.status !== 'ok') {
+                        alert(t.msgPinError);
+                        btn.textContent = textOrig;
+                        return;
+                    }
+                }
+
                 if (data.status === 'ok') {
                     isConnectedMode = true;
                     document.getElementById('initial-state').style.display = 'none';
                     document.getElementById('connected-state').style.display = 'flex';
                     document.getElementById('editor-section').style.display = 'flex';
                     document.getElementById('wrap-gerar-modulo').style.display = 'none';
+                    document.getElementById('wrap-nome').style.display = 'none'; 
+                    
+                    document.getElementById('status-connected').textContent = t.statusConnected.replace('!', ': ' + data.model);
+                    
                     atualizarBotoesELinhas();
                 } else {
                     alert(t.msgNotFound);
@@ -751,6 +775,7 @@
             isConnectedMode = false;
             document.getElementById('initial-state').style.display = 'none';
             document.getElementById('editor-section').style.display = 'flex';
+            document.getElementById('wrap-nome').style.display = 'flex';
             atualizarBotoesELinhas();
         }
 
@@ -758,11 +783,9 @@
             const t = traducoes[idiomaAtual];
             if(confirm(t.msgConfirmRemove)) {
                 try {
-                    let response = await fetch(IP_LOCAL + '/remove');
-                    let data = await response.json();
-                    alert(data.message || "Done!");
+                    await fetch(IP_LOCAL + '/remove');
                 } catch (error) {
-                    alert("Error! ❌");
+                    alert(t.erro);
                 }
             }
         }
@@ -1215,11 +1238,7 @@
 
                 await paparazzoOtimizado(innerZip, largura, altura, fps, formato, t);
                 
-                innerZip.file("desc.txt", `${largura} ${altura} ${fps}
-c 1 0 part0
-p 0 0 part1
-c 1 0 part2
-`);
+                innerZip.file("desc.txt", `${largura} ${altura} ${fps}\nc 1 0 part0\np 0 0 part1\nc 1 0 part2\n`);
 
                 if (isSomAtivo) {
                     document.getElementById('texto-progresso').textContent = t.processandoAudio;
@@ -1253,24 +1272,17 @@ c 1 0 part2
                     const formData = new FormData();
                     formData.append('bootanimation', rawBootAnimBlob, 'bootanimation.zip');
                     try {
-                        let response = await fetch(IP_LOCAL + "/upload", {
+                        await fetch(IP_LOCAL + "/upload", {
                             method: "POST",
                             body: formData
                         });
-                        let result = await response.json();
-                        alert(result.message || t.msgSuccessInject);
                     } catch (e) {
                         alert(t.msgInjectError);
                     }
                 } else {
                     if (isModuloMagisk) {
                         const magiskZip = new JSZip();
-                        magiskZip.file("module.prop", `id=custom_bootanim
-name=Custom Bootanimation Module
-version=1.0
-versionCode=1
-author=BootAnimCreator
-description=Animacao de boot customizada gerada pelo site.`);
+                        magiskZip.file("module.prop", `id=custom_bootanim\nname=Custom Bootanimation Module\nversion=1.0\nversionCode=1\nauthor=BootAnimCreator\ndescription=Animacao de boot customizada gerada pelo site.`);
                         
                         const caminhosPorVariante = {
                             standard: ["product/media", "system/media", "apex/com.android.bootanimation/etc"],
@@ -1301,7 +1313,7 @@ description=Animacao de boot customizada gerada pelo site.`);
                 }
                 
                 document.getElementById('texto-progresso').textContent = "OK!";
-                btnGerar.textContent = isConnectedMode ? t.msgSuccessInject : t.msgSuccessDownload;
+                // Mantemos o texto do botão como estava caso queira injetar de novo!
                 
                 videoPreview.src = playerVideo.src;
                 videoPreview.currentTime = marcadores.m0;
