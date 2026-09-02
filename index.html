@@ -714,7 +714,6 @@
         
         let marcadores = { m0: null, m1: null, m2: null, m3: null };
         let originalW = 0, originalH = 0;
-        let isDraggingTimeline = false;
         let isGenerating = false;
         let animationFrameId = null;
 
@@ -759,7 +758,7 @@
         });
 
         function animarTimelineSmooth() {
-            if (!isDraggingTimeline && !playerVideo.paused && !isGenerating && playerVideo.duration) {
+            if (!playerVideo.paused && !isGenerating && playerVideo.duration) {
                 const percent = playerVideo.currentTime / playerVideo.duration;
                 scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
                 animationFrameId = requestAnimationFrame(animarTimelineSmooth);
@@ -815,16 +814,12 @@
 
         scrollTimeline.addEventListener('touchstart', () => { 
             if (isGenerating) return; 
-            isDraggingTimeline = true; 
             playerVideo.pause(); 
         }, {passive: true});
-        
-        window.addEventListener('touchend', () => { isDraggingTimeline = false; });
         
         scrollTimeline.addEventListener('mousedown', (e) => {
             if (isGenerating) return; 
             isMouseDown = true;
-            isDraggingTimeline = true;
             playerVideo.pause();
             startX = e.pageX - scrollTimeline.offsetLeft;
             scrollLeftPos = scrollTimeline.scrollLeft;
@@ -833,13 +828,11 @@
 
         scrollTimeline.addEventListener('mouseleave', () => {
             isMouseDown = false;
-            isDraggingTimeline = false;
             scrollTimeline.style.cursor = 'grab';
         });
 
         window.addEventListener('mouseup', () => {
             isMouseDown = false;
-            isDraggingTimeline = false;
             scrollTimeline.style.cursor = 'grab';
         });
 
@@ -856,13 +849,14 @@
         let targetTime = 0;
 
         scrollTimeline.addEventListener('scroll', () => {
-            if (!isDraggingTimeline || !playerVideo.duration || isGenerating) return;
+            // Se o vídeo estiver tocando naturalmente, ignorar o evento
+            if (!playerVideo.paused || !playerVideo.duration || isGenerating) return;
             
             let percent = scrollTimeline.scrollLeft / filmstrip.offsetWidth;
             percent = Math.max(0, Math.min(1, percent));
             targetTime = percent * playerVideo.duration;
 
-            if (!isSeeking) {
+            if (!isSeeking && Math.abs(playerVideo.currentTime - targetTime) > 0.02) {
                 isSeeking = true;
                 playerVideo.currentTime = targetTime;
             }
@@ -870,13 +864,14 @@
 
         playerVideo.addEventListener('seeked', () => {
             isSeeking = false;
-            if (isDraggingTimeline && Math.abs(playerVideo.currentTime - targetTime) > 0.05) {
+            // Mesmo se o dedo soltou, garante que chegue no tempo final!
+            if (playerVideo.paused && !isGenerating && Math.abs(playerVideo.currentTime - targetTime) > 0.02) {
                 isSeeking = true;
                 playerVideo.currentTime = targetTime;
             }
         });
 
-        // ✨ Densidade Inteligente de Frames ✨
+        // ✨ Densidade Inteligente + Desync Fix ✨
         async function desenharFilmstrip() {
             filmstrip.innerHTML = '';
             const dur = playerVideo.duration;
@@ -894,7 +889,8 @@
             const tempCtx = tempCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
             
             for (let i = 0; i < numFrames; i++) {
-                playerVideo.currentTime = (i / numFrames) * dur;
+                // PULO DO GATO: Tirar a foto exatamente na METADE (+0.5) do bloco visual!
+                playerVideo.currentTime = ((i + 0.5) / numFrames) * dur;
                 await new Promise(r => {
                     const cb = () => { playerVideo.removeEventListener('seeked', cb); r(); };
                     playerVideo.addEventListener('seeked', cb);
