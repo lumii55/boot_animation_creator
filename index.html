@@ -231,7 +231,6 @@
         </div>
 
         <div class="configuracoes" id="configuracoes">
-            
             <div class="campo campo-full">
                 <div class="checkbox-container">
                     <label style="margin:0;" id="lbl-gerarmodulo">Generate Root Module? 🧲</label>
@@ -579,15 +578,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             let langDetectada = 'en';
             const idiomasSuportados = ['en', 'pt', 'es', 'fr'];
-
             try {
                 const linguasNavegador = navigator.languages || [navigator.language || navigator.userLanguage];
                 let idiomaSistema = null;
-                if (window.Intl && Intl.DateTimeFormat) {
-                    idiomaSistema = Intl.DateTimeFormat().resolvedOptions().locale;
-                }
+                if (window.Intl && Intl.DateTimeFormat) { idiomaSistema = Intl.DateTimeFormat().resolvedOptions().locale; }
                 const todasPistas = [...linguasNavegador, idiomaSistema];
-
                 for (let pista of todasPistas) {
                     if (pista) {
                         const base = pista.split('-')[0];
@@ -597,9 +592,7 @@
                         }
                     }
                 }
-            } catch (e) {
-                langDetectada = 'en';
-            }
+            } catch (e) { langDetectada = 'en'; }
             
             idiomaAtual = langDetectada;
             document.getElementById('select-idioma').value = idiomaAtual;
@@ -612,27 +605,22 @@
 
             document.getElementById('txt-titulo').textContent = t.titulo;
             document.getElementById('txt-subtitulo').textContent = t.subtitulo;
-            
             document.getElementById('txt-dicas-titulo').innerHTML = t.dicasTitulo;
             document.getElementById('txt-dica1').innerHTML = `<strong>${t.dica1.split(': ')[0]}:</strong> ${t.dica1.split(': ')[1]}`;
             document.getElementById('txt-dica2').innerHTML = `<strong>${t.dica2.split(': ')[0]}:</strong> ${t.dica2.split(': ')[1]}`;
             document.getElementById('txt-dica3').innerHTML = `<strong>${t.dica3.split(': ')[0]}:</strong> ${t.dica3.split(': ')[1]}`;
-
             document.getElementById('lbl-upload').textContent = t.upload;
             document.getElementById('txt-dicavideo').textContent = t.dicaVideo;
-            
             document.getElementById('lbl-m0').textContent = t.m0;
             document.getElementById('lbl-m1').textContent = t.m1;
             document.getElementById('lbl-m2').textContent = t.m2;
             document.getElementById('lbl-m3').textContent = t.m3;
-
             document.getElementById('lbl-fabricante').textContent = t.lblFabricante;
             document.getElementById('opt-standard').textContent = t.optStandard;
             document.getElementById('opt-miui').textContent = t.optMiui;
             document.getElementById('opt-mtk').textContent = t.optMtk;
             document.getElementById('opt-motorola').textContent = t.optMotorola;
             document.getElementById('opt-emui').textContent = t.optEmui;
-            
             document.getElementById('lbl-gerarmodulo').textContent = t.lblGerarModulo;
             document.getElementById('lbl-nome').textContent = t.lblNome;
             document.getElementById('lbl-formato').textContent = t.lblFormato;
@@ -640,7 +628,6 @@
             document.getElementById('lbl-fps').textContent = t.lblFps;
             document.getElementById('lbl-largura').textContent = t.lblLargura;
             document.getElementById('lbl-altura').textContent = t.lblAltura;
-
             document.getElementById('opt-jpeg').textContent = t.optJpeg;
             document.getElementById('opt-png').textContent = t.optPng;
             document.getElementById('opt-320').textContent = t.opt320;
@@ -648,11 +635,9 @@
             document.getElementById('opt-720').textContent = t.opt720;
             document.getElementById('opt-orig').textContent = t.optOrig;
             document.getElementById('opt-custom').textContent = t.optCustom;
-
             document.getElementById('lbl-modal-titulo').textContent = t.modalTitulo;
             document.getElementById('btn-fechar-modal').textContent = t.btnFechar;
             document.getElementById('txt-loading-timeline').textContent = t.carregandoTimeline;
-
             document.getElementById('lbl-usar-som').textContent = t.lblUsarSom;
             document.getElementById('lbl-audio-intro').textContent = t.lblAudioIntro;
             document.getElementById('lbl-audio-loop').textContent = t.lblAudioLoop;
@@ -662,24 +647,17 @@
                 const optNone = document.getElementById(`opt-none-${part}`);
                 const optVid = document.getElementById(`opt-vid-${part}`);
                 const optFile = document.getElementById(`opt-file-${part}`);
-                
                 if(optNone.textContent !== optNone.getAttribute('data-custom')) optNone.textContent = t.optNone;
                 if(optVid.textContent !== optVid.getAttribute('data-custom')) optVid.textContent = t.optVid;
                 if(optFile.textContent !== optFile.getAttribute('data-custom')) optFile.textContent = t.optFile;
             });
-
             atualizarBotoesELinhas();
         }
 
         function verificarModulo() {
             const isModulo = document.getElementById('input-gerar-modulo').checked;
             const containerFabricante = document.getElementById('container-fabricante');
-            
-            if (isModulo) {
-                containerFabricante.style.display = "flex";
-            } else {
-                containerFabricante.style.display = "none";
-            }
+            if (isModulo) { containerFabricante.style.display = "flex"; } else { containerFabricante.style.display = "none"; }
         }
 
         function verificarPainelAudio() {
@@ -702,7 +680,6 @@
             const inputFile = document.getElementById(`file-audio-${part}`);
             const select = document.getElementById(`sel-audio-${part}`);
             const optFile = document.getElementById(`opt-file-${part}`);
-            
             if (inputFile.files.length > 0) {
                 const nome = inputFile.files[0].name;
                 optFile.textContent = `🎵 ${nome}`;
@@ -739,6 +716,7 @@
         let originalW = 0, originalH = 0;
         let isDraggingTimeline = false;
         let isGenerating = false;
+        let animationFrameId = null;
 
         const previewAudios = { m0: new Audio(), m1: new Audio(), m2: new Audio() };
         let currentPreviewPart = -1;
@@ -747,19 +725,14 @@
             if (videoPreview.currentTime >= marcadores.m3) {
                 videoPreview.currentTime = marcadores.m0;
             }
-
             if (document.getElementById('input-usar-som').checked) {
                 const t = videoPreview.currentTime;
                 let part = 'm0';
-                
                 if (t >= marcadores.m1 && t < marcadores.m2) part = 'm1';
                 else if (t >= marcadores.m2) part = 'm2';
 
                 if (part !== currentPreviewPart) {
-                    ['m0', 'm1', 'm2'].forEach(k => {
-                        previewAudios[k].pause();
-                    });
-                    
+                    ['m0', 'm1', 'm2'].forEach(k => previewAudios[k].pause());
                     if (previewAudios[part] && previewAudios[part].src) {
                         previewAudios[part].currentTime = 0;
                         previewAudios[part].play().catch(e=>console.log("Audio block: ", e));
@@ -771,16 +744,35 @@
 
         playerVideo.addEventListener('click', () => {
             if (isGenerating) return; 
-            if (playerVideo.paused) { playerVideo.play(); playerVideo.classList.remove('pausado'); } 
-            else { playerVideo.pause(); playerVideo.classList.add('pausado'); }
+            if (playerVideo.paused) { playerVideo.play(); } 
+            else { playerVideo.pause(); }
         });
 
-        playerVideo.addEventListener('pause', () => playerVideo.classList.add('pausado'));
-        playerVideo.addEventListener('play', () => playerVideo.classList.remove('pausado'));
+        playerVideo.addEventListener('pause', () => {
+            playerVideo.classList.add('pausado');
+            cancelAnimationFrame(animationFrameId);
+        });
+        
+        playerVideo.addEventListener('play', () => {
+            playerVideo.classList.remove('pausado');
+            animationFrameId = requestAnimationFrame(animarTimelineSmooth);
+        });
 
+        // ✨ 60 FPS Buttery Smooth Timeline Update ✨
+        function animarTimelineSmooth() {
+            if (!isDraggingTimeline && !playerVideo.paused && !isGenerating && playerVideo.duration) {
+                const percent = playerVideo.currentTime / playerVideo.duration;
+                scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
+                animationFrameId = requestAnimationFrame(animarTimelineSmooth);
+            }
+        }
+
+        // ✨ Paddings Perfeitos ✨
         function ajustarPaddings() {
             const pad = (timelineWrapper.clientWidth / 2) + "px";
+            document.getElementById('pad-left').style.width = pad;
             document.getElementById('pad-left').style.minWidth = pad;
+            document.getElementById('pad-right').style.width = pad;
             document.getElementById('pad-right').style.minWidth = pad;
         }
         window.addEventListener('resize', ajustarPaddings);
@@ -792,15 +784,12 @@
             const leitor = new FileReader();
             leitor.onload = function(e) {
                 dicasIniciais.style.display = 'none';
-
                 playerVideo.src = e.target.result; 
-                
                 videoContainer.style.display = 'block';
                 timelineWrapper.style.display = 'block';
                 gridMarcadores.style.display = 'grid';
                 configuracoes.style.display = 'grid';
                 btnGerar.style.display = 'block';
-                
                 marcadores = { m0: null, m1: null, m2: null, m3: null };
                 atualizarBotoesELinhas();
             };
@@ -826,9 +815,11 @@
         let startX;
         let scrollLeftPos;
 
+        // ✨ Touch Aprimorado ✨
         scrollTimeline.addEventListener('touchstart', () => { 
             if (isGenerating) return; 
-            isDraggingTimeline = true; playerVideo.pause(); 
+            isDraggingTimeline = true; 
+            playerVideo.pause(); 
         }, {passive: true});
         
         window.addEventListener('touchend', () => { isDraggingTimeline = false; });
@@ -863,32 +854,18 @@
             scrollTimeline.scrollLeft = scrollLeftPos - walk;
         });
 
-        let isSeeking = false;
+        // ✨ Sincronização Cirúrgica do Arrastar ✨
         scrollTimeline.addEventListener('scroll', () => {
             if (!isDraggingTimeline || !playerVideo.duration || isGenerating) return;
-            const scrollMax = filmstrip.offsetWidth;
-            let percent = scrollTimeline.scrollLeft / scrollMax;
+            let percent = scrollTimeline.scrollLeft / filmstrip.offsetWidth;
             percent = Math.max(0, Math.min(1, percent));
-            
-            if (!isSeeking) {
-                isSeeking = true;
-                requestAnimationFrame(() => {
-                    playerVideo.currentTime = percent * playerVideo.duration;
-                    isSeeking = false;
-                });
-            }
-        });
-
-        playerVideo.addEventListener('timeupdate', () => {
-            if (isDraggingTimeline || !playerVideo.duration || isGenerating) return;
-            const percent = playerVideo.currentTime / playerVideo.duration;
-            scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
+            playerVideo.currentTime = percent * playerVideo.duration;
         });
 
         async function desenharFilmstrip() {
             filmstrip.innerHTML = '';
             const dur = playerVideo.duration;
-            const numFrames = Math.max(5, Math.min(Math.floor(dur), 20)); 
+            const numFrames = Math.max(8, Math.min(Math.floor(dur * 2), 25)); 
             const larguraFrame = 60; 
             filmstrip.style.width = (numFrames * larguraFrame) + 'px';
             
@@ -914,23 +891,16 @@
             scrollTimeline.scrollLeft = 0;
         }
 
+        // ✨ O Vídeo é o Rei ✨
         window.marcarTrecho = function(id) {
             if (isGenerating) return; 
-            
-            if (playerVideo.paused) {
-                const scrollMax = filmstrip.offsetWidth;
-                let percent = scrollTimeline.scrollLeft / scrollMax;
-                marcadores[id] = Math.max(0, Math.min(1, percent)) * playerVideo.duration;
-            } else {
-                marcadores[id] = playerVideo.currentTime;
-            }
+            marcadores[id] = playerVideo.currentTime; 
             atualizarBotoesELinhas();
         }
 
         function atualizarBotoesELinhas() {
             document.querySelectorAll('.linha-marcador').forEach(el => el.remove());
             const t = traducoes[idiomaAtual];
-
             let tudoMarcado = true;
             let temposOrdem = [];
 
@@ -950,10 +920,10 @@
                         e.stopPropagation();
                         if (isGenerating) return;
                         playerVideo.currentTime = tempo;
+                        scrollTimeline.scrollLeft = (tempo / playerVideo.duration) * filmstrip.offsetWidth;
                         playerVideo.pause();
                     });
                     linha.style.cursor = 'pointer';
-                    
                     filmstrip.appendChild(linha);
                 } else {
                     spanStatus.textContent = t.naoMarcado;
@@ -991,18 +961,15 @@
 
         window.aoMudarTamanhoManual = function() {
             if (originalW === 0 || originalH === 0) return;
-            
             let w = parseInt(document.getElementById('input-largura').value) || 0;
             let h = parseInt(document.getElementById('input-altura').value) || 0;
             let wOrig = Math.floor(originalW / 2) * 2;
             let hOrig = Math.floor(originalH / 2) * 2;
             let seletor = document.getElementById('input-qualidade');
-            
             let checarProporcao = (alvoW) => {
                 if (originalW <= alvoW) return { w: wOrig, h: hOrig };
                 return { w: alvoW, h: Math.floor(Math.floor(originalH * (alvoW / originalW)) / 2) * 2 };
             };
-
             let p320 = checarProporcao(320); let p480 = checarProporcao(480); let p720 = checarProporcao(720);
 
             if (w === p320.w && h === p320.h && p320.w !== 0) seletor.value = "320";
@@ -1043,7 +1010,6 @@
 
         async function processarAudioMagico(tipo, startSec, endSec, ctx) {
             let bufferAlvo = null;
-
             if (tipo === 'video') {
                 const vidFile = document.getElementById('upload-video').files[0];
                 try {
@@ -1069,7 +1035,6 @@
                     } catch(e) { console.error("Erro áudio arquivo:", e); }
                 }
             }
-
             if (bufferAlvo) return audioBufferToWav(bufferAlvo);
             return null;
         }
@@ -1149,7 +1114,6 @@
                     };
 
                     const caminhosAUsar = caminhosPorVariante[fabricante] || caminhosPorVariante['standard'];
-
                     for (let caminho of caminhosAUsar) {
                         let pastaAtual = magiskZip;
                         for (let p of caminho.split('/')) { pastaAtual = pastaAtual.folder(p); }
@@ -1157,7 +1121,6 @@
                     }
                     
                     const rawFinalBlob = await magiskZip.generateAsync({ type: "blob", compression: "DEFLATE" });
-                    
                     const linkDownload = document.createElement("a");
                     linkDownload.href = URL.createObjectURL(rawFinalBlob);
                     linkDownload.download = `${nomeEscolhido}.zip`; 
@@ -1233,12 +1196,10 @@
                     else { pastaAlvo = pasta2; numFoto = c2++; }
 
                     const nome = String(numFoto).padStart(5, '0') + extensao;
-                    
                     const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.95));
                     if (blob) pastaAlvo.file(nome, blob);
 
                     fotosTiradas++;
-                    
                     const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
                     document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
                     document.getElementById('texto-progresso').textContent = `${t.extraindo} ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
