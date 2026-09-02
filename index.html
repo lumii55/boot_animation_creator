@@ -549,7 +549,7 @@
                 gerandoFrames: "Extraction des images... 📸",
                 fechandoZiper: "Fermeture du zip... 📦",
                 sucesso: "🎉 SUCCÈS ! FICHIERS TÉLÉCHARGÉS !",
-                erro: "Une erreur s'est produite ❌",
+                erro: "Une erreur s me produite ❌",
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
                 processandoAudio: "Conversion Audio en .WAV... 🎵",
@@ -717,6 +717,10 @@
         let isGenerating = false;
         let animationFrameId = null;
 
+        // TRAVAS ANTI-BUG DA TIMELINE ✨
+        let isBuildingTimeline = false;
+        let isProgrammaticScroll = false;
+
         const previewAudios = { m0: new Audio(), m1: new Audio(), m2: new Audio() };
         let currentPreviewPart = -1;
 
@@ -742,7 +746,7 @@
         });
 
         playerVideo.addEventListener('click', () => {
-            if (isGenerating) return; 
+            if (isGenerating || isBuildingTimeline) return; 
             if (playerVideo.paused) { playerVideo.play(); } 
             else { playerVideo.pause(); }
         });
@@ -758,9 +762,11 @@
         });
 
         function animarTimelineSmooth() {
-            if (!playerVideo.paused && !isGenerating && playerVideo.duration) {
+            if (!playerVideo.paused && !isGenerating && !isBuildingTimeline && playerVideo.duration) {
                 const percent = playerVideo.currentTime / playerVideo.duration;
+                isProgrammaticScroll = true;
                 scrollTimeline.scrollLeft = percent * filmstrip.offsetWidth;
+                setTimeout(() => { isProgrammaticScroll = false; }, 20);
                 animationFrameId = requestAnimationFrame(animarTimelineSmooth);
             }
         }
@@ -813,12 +819,12 @@
         let scrollLeftPos;
 
         scrollTimeline.addEventListener('touchstart', () => { 
-            if (isGenerating) return; 
+            if (isGenerating || isBuildingTimeline) return; 
             playerVideo.pause(); 
         }, {passive: true});
         
         scrollTimeline.addEventListener('mousedown', (e) => {
-            if (isGenerating) return; 
+            if (isGenerating || isBuildingTimeline) return; 
             isMouseDown = true;
             playerVideo.pause();
             startX = e.pageX - scrollTimeline.offsetLeft;
@@ -837,26 +843,25 @@
         });
 
         scrollTimeline.addEventListener('mousemove', (e) => {
-            if (!isMouseDown || isGenerating) return; 
+            if (!isMouseDown || isGenerating || isBuildingTimeline) return; 
             e.preventDefault();
             const x = e.pageX - scrollTimeline.offsetLeft;
             const walk = (x - startX) * 1.5; 
             scrollTimeline.scrollLeft = scrollLeftPos - walk;
         });
 
-        // ✨ O Sistema Ninja de Sincronização ✨
+        // ✨ O Sistema Anti-Bug das Rolagens ✨
         let isSeeking = false;
         let targetTime = 0;
 
         scrollTimeline.addEventListener('scroll', () => {
-            // Se o vídeo estiver tocando naturalmente, ignorar o evento
-            if (!playerVideo.paused || !playerVideo.duration || isGenerating) return;
+            if (isProgrammaticScroll || isBuildingTimeline || !playerVideo.paused || !playerVideo.duration || isGenerating) return;
             
             let percent = scrollTimeline.scrollLeft / filmstrip.offsetWidth;
             percent = Math.max(0, Math.min(1, percent));
             targetTime = percent * playerVideo.duration;
 
-            if (!isSeeking && Math.abs(playerVideo.currentTime - targetTime) > 0.02) {
+            if (!isSeeking && Math.abs(playerVideo.currentTime - targetTime) > 0.01) {
                 isSeeking = true;
                 playerVideo.currentTime = targetTime;
             }
@@ -864,15 +869,15 @@
 
         playerVideo.addEventListener('seeked', () => {
             isSeeking = false;
-            // Mesmo se o dedo soltou, garante que chegue no tempo final!
-            if (playerVideo.paused && !isGenerating && Math.abs(playerVideo.currentTime - targetTime) > 0.02) {
+            if (playerVideo.paused && !isGenerating && !isBuildingTimeline && Math.abs(playerVideo.currentTime - targetTime) > 0.01) {
                 isSeeking = true;
                 playerVideo.currentTime = targetTime;
             }
         });
 
-        // ✨ Densidade Inteligente + Desync Fix ✨
+        // ✨ O Pulo do Gato (+0.5) no Meio do Bloco + Trava Silenciosa ✨
         async function desenharFilmstrip() {
+            isBuildingTimeline = true;
             filmstrip.innerHTML = '';
             const dur = playerVideo.duration;
             
@@ -889,12 +894,17 @@
             const tempCtx = tempCanvas.getContext('2d', { alpha: false, willReadFrequently: true });
             
             for (let i = 0; i < numFrames; i++) {
-                // PULO DO GATO: Tirar a foto exatamente na METADE (+0.5) do bloco visual!
-                playerVideo.currentTime = ((i + 0.5) / numFrames) * dur;
+                const tempoAlvo = Math.min(dur - 0.05, Math.max(0.01, ((i + 0.5) / numFrames) * dur));
+                
                 await new Promise(r => {
-                    const cb = () => { playerVideo.removeEventListener('seeked', cb); r(); };
+                    const cb = () => { 
+                        playerVideo.removeEventListener('seeked', cb); 
+                        requestAnimationFrame(() => r());
+                    };
                     playerVideo.addEventListener('seeked', cb);
+                    playerVideo.currentTime = tempoAlvo;
                 });
+
                 tempCtx.drawImage(playerVideo, 0, 0, tempCanvas.width, tempCanvas.height);
                 
                 const img = document.createElement('img');
@@ -902,12 +912,19 @@
                 img.style.width = (100 / numFrames) + '%';
                 filmstrip.appendChild(img);
             }
+
             playerVideo.currentTime = 0;
+            isProgrammaticScroll = true;
             scrollTimeline.scrollLeft = 0;
+            
+            setTimeout(() => { 
+                isProgrammaticScroll = false; 
+                isBuildingTimeline = false; 
+            }, 100);
         }
 
         window.marcarTrecho = function(id) {
-            if (isGenerating) return; 
+            if (isGenerating || isBuildingTimeline) return; 
             marcadores[id] = playerVideo.currentTime; 
             atualizarBotoesELinhas();
         }
@@ -932,9 +949,11 @@
                     
                     linha.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        if (isGenerating) return;
+                        if (isGenerating || isBuildingTimeline) return;
                         playerVideo.currentTime = tempo;
+                        isProgrammaticScroll = true;
                         scrollTimeline.scrollLeft = (tempo / playerVideo.duration) * filmstrip.offsetWidth;
+                        setTimeout(() => { isProgrammaticScroll = false; }, 20);
                         playerVideo.pause();
                     });
                     linha.style.cursor = 'pointer';
