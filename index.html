@@ -281,6 +281,7 @@
         </div>
     </div>
 
+    <!-- ✨ CapCut Loading Overlay ✨ -->
     <div class="modal-overlay" id="loading-overlay" style="z-index: 200;">
         <div class="modal-box" style="background: transparent; border: none; box-shadow: none;">
             <div style="width: 50px; height: 50px; border: 5px solid #444; border-top: 5px solid #03dac6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
@@ -491,6 +492,7 @@
 
         let idiomaAtual = 'en'; 
 
+        // O aviso chato do navegador caso a pessoa tente sair ou recarregar sem querer
         window.addEventListener('beforeunload', function (e) {
             if (document.getElementById('upload-video').files.length > 0) {
                 e.preventDefault();
@@ -589,7 +591,9 @@
             }
         }
 
+        // ✨ O truque pra burlar o aviso antes de recarregar a página! ✨
         function fecharModal() {
+            document.getElementById('upload-video').value = ''; 
             window.location.reload();
         }
 
