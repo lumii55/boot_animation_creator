@@ -758,7 +758,6 @@
             animationFrameId = requestAnimationFrame(animarTimelineSmooth);
         });
 
-        // ✨ 60 FPS Buttery Smooth Timeline Update ✨
         function animarTimelineSmooth() {
             if (!isDraggingTimeline && !playerVideo.paused && !isGenerating && playerVideo.duration) {
                 const percent = playerVideo.currentTime / playerVideo.duration;
@@ -767,7 +766,6 @@
             }
         }
 
-        // ✨ Paddings Perfeitos ✨
         function ajustarPaddings() {
             const pad = (timelineWrapper.clientWidth / 2) + "px";
             document.getElementById('pad-left').style.width = pad;
@@ -815,7 +813,6 @@
         let startX;
         let scrollLeftPos;
 
-        // ✨ Touch Aprimorado ✨
         scrollTimeline.addEventListener('touchstart', () => { 
             if (isGenerating) return; 
             isDraggingTimeline = true; 
@@ -854,19 +851,41 @@
             scrollTimeline.scrollLeft = scrollLeftPos - walk;
         });
 
-        // ✨ Sincronização Cirúrgica do Arrastar ✨
+        // ✨ O Sistema Ninja de Sincronização ✨
+        let isSeeking = false;
+        let targetTime = 0;
+
         scrollTimeline.addEventListener('scroll', () => {
             if (!isDraggingTimeline || !playerVideo.duration || isGenerating) return;
+            
             let percent = scrollTimeline.scrollLeft / filmstrip.offsetWidth;
             percent = Math.max(0, Math.min(1, percent));
-            playerVideo.currentTime = percent * playerVideo.duration;
+            targetTime = percent * playerVideo.duration;
+
+            if (!isSeeking) {
+                isSeeking = true;
+                playerVideo.currentTime = targetTime;
+            }
         });
 
+        playerVideo.addEventListener('seeked', () => {
+            isSeeking = false;
+            if (isDraggingTimeline && Math.abs(playerVideo.currentTime - targetTime) > 0.05) {
+                isSeeking = true;
+                playerVideo.currentTime = targetTime;
+            }
+        });
+
+        // ✨ Densidade Inteligente de Frames ✨
         async function desenharFilmstrip() {
             filmstrip.innerHTML = '';
             const dur = playerVideo.duration;
-            const numFrames = Math.max(8, Math.min(Math.floor(dur * 2), 25)); 
-            const larguraFrame = 60; 
+            
+            let framesPorSegundo = dur < 5 ? 5 : dur < 10 ? 3 : dur < 20 ? 2 : 1; 
+            let numFrames = Math.ceil(dur * framesPorSegundo);
+            numFrames = Math.max(10, Math.min(numFrames, 50)); 
+            
+            const larguraFrame = 70; 
             filmstrip.style.width = (numFrames * larguraFrame) + 'px';
             
             const tempCanvas = document.createElement('canvas');
@@ -891,7 +910,6 @@
             scrollTimeline.scrollLeft = 0;
         }
 
-        // ✨ O Vídeo é o Rei ✨
         window.marcarTrecho = function(id) {
             if (isGenerating) return; 
             marcadores[id] = playerVideo.currentTime; 
