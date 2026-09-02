@@ -251,7 +251,6 @@
                 </select>
             </div>
 
-            <!-- ✨ SEÇÃO DE ÁUDIO MAGNÍFICA ✨ -->
             <div class="campo campo-full">
                 <div class="checkbox-container">
                     <label style="margin:0;" id="lbl-usar-som">Use sound in animation? 🎵</label>
@@ -656,7 +655,6 @@
             document.getElementById('btn-fechar-modal').textContent = t.btnFechar;
             document.getElementById('txt-loading-timeline').textContent = t.carregandoTimeline;
 
-            // Textos dos Áudios
             document.getElementById('lbl-usar-som').textContent = t.lblUsarSom;
             document.getElementById('lbl-audio-intro').textContent = t.lblAudioIntro;
             document.getElementById('lbl-audio-loop').textContent = t.lblAudioLoop;
@@ -686,7 +684,6 @@
             }
         }
 
-        // Lógica da UI do Áudio
         function verificarPainelAudio() {
             const usaAudio = document.getElementById('input-usar-som').checked;
             document.getElementById('painel-audio').style.display = usaAudio ? "flex" : "none";
@@ -697,7 +694,6 @@
             if (select.value === 'file') {
                 document.getElementById(`file-audio-${part}`).click();
             } else {
-                // Restaura o nome padrão caso ele volte pra "None" ou "Video"
                 const t = traducoes[idiomaAtual];
                 document.getElementById(`opt-file-${part}`).textContent = t.optFile;
                 document.getElementById(`opt-file-${part}`).removeAttribute('data-custom');
@@ -746,7 +742,6 @@
         let isDraggingTimeline = false;
         let isGenerating = false;
 
-        // Controle dos áudios na Preview ✨
         const previewAudios = { m0: new Audio(), m1: new Audio(), m2: new Audio() };
         let currentPreviewPart = -1;
 
@@ -755,7 +750,6 @@
                 videoPreview.currentTime = marcadores.m0;
             }
 
-            // O Sistema Android simulado na Preview! 
             if (document.getElementById('input-usar-som').checked) {
                 const t = videoPreview.currentTime;
                 let part = 'm0';
@@ -1020,7 +1014,6 @@
             else seletor.value = "custom";
         }
 
-        // ✨ ALQUIMIA DO ÁUDIO ✨
         function audioBufferToWav(buffer) {
             let numOfChan = buffer.numberOfChannels,
                 length = buffer.length * numOfChan * 2 + 44,
@@ -1116,7 +1109,9 @@
 
                 // Extrai as imagens
                 await paparazzoOtimizado(innerZip, largura, altura, fps, formato, t);
-                innerZip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
+                
+                // MUDANÇA GENIAL: p mudado para c ✨
+                innerZip.file("desc.txt", `${largura} ${altura} ${fps}\nc 1 0 part0\nc 0 0 part1\nc 1 0 part2\n`);
 
                 // Extrai e converte os Áudios
                 if (isSomAtivo) {
@@ -1127,17 +1122,14 @@
                     const p1 = document.getElementById('sel-audio-loop').value;
                     const p2 = document.getElementById('sel-audio-final').value;
 
-                    // M0 - Intro
                     if (p0 !== 'none') {
                         const blob0 = await processarAudioMagico(p0 === 'file' ? 'file_intro' : p0, marcadores.m0, marcadores.m1, audioCtx);
                         if(blob0) { innerZip.folder("part0").file("audio.wav", blob0); previewAudios.m0.src = URL.createObjectURL(blob0); }
                     }
-                    // M1 - Loop
                     if (p1 !== 'none') {
                         const blob1 = await processarAudioMagico(p1 === 'file' ? 'file_loop' : p1, marcadores.m1, marcadores.m2, audioCtx);
                         if(blob1) { innerZip.folder("part1").file("audio.wav", blob1); previewAudios.m1.src = URL.createObjectURL(blob1); }
                     }
-                    // M2 - Final
                     if (p2 !== 'none') {
                         const blob2 = await processarAudioMagico(p2 === 'file' ? 'file_final' : p2, marcadores.m2, marcadores.m3, audioCtx);
                         if(blob2) { innerZip.folder("part2").file("audio.wav", blob2); previewAudios.m2.src = URL.createObjectURL(blob2); }
@@ -1185,11 +1177,10 @@
                 document.getElementById('texto-progresso').textContent = "OK!";
                 btnGerar.textContent = t.sucesso;
                 
-                // Preparar Modal Preview
                 videoPreview.src = playerVideo.src;
                 videoPreview.currentTime = marcadores.m0;
                 videoPreview.muted = isSomAtivo; 
-                currentPreviewPart = -1; // Reseta pro áudio triggar certo!
+                currentPreviewPart = -1;
                 document.getElementById('modal-preview').style.display = 'flex';
                 videoPreview.play();
 
