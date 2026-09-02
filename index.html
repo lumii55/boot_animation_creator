@@ -172,7 +172,6 @@
         .btn-fechar-modal:active { transform: scale(0.95); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
 </head>
 <body>
     <div class="container">
@@ -282,7 +281,6 @@
         </div>
     </div>
 
-    <!-- ✨ CapCut Loading Overlay ✨ -->
     <div class="modal-overlay" id="loading-overlay" style="z-index: 200;">
         <div class="modal-box" style="background: transparent; border: none; box-shadow: none;">
             <div style="width: 50px; height: 50px; border: 5px solid #444; border-top: 5px solid #03dac6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
@@ -294,7 +292,7 @@
     <div class="modal-overlay" id="modal-preview">
         <div class="modal-box">
             <h2 id="lbl-modal-titulo">Preview of your Animation! 🎬</h2>
-            <img class="modal-img" id="img-preview-gif" src="" alt="Preview">
+            <video class="modal-img" id="video-preview" autoplay playsinline></video>
             <button class="btn-fechar-modal" id="btn-fechar-modal" onclick="fecharModal()">Close</button>
         </div>
     </div>
@@ -338,8 +336,6 @@
                 carregandoTimeline: "Loading Timeline... ⌛",
                 extraindo: "Extracting Frames...",
                 compactandoZip: "Compressing final .ZIP...",
-                renderizandoGif: "Rendering Preview... 🎬",
-                processandoGif: "Processing Preview...",
                 modalTitulo: "Preview of your Animation! 🎬",
                 btnFechar: "Close",
                 optJpeg: "JPEG (Lighter!)",
@@ -387,8 +383,6 @@
                 carregandoTimeline: "Carregando a Timeline... ⌛",
                 extraindo: "Extraindo Frames...",
                 compactandoZip: "Compactando o .ZIP final...",
-                renderizandoGif: "Renderizando Preview... 🎬",
-                processandoGif: "Processando Preview...",
                 modalTitulo: "Preview da sua Animação! 🎬",
                 btnFechar: "Fechar",
                 optJpeg: "JPEG (Mais leve!)",
@@ -436,8 +430,6 @@
                 carregandoTimeline: "Cargando Línea de Tiempo... ⌛",
                 extraindo: "Extrayendo Fotogramas...",
                 compactandoZip: "Comprimiendo .ZIP final...",
-                renderizandoGif: "Renderizando Vista Previa... 🎬",
-                processandoGif: "Procesando Vista Previa...",
                 modalTitulo: "¡Vista Previa de tu Animación! 🎬",
                 btnFechar: "Cerrar",
                 optJpeg: "JPEG (¡Más ligero!)",
@@ -485,8 +477,6 @@
                 carregandoTimeline: "Chargement de la timeline... ⌛",
                 extraindo: "Extraction des Images...",
                 compactandoZip: "Compression du .ZIP final...",
-                renderizandoGif: "Rendu de l'Aperçu... 🎬",
-                processandoGif: "Traitement de l'Aperçu...",
                 modalTitulo: "Aperçu de votre Animation ! 🎬",
                 btnFechar: "Fermer",
                 optJpeg: "JPEG (Plus léger !)",
@@ -500,6 +490,13 @@
         };
 
         let idiomaAtual = 'en'; 
+
+        window.addEventListener('beforeunload', function (e) {
+            if (document.getElementById('upload-video').files.length > 0) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
             let langDetectada = 'en';
@@ -593,7 +590,7 @@
         }
 
         function fecharModal() {
-            document.getElementById('modal-preview').style.display = 'none';
+            window.location.reload();
         }
 
         const inputVideo = document.getElementById('upload-video');
@@ -606,6 +603,7 @@
         const configuracoes = document.getElementById('configuracoes');
         const btnGerar = document.getElementById('btn-gerar');
         const dicasIniciais = document.getElementById('dicas-iniciais');
+        const videoPreview = document.getElementById('video-preview');
         
         const canvasInvisivel = document.createElement('canvas');
         const contexto = canvasInvisivel.getContext('2d', { alpha: false, willReadFrequently: true }); 
@@ -614,6 +612,12 @@
         let originalW = 0, originalH = 0;
         let isDraggingTimeline = false;
         let isGenerating = false;
+
+        videoPreview.addEventListener('timeupdate', () => {
+            if (videoPreview.currentTime >= marcadores.m3) {
+                videoPreview.currentTime = marcadores.m0;
+            }
+        });
 
         playerVideo.addEventListener('click', () => {
             if (isGenerating) return; 
@@ -659,15 +663,12 @@
             atualizarTamanho();
             ajustarPaddings();
             
-            // Mostrar tela de loading CapCut style
             document.getElementById('loading-overlay').style.display = 'flex';
             
-            // Ocultar o player temporariamente para não mostrar a extração
             playerVideo.style.opacity = '0'; 
             
             await desenharFilmstrip();
             
-            // Restaura
             playerVideo.style.opacity = '1';
             document.getElementById('loading-overlay').style.display = 'none';
         });
@@ -767,8 +768,6 @@
         window.marcarTrecho = function(id) {
             if (isGenerating) return; 
             
-            // Correção EXATA dos frames: se o vídeo está pausado ou sendo arrastado na barra, 
-            // baseamos o tempo diretamente nos pixels da barra de rolagem (CapCut Style)!
             if (playerVideo.paused) {
                 const scrollMax = filmstrip.offsetWidth;
                 let percent = scrollTimeline.scrollLeft / scrollMax;
@@ -798,8 +797,6 @@
                     linha.className = `linha-marcador linha-${id}`;
                     linha.style.left = ((tempo / playerVideo.duration) * 100) + '%';
                     
-                    // ✨ MÁGICA DO CLIQUE ✨ 
-                    // Agora você pode clicar na linha pra pular o vídeo exatamente pra esse marcador!
                     linha.addEventListener('click', (e) => {
                         e.stopPropagation();
                         if (isGenerating) return;
@@ -905,7 +902,7 @@
                 
                 canvasInvisivel.width = largura; canvasInvisivel.height = altura;
 
-                const gifBlob = await paparazzoOtimizado(innerZip, largura, altura, fps, formato, t);
+                await paparazzoOtimizado(innerZip, largura, altura, fps, formato, t);
 
                 innerZip.file("desc.txt", `${largura} ${altura} ${fps}\np 1 0 part0\np 0 0 part1\np 1 0 part2\n`);
                 
@@ -953,10 +950,10 @@
                 document.getElementById('texto-progresso').textContent = "OK!";
                 btnGerar.textContent = t.sucesso;
                 
-                if (gifBlob) {
-                    document.getElementById('img-preview-gif').src = URL.createObjectURL(gifBlob);
-                    document.getElementById('modal-preview').style.display = 'flex';
-                }
+                videoPreview.src = playerVideo.src;
+                videoPreview.currentTime = marcadores.m0;
+                document.getElementById('modal-preview').style.display = 'flex';
+                videoPreview.play();
 
                 setTimeout(() => { 
                     btnGerar.classList.remove('btn-desativado'); 
@@ -985,87 +982,46 @@
         });
 
         async function paparazzoOtimizado(zip, largura, altura, fps, formato, t) {
-            const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
-            let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
-            const intervalo = 1 / fps;
-            const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
-            const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
-            const extensao = formato === 'jpeg' ? '.jpg' : '.png';
+            return new Promise(async (resolve) => {
+                const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
+                let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
+                const intervalo = 1 / fps;
+                const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
+                const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
+                const extensao = formato === 'jpeg' ? '.jpg' : '.png';
 
-            let gif = null;
-            let canvasGif = null, ctxGif = null;
-            let gifW = 250; 
-            let gifH = Math.floor(altura * (250 / largura));
-            
-            const puloFramesGif = fps > 15 ? Math.round(fps / 12) : 1;
-            const delayEfetivoGif = Math.round((1000 / fps) * puloFramesGif);
+                playerVideo.pause();
 
-            try {
-                const workerBlob = await fetch('https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js').then(r => r.blob());
-                const nNucleos = navigator.hardwareConcurrency ? Math.min(navigator.hardwareConcurrency, 8) : 4;
-                gif = new GIF({ workers: nNucleos, quality: 10, width: gifW, height: gifH, workerScript: URL.createObjectURL(workerBlob) });
-                canvasGif = document.createElement('canvas');
-                canvasGif.width = gifW; canvasGif.height = gifH;
-                ctxGif = canvasGif.getContext('2d', { alpha: false });
-            } catch(e) { console.error("Erro GIF", e); gif = null; }
+                for (let tempo = marcadores.m0; tempo <= marcadores.m3; tempo += intervalo) {
+                    playerVideo.currentTime = tempo;
+                    await new Promise(res => {
+                        const cb = () => { playerVideo.removeEventListener('seeked', cb); res(); };
+                        playerVideo.addEventListener('seeked', cb);
+                    });
 
-            playerVideo.pause();
-            let contadorFrameGeral = 0;
+                    contexto.fillStyle = "#000000";
+                    contexto.fillRect(0, 0, largura, altura);
+                    contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
-            for (let tempo = marcadores.m0; tempo <= marcadores.m3; tempo += intervalo) {
-                playerVideo.currentTime = tempo;
-                await new Promise(resolve => {
-                    const cb = () => { playerVideo.removeEventListener('seeked', cb); resolve(); };
-                    playerVideo.addEventListener('seeked', cb);
-                });
+                    let pastaAlvo = null; let numFoto = 0;
+                    if (tempo < marcadores.m1) { pastaAlvo = pasta0; numFoto = c0++; } 
+                    else if (tempo < marcadores.m2) { pastaAlvo = pasta1; numFoto = c1++; } 
+                    else { pastaAlvo = pasta2; numFoto = c2++; }
 
-                contexto.fillStyle = "#000000";
-                contexto.fillRect(0, 0, largura, altura);
-                contexto.drawImage(playerVideo, 0, 0, largura, altura);
+                    const nome = String(numFoto).padStart(5, '0') + extensao;
+                    
+                    const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.95));
+                    if (blob) pastaAlvo.file(nome, blob);
 
-                let pastaAlvo = null; let numFoto = 0;
-                if (tempo < marcadores.m1) { pastaAlvo = pasta0; numFoto = c0++; } 
-                else if (tempo < marcadores.m2) { pastaAlvo = pasta1; numFoto = c1++; } 
-                else { pastaAlvo = pasta2; numFoto = c2++; }
-
-                const nome = String(numFoto).padStart(5, '0') + extensao;
-                
-                const blob = await new Promise(res => canvasInvisivel.toBlob(res, mimeType, 0.95));
-                if (blob) pastaAlvo.file(nome, blob);
-
-                if (gif && ctxGif && (contadorFrameGeral % puloFramesGif === 0)) {
-                    ctxGif.fillStyle = "#000000";
-                    ctxGif.fillRect(0, 0, gifW, gifH);
-                    ctxGif.drawImage(canvasInvisivel, 0, 0, gifW, gifH);
-                    gif.addFrame(ctxGif, {delay: delayEfetivoGif, copy: true});
+                    fotosTiradas++;
+                    
+                    const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
+                    document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
+                    document.getElementById('texto-progresso').textContent = `${t.extraindo} ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
                 }
 
-                contadorFrameGeral++;
-                fotosTiradas++;
-                
-                const porcentagem = Math.min(100, Math.floor((fotosTiradas / totalFotos) * 100));
-                document.getElementById('barra-preenchimento').style.width = porcentagem + '%';
-                document.getElementById('texto-progresso').textContent = `${t.extraindo} ${fotosTiradas}/${totalFotos} (${porcentagem}%)`;
-            }
-
-            if (gif) {
-                document.getElementById('texto-progresso').textContent = t.renderizandoGif;
-                btnGerar.textContent = "🎬...";
-                
-                return new Promise((resolve) => {
-                    gif.on('progress', p => {
-                        const pct = Math.round(p * 100);
-                        document.getElementById('barra-preenchimento').style.width = pct + '%';
-                        document.getElementById('texto-progresso').textContent = `${t.processandoGif} ${pct}%`;
-                    });
-                    
-                    gif.on('finished', function(blob) {
-                        resolve(blob);
-                    });
-                    gif.render();
-                });
-            }
-            return null;
+                resolve();
+            });
         }
     </script>
 </body>
