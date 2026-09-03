@@ -214,6 +214,7 @@
         <div id="connected-state" style="width: 100%; display: none; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <div style="background-color: #28a745; padding: 12px; border-radius: 15px; font-weight: bold; text-align: center; color: white; font-size: 15px;" id="status-connected">🟢 Phone Connected!</div>
             <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff;">🗑️ Remove Current Animation</button>
+            <button class="btn-upload" id="btn-disconnect" onclick="disconnectPhone()" style="background-color: #333; color: #fff;">🚪 Disconnect</button>
         </div>
 
         <!-- EDITOR SECTION -->
@@ -423,8 +424,10 @@
                 msgConfirmRemove: "Are you sure you want to remove the current animation and restore the default?",
                 msgInjecting: "Injecting... ⚡",
                 msgInjectError: "Error injecting animation! ❌",
-                msgPinPrompt: "🔒 Connection Locked!\nEnter the 4-digit PIN that appeared in your phone's notification:",
-                msgPinError: "❌ Incorrect PIN!"
+                msgWaitingAuth: "Please look at your phone screen to allow the connection...",
+                msgAuthDenied: "❌ Connection denied by the phone!",
+                msgAuthTimeout: "⏰ Timeout! You took too long to answer.",
+                btnDisconnect: "🚪 Disconnect"
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
@@ -490,8 +493,10 @@
                 msgConfirmRemove: "Quer mesmo apagar a animação atual e voltar para a de fábrica?",
                 msgInjecting: "Injetando... ⚡",
                 msgInjectError: "Erro ao injetar a animação! ❌",
-                msgPinPrompt: "🔒 Conexão Bloqueada!\nDigite o PIN de 4 dígitos que apareceu na notificação do celular:",
-                msgPinError: "❌ PIN Incorreto!"
+                msgWaitingAuth: "Por favor, olhe para a tela do celular e permita a conexão...",
+                msgAuthDenied: "❌ Conexão negada pelo celular!",
+                msgAuthTimeout: "⏰ Tempo esgotado! Você demorou muito para responder.",
+                btnDisconnect: "🚪 Desconectar"
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
@@ -557,8 +562,10 @@
                 msgConfirmRemove: "¿Estás seguro de que quieres eliminar la animación actual y restaurar la de fábrica?",
                 msgInjecting: "Inyectando... ⚡",
                 msgInjectError: "¡Error al inyectar la animación! ❌",
-                msgPinPrompt: "🔒 ¡Conexión Bloqueada!\nIngresa el PIN de 4 dígitos que apareció en la notificación de tu celular:",
-                msgPinError: "❌ ¡PIN Incorrecto!"
+                msgWaitingAuth: "Por favor, mira la pantalla de tu celular y permite la conexión...",
+                msgAuthDenied: "❌ ¡Conexión denegada por el celular!",
+                msgAuthTimeout: "⏰ ¡Tiempo agotado! Tardaste mucho en responder.",
+                btnDisconnect: "🚪 Desconectar"
             },
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
@@ -621,11 +628,13 @@
                 btnInjectReady: "⚡ INJECTER DANS LE TÉLÉPHONE",
                 msgSearching: "Recherche... 🔍",
                 msgNotFound: "Module introuvable ! Le serveur tourne-t-il en arrière-plan ?",
-                msgConfirmRemove: "Êtes-vous sûr de vouloir supprimer l'animation actuelle et restaurer celle par défaut ?",
+                msgConfirmRemove: "Êtes-vous sûr de vouloir supprimer l'animation actuelle et restaurar celle par défaut ?",
                 msgInjecting: "Injection... ⚡",
                 msgInjectError: "Erreur lors de l'injection ! ❌",
-                msgPinPrompt: "🔒 Connexion Verrouillée !\nEntrez le code PIN à 4 chiffres qui est apparu dans la notification de votre téléphone :",
-                msgPinError: "❌ Code PIN Incorrect !"
+                msgWaitingAuth: "Veuillez regarder l'écran de votre téléphone pour autoriser...",
+                msgAuthDenied: "❌ Connexion refusée par le téléphone !",
+                msgAuthTimeout: "⏰ Délai d'attente dépassé ! Vous avez mis trop de temps à répondre.",
+                btnDisconnect: "🚪 Déconnecter"
             }
         };
 
@@ -634,6 +643,9 @@
         const IP_LOCAL = "http://127.0.0.1:4040";
 
         window.addEventListener('beforeunload', function (e) {
+            if (isConnectedMode) {
+                navigator.sendBeacon(IP_LOCAL + '/disconnect');
+            }
             if (document.getElementById('upload-video').files.length > 0) {
                 e.preventDefault();
                 e.returnValue = '';
@@ -712,6 +724,7 @@
             document.getElementById('btn-manual').textContent = t.btnManual;
             document.getElementById('status-connected').textContent = t.statusConnected;
             document.getElementById('btn-remove').textContent = t.btnRemove;
+            document.getElementById('btn-disconnect').textContent = t.btnDisconnect;
 
             ['intro', 'loop', 'final'].forEach(part => {
                 const optNone = document.getElementById(`opt-none-${part}`);
@@ -735,16 +748,16 @@
                 let data = await response.json();
 
                 if (data.status === 'auth_required') {
-                    let pin = prompt(t.msgPinPrompt);
-                    if (!pin) {
-                        btn.textContent = textOrig;
-                        return;
-                    }
-                    let authRes = await fetch(IP_LOCAL + '/auth?pin=' + pin);
+                    btn.textContent = t.msgWaitingAuth;
+                    let authRes = await fetch(IP_LOCAL + '/request_auth');
                     data = await authRes.json();
                     
-                    if (data.status !== 'ok') {
-                        alert(t.msgPinError);
+                    if (data.status === 'denied') {
+                        alert(t.msgAuthDenied);
+                        btn.textContent = textOrig;
+                        return;
+                    } else if (data.status === 'timeout') {
+                        alert(t.msgAuthTimeout);
                         btn.textContent = textOrig;
                         return;
                     }
@@ -777,6 +790,15 @@
             document.getElementById('editor-section').style.display = 'flex';
             document.getElementById('wrap-nome').style.display = 'flex';
             atualizarBotoesELinhas();
+        }
+
+        async function disconnectPhone() {
+            try { await fetch(IP_LOCAL + '/disconnect'); } catch(e) {}
+            isConnectedMode = false;
+            document.getElementById('initial-state').style.display = 'flex';
+            document.getElementById('connected-state').style.display = 'none';
+            document.getElementById('editor-section').style.display = 'none';
+            document.getElementById('btn-connect').textContent = traducoes[idiomaAtual].btnConnect;
         }
 
         async function removeAnimation() {
@@ -1313,7 +1335,6 @@
                 }
                 
                 document.getElementById('texto-progresso').textContent = "OK!";
-                // Mantemos o texto do botão como estava caso queira injetar de novo!
                 
                 videoPreview.src = playerVideo.src;
                 videoPreview.currentTime = marcadores.m0;
