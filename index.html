@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Boot Animation Creator ✨</title>
+    <title>✨ Boot Animation Studio ✨</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap');
         
@@ -192,8 +192,8 @@
             </select>
         </div>
 
-        <h1 id="txt-titulo">✨ Boot Animation Creator ✨</h1>
-        <p id="txt-subtitulo">Create a boot animation using a video file!</p>
+        <h1 id="txt-titulo">✨ Boot Animation Studio ✨</h1>
+        <p id="txt-subtitulo">Create, edit or apply a boot animation file!</p>
 
         <div class="dicas-container" id="dicas-iniciais">
             <h3 id="txt-dicas-titulo">Tips for Beginners</h3>
@@ -219,10 +219,21 @@
         <!-- EDITOR SECTION -->
         <div id="editor-section" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 15px;">
             
-            <div id="acoes-principais" style="display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%;">
-                <label for="upload-video" class="btn-upload" id="lbl-upload" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%;">📂 Choose Video</label>
-                <input type="file" id="upload-video" accept="video/*" hidden>
-                <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px;">🗑️ Remove Animation</button>
+            <div id="acoes-principais" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
+                
+                <!-- Escolher Vídeo ou GIF -->
+                <label for="upload-video" class="btn-upload" id="lbl-upload" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%;">📂 Video / GIF</label>
+                <input type="file" id="upload-video" accept="video/*, image/gif" hidden>
+
+                <!-- Escolher ZIP -->
+                <label for="upload-zip" class="btn-upload" id="lbl-upload-zip" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%; background-color: #ffb86c; color: #000;">📦 Edit .ZIP</label>
+                <input type="file" id="upload-zip" accept=".zip" hidden>
+
+                <!-- Puxar do Celular (Fica escondido até conectar) -->
+                <button class="btn-upload" id="btn-pull" onclick="abrirModalPull()" style="background-color: #03dac6; color: #000; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">📥 Pull from Phone</button>
+
+                <!-- Remover (Só aparece se o módulo detectar animação custom!) -->
+                <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">🗑️ Remove Animation</button>
             </div>
 
             <div class="video-container" id="video-container">
@@ -336,12 +347,31 @@
                 <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" oninput="aoMudarTamanhoManual()"></div>
             </div>
 
+            <!-- NOVOS BOTÕES DE EXPORTAÇÃO (Vão aparecer ao editar/puxar ZIP) -->
+            <div id="botoes-exportacao" style="display: none; flex-direction: column; gap: 10px; width: 100%; margin-top: 5px;">
+                <button id="btn-baixar-video" class="btn-gerar" style="background-color: #ffb86c; display: block; color: #000;" onclick="baixarVideo()">🎬 Download Video</button>
+                <button id="btn-baixar-zip" class="btn-gerar" style="background-color: #bb86fc; display: block; color: #000;" onclick="baixarZipEditado()">📦 Download .ZIP</button>
+            </div>
+
             <button id="btn-gerar" class="btn-gerar btn-desativado">Missing Markers...</button>
             
             <div class="container-progresso" id="container-progresso">
                 <div class="texto-progresso" id="texto-progresso">0%</div>
                 <div class="barra-fundo"><div class="barra-preenchimento" id="barra-preenchimento"></div></div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL PUXAR DO CELULAR -->
+    <div class="modal-overlay" id="modal-pull">
+        <div class="modal-box">
+            <h2 id="lbl-modal-pull-title">📥 Pull Animation</h2>
+            <p id="lbl-modal-pull-desc" style="text-align: center; margin-bottom: 20px; font-size: 14px; color: #ccc;">You already have a custom animation installed! Which version do you want to pull to the editor? :3</p>
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button class="btn-upload" id="btn-pull-module" style="background-color: #bb86fc;" onclick="puxarAnimacao('module')">🔧 From Module</button>
+                <button class="btn-upload" id="btn-pull-system" style="background-color: #ffb86c;" onclick="puxarAnimacao('system')">📱 Original System</button>
+            </div>
+            <button class="btn-fechar-modal" id="btn-pull-cancel" style="margin-top: 15px; background-color: #333;" onclick="fecharModalPull()">Cancel</button>
         </div>
     </div>
 
@@ -364,13 +394,22 @@
     <script>
         const traducoes = {
             en: { 
-                titulo: "✨ Boot Animation Creator ✨",
-                subtitulo: "Create a boot animation using a video file!",
+                titulo: "✨ Boot Animation Studio ✨",
+                subtitulo: "Create, edit or apply a boot animation file!",
                 dicasTitulo: "Tips for Beginners",
                 dica1: "Important (Samsung): Because .qmg is a closed format, this site doesn't generate animations for stock Samsung. You MUST be on a Custom ROM/GSI! Root access is required.",
                 dica2: "Size matters: Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.",
                 dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.",
-                upload: "📂 Choose Video",
+                upload: "📂 Video / GIF",
+                uploadZip: "📦 Edit .ZIP",
+                btnPull: "📥 Pull from Phone",
+                modalPullTitle: "📥 Pull Animation",
+                modalPullDesc: "You already have a custom animation installed! Which version do you want to pull to the editor? :3",
+                btnPullModule: "🔧 From Module",
+                btnPullSystem: "📱 Original System",
+                btnPullCancel: "Cancel",
+                btnDownloadVideo: "🎬 Download Video",
+                btnDownloadZip: "📦 Download .ZIP",
                 dicaVideo: "👆 Click video to Play or Pause!",
                 m0: "1. Start",
                 m1: "2. End Intro",
@@ -435,13 +474,22 @@
                 msgRemoveError: "❌ Server error: "
             },
             pt: {
-                titulo: "✨ Criador de animações de boot ✨",
-                subtitulo: "Crie uma animação de boot usando um arquivo de vídeo!",
+                titulo: "✨ Boot Animation Studio ✨",
+                subtitulo: "Crie, edite ou aplique um arquivo de boot animation!",
                 dicasTitulo: "Dicas para Principiantes",
                 dica1: "Aviso Samsung: Como o formato .qmg é fechado, o site não gera animações para Samsung de fábrica. Você DEVE usar uma Custom ROM/GSI! Requer acesso Root.",
                 dica2: "Tamanho Importa: Evite arquivos maiores que 20MB. Animações pesadas podem engasgar o Android ou causar bootloops.",
                 dica3: "Formato da Tela: Celulares ficam em pé! Dê preferência a vídeos verticais (formato Reels/TikTok) para a imagem não ficar esticada.",
-                upload: "📂 Escolher Vídeo",
+                upload: "📂 Vídeo / GIF",
+                uploadZip: "📦 Editar .ZIP",
+                btnPull: "📥 Puxar do Celular",
+                modalPullTitle: "📥 Puxar Animação",
+                modalPullDesc: "Você já possui uma animação customizada instalada! Qual versão você deseja puxar para o editor? :3",
+                btnPullModule: "🔧 Do Módulo",
+                btnPullSystem: "📱 Original do Sistema",
+                btnPullCancel: "Cancelar",
+                btnDownloadVideo: "🎬 Baixar Vídeo",
+                btnDownloadZip: "📦 Baixar .ZIP",
                 dicaVideo: "👆 Clique no vídeo para dar Play ou Pausar!",
                 m0: "1. Início",
                 m1: "2. Fim Início",
@@ -506,13 +554,22 @@
                 msgRemoveError: "❌ Erro do servidor: "
             },
             es: {
-                titulo: "✨ Creador de Animaciones de Boot ✨",
-                subtitulo: "¡Crea una animación de arranque usando un archivo de vídeo!",
+                titulo: "✨ Boot Animation Studio ✨",
+                subtitulo: "¡Crea, edita o aplica un archivo de boot animation!",
                 dicasTitulo: "Consejos para Principiantes",
                 dica1: "Aviso Samsung: Como .qmg es un formato cerrado, el sitio no genera animaciones para Samsung de fábrica. ¡DEBES usar una Custom ROM/GSI! Requiere Root.",
                 dica2: "El Tamaño Importa: Evita archivos de más de 20MB. Los archivos muy pesados pueden trabar Android o causar bootloops.",
                 dica3: "Formato de Pantalla: ¡Los teléfonos son verticales! Prefiere videos verticales (formato TikTok/Reels) para que no se estiren.",
-                upload: "📂 Elegir Video",
+                upload: "📂 Video / GIF",
+                uploadZip: "📦 Editar .ZIP",
+                btnPull: "📥 Extraer del Celular",
+                modalPullTitle: "📥 Extraer Animación",
+                modalPullDesc: "¡Ya tienes una animación personalizada instalada! ¿Qué versión deseas extraer al editor? :3",
+                btnPullModule: "🔧 Del Módulo",
+                btnPullSystem: "📱 Original del Sistema",
+                btnPullCancel: "Cancelar",
+                btnDownloadVideo: "🎬 Descargar Video",
+                btnDownloadZip: "📦 Descargar .ZIP",
                 dicaVideo: "👆 ¡Haz clic en el video para Reproducir o Pausar!",
                 m0: "1. Inicio",
                 m1: "2. Fin Intro",
@@ -577,13 +634,22 @@
                 msgRemoveError: "❌ Error del servidor: "
             },
             fr: {
-                titulo: "✨ Créateur d'Animations de Démarrage ✨",
-                subtitulo: "Créez une animation de démarrage à l'aide d'un fichier vidéo !",
+                titulo: "✨ Boot Animation Studio ✨",
+                subtitulo: "Créez, éditez ou appliquez un fichier boot animation !",
                 dicasTitulo: "Conseils pour Débutants",
                 dica1: "Avis Samsung : Le format .qmg étant fermé, le site ne génère pas d'animations pour Samsung d'origine. Vous DEVEZ être sur une Custom ROM/GSI ! Root requis.",
                 dica2: "La Taille Compte : Évitez les fichiers de plus de 20 Mo. Les fichiers lourds peuvent faire ramer Android ou causer des bootloops.",
                 dica3: "Format d'Écran : Privilégiez les vidéos verticales (format TikTok/Reels) pour que votre animation ne soit pas déformée.",
-                upload: "📂 Choisir une Vidéo",
+                upload: "📂 Vidéo / GIF",
+                uploadZip: "📦 Éditer .ZIP",
+                btnPull: "📥 Extraire du Téléphone",
+                modalPullTitle: "📥 Extraire l'Animation",
+                modalPullDesc: "Vous avez déjà une animation personnalisée installée ! Quelle version voulez-vous extraire vers l'éditeur ? :3",
+                btnPullModule: "🔧 Du Module",
+                btnPullSystem: "📱 Système d'Origine",
+                btnPullCancel: "Annuler",
+                btnDownloadVideo: "🎬 Télécharger Vidéo",
+                btnDownloadZip: "📦 Télécharger .ZIP",
                 dicaVideo: "👆 Cliquez sur la vidéo pour Lire ou Mettre en pause !",
                 m0: "1. Début",
                 m1: "2. Fin Intro",
@@ -651,13 +717,14 @@
 
         let idiomaAtual = 'en'; 
         let isConnectedMode = false;
+        window.hasCustomAnimApplied = false;
         const IP_LOCAL = "http://127.0.0.1:4040";
 
         window.addEventListener('beforeunload', function (e) {
             if (isConnectedMode) {
                 navigator.sendBeacon(IP_LOCAL + '/disconnect');
             }
-            if (document.getElementById('upload-video').files.length > 0) {
+            if (document.getElementById('upload-video').files.length > 0 || document.getElementById('upload-zip').files.length > 0) {
                 e.preventDefault();
                 e.returnValue = '';
             }
@@ -698,6 +765,15 @@
             document.getElementById('txt-dica2').innerHTML = `<strong>${t.dica2.split(': ')[0]}:</strong> ${t.dica2.split(': ')[1]}`;
             document.getElementById('txt-dica3').innerHTML = `<strong>${t.dica3.split(': ')[0]}:</strong> ${t.dica3.split(': ')[1]}`;
             document.getElementById('lbl-upload').textContent = t.upload;
+            document.getElementById('lbl-upload-zip').textContent = t.uploadZip;
+            document.getElementById('btn-pull').textContent = t.btnPull;
+            document.getElementById('lbl-modal-pull-title').textContent = t.modalPullTitle;
+            document.getElementById('lbl-modal-pull-desc').textContent = t.modalPullDesc;
+            document.getElementById('btn-pull-module').textContent = t.btnPullModule;
+            document.getElementById('btn-pull-system').textContent = t.btnPullSystem;
+            document.getElementById('btn-pull-cancel').textContent = t.btnPullCancel;
+            document.getElementById('btn-baixar-video').textContent = t.btnDownloadVideo;
+            document.getElementById('btn-baixar-zip').textContent = t.btnDownloadZip;
             document.getElementById('txt-dicavideo').textContent = t.dicaVideo;
             document.getElementById('lbl-m0').textContent = t.m0;
             document.getElementById('lbl-m1').textContent = t.m1;
@@ -784,8 +860,17 @@
                     
                     document.getElementById('status-connected').textContent = t.statusConnected.replace('!', ': ' + data.model);
                     
+                    // A Mágica da detecção de custom animation! >:3
+                    if (data.has_custom) {
+                        document.getElementById('btn-remove').style.display = "block";
+                        window.hasCustomAnimApplied = true;
+                    } else {
+                        document.getElementById('btn-remove').style.display = "none";
+                        window.hasCustomAnimApplied = false;
+                    }
+
+                    document.getElementById('btn-pull').style.display = "block";
                     document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr 1fr";
-                    document.getElementById('btn-remove').style.display = "block";
                     
                     atualizarBotoesELinhas();
                 } else {
@@ -804,8 +889,9 @@
             document.getElementById('editor-section').style.display = 'flex';
             document.getElementById('wrap-nome').style.display = 'flex';
             
-            document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr";
+            document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr 1fr";
             document.getElementById('btn-remove').style.display = "none";
+            document.getElementById('btn-pull').style.display = "none";
             
             atualizarBotoesELinhas();
         }
@@ -819,7 +905,6 @@
             document.getElementById('btn-connect').textContent = traducoes[idiomaAtual].btnConnect;
         }
 
-        // Função mágica com POST atualizado! owo
         async function removeAnimation() {
             const t = traducoes[idiomaAtual];
             if(confirm(t.msgConfirmRemove)) {
@@ -830,6 +915,9 @@
                         let data = await res.json();
                         if (data.status === "success") {
                             alert(t.msgRemoveSuccess);
+                            // Esconde o botão logo após remover! :P
+                            document.getElementById('btn-remove').style.display = "none";
+                            window.hasCustomAnimApplied = false;
                         } else {
                             alert(t.msgRemoveError + data.message);
                         }
@@ -841,6 +929,74 @@
                 }
             }
         }
+
+        // ===============================================
+        // NOVAS FUNÇÕES PARA PUXAR E EDITAR O ZIP uwu ✨
+        // ===============================================
+
+        function abrirModalPull() {
+            if (window.hasCustomAnimApplied) {
+                document.getElementById('modal-pull').style.display = 'flex';
+            } else {
+                puxarAnimacao('system'); // Puxa direto se não tiver módulo aplicado
+            }
+        }
+
+        function fecharModalPull() {
+            document.getElementById('modal-pull').style.display = 'none';
+        }
+
+        async function puxarAnimacao(source) {
+            fecharModalPull();
+            const t = traducoes[idiomaAtual];
+            document.getElementById('texto-progresso').textContent = "Downloading from phone... 📥";
+            document.getElementById('container-progresso').style.display = 'flex';
+            
+            try {
+                let res = await fetch(IP_LOCAL + '/pull?source=' + source);
+                if (!res.ok) throw new Error("Failed to pull");
+                
+                let blob = await res.blob();
+                
+                // MÁGICA FUTURA AQUI: Passaremos esse Blob para a função do JSZip!
+                alert("✨ ZIP recebido com sucesso do celular! (A lógica de extração será feita no módulo JSZip na próxima att :3)");
+                
+                document.getElementById('container-progresso').style.display = 'none';
+                document.getElementById('botoes-exportacao').style.display = 'flex'; // Mostra opções extras
+                
+            } catch(e) {
+                alert(t.erro);
+                document.getElementById('container-progresso').style.display = 'none';
+            }
+        }
+
+        document.getElementById('upload-zip').addEventListener('change', function(evento) {
+            const arquivo = evento.target.files[0];
+            if (!arquivo) return;
+            
+            // MÁGICA FUTURA AQUI: Passaremos esse 'arquivo' para o extrator JSZip
+            alert("✨ Arquivo .ZIP selecionado! (A descompactação, leitura do desc.txt e montagem na timeline virá a seguir! owo)");
+            
+            dicasIniciais.style.display = 'none';
+            document.getElementById('botoes-exportacao').style.display = 'flex';
+            configuracoes.style.display = 'grid';
+            btnGerar.style.display = 'block';
+        });
+
+        function baixarVideo() {
+            // MÁGICA FUTURA AQUI: Motor do MediaRecorder
+            alert("🎬 Convertendo ZIP para Vídeo... (Em breve o MediaRecorder vai juntar todos os frames em um .MP4 fofinho! 💕)");
+        }
+
+        function baixarZipEditado() {
+            // MÁGICA FUTURA AQUI: Gera um ZIP novo se houver alteração
+            alert("📦 Gerando novo .ZIP modificado... (O JSZip irá fechar um novo arquivo com as alterações na timeline! :P)");
+        }
+
+
+        // ===============================================
+        // MÉTODOS ORIGINAIS DO EDITOR DE VÍDEO
+        // ===============================================
 
         function verificarModulo() {
             const isModulo = document.getElementById('input-gerar-modulo').checked;
@@ -980,6 +1136,7 @@
                 gridMarcadores.style.display = 'grid';
                 configuracoes.style.display = 'grid';
                 btnGerar.style.display = 'block';
+                document.getElementById('botoes-exportacao').style.display = 'none'; // Esconde os botoes novos
                 marcadores = { m0: null, m1: null, m2: null, m3: null };
                 atualizarBotoesELinhas();
             };
