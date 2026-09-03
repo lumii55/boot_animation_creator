@@ -213,14 +213,17 @@
         <!-- CONNECTED STATE UI -->
         <div id="connected-state" style="width: 100%; display: none; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <div style="background-color: #28a745; padding: 12px; border-radius: 15px; font-weight: bold; text-align: center; color: white; font-size: 15px;" id="status-connected">🟢 Phone Connected!</div>
-            <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff;">🗑️ Remove Current Animation</button>
             <button class="btn-upload" id="btn-disconnect" onclick="disconnectPhone()" style="background-color: #333; color: #fff;">🚪 Disconnect</button>
         </div>
 
         <!-- EDITOR SECTION -->
         <div id="editor-section" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 15px;">
-            <label for="upload-video" class="btn-upload" id="lbl-upload">📂 Choose Video</label>
-            <input type="file" id="upload-video" accept="video/*" hidden>
+            
+            <div id="acoes-principais" style="display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%;">
+                <label for="upload-video" class="btn-upload" id="lbl-upload" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%;">📂 Choose Video</label>
+                <input type="file" id="upload-video" accept="video/*" hidden>
+                <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px;">🗑️ Remove Animation</button>
+            </div>
 
             <div class="video-container" id="video-container">
                 <video id="player-video" playsinline class="pausado"></video>
@@ -417,7 +420,7 @@
                 btnConnect: "🔌 Connect to Phone",
                 btnManual: "📦 Just Create .ZIP",
                 statusConnected: "🟢 Phone Connected!",
-                btnRemove: "🗑️ Remove Current Animation",
+                btnRemove: "🗑️ Remove Animation",
                 btnInjectReady: "⚡ INJECT INTO PHONE",
                 msgSearching: "Searching... 🔍",
                 msgNotFound: "Module not found! Is the server running in the background?",
@@ -486,7 +489,7 @@
                 btnConnect: "🔌 Conectar ao Celular",
                 btnManual: "📦 Apenas Criar .ZIP",
                 statusConnected: "🟢 Celular Conectado!",
-                btnRemove: "🗑️ Remover Animação Atual",
+                btnRemove: "🗑️ Remover Animação",
                 btnInjectReady: "⚡ INJETAR NO CELULAR",
                 msgSearching: "Procurando... 🔍",
                 msgNotFound: "Módulo não encontrado! O servidor está rodando no fundo?",
@@ -555,7 +558,7 @@
                 btnConnect: "🔌 Conectar al Celular",
                 btnManual: "📦 Solo Crear .ZIP",
                 statusConnected: "🟢 ¡Celular Conectado!",
-                btnRemove: "🗑️ Eliminar Animación Actual",
+                btnRemove: "🗑️ Eliminar Animación",
                 btnInjectReady: "⚡ INYECTAR EN EL CELULAR",
                 msgSearching: "Buscando... 🔍",
                 msgNotFound: "¡Módulo no encontrado! ¿El servidor se está ejecutando en segundo plano?",
@@ -624,7 +627,7 @@
                 btnConnect: "🔌 Connecter au Téléphone",
                 btnManual: "📦 Juste Créer un .ZIP",
                 statusConnected: "🟢 Téléphone Connecté !",
-                btnRemove: "🗑️ Supprimer l'Animation Actuelle",
+                btnRemove: "🗑️ Supprimer l'Anim",
                 btnInjectReady: "⚡ INJECTER DANS LE TÉLÉPHONE",
                 msgSearching: "Recherche... 🔍",
                 msgNotFound: "Module introuvable ! Le serveur tourne-t-il en arrière-plan ?",
@@ -773,6 +776,9 @@
                     
                     document.getElementById('status-connected').textContent = t.statusConnected.replace('!', ': ' + data.model);
                     
+                    document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr 1fr";
+                    document.getElementById('btn-remove').style.display = "block";
+                    
                     atualizarBotoesELinhas();
                 } else {
                     alert(t.msgNotFound);
@@ -789,6 +795,10 @@
             document.getElementById('initial-state').style.display = 'none';
             document.getElementById('editor-section').style.display = 'flex';
             document.getElementById('wrap-nome').style.display = 'flex';
+            
+            document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr";
+            document.getElementById('btn-remove').style.display = "none";
+            
             atualizarBotoesELinhas();
         }
 
