@@ -959,15 +959,16 @@
             abrirZipNoEditor(arquivo);
         });
 
-        // 🖼️ MOTOR MÁGICO DE GIFS >:3
+        // 🖼️ MOTOR MÁGICO DE GIFS >:3 (AGORA COM PREFIXO "gifuct"!)
         async function converterGifParaVideo(file) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('txt-loading-timeline').textContent = "Lendo GIF mágico... ✨";
             
             try {
                 const buffer = await file.arrayBuffer();
-                const gif = parseGIF(buffer);
-                const frames = decompressFrames(gif, true);
+                // O segredo era o gifuct. antes da função!
+                const gif = gifuct.parseGIF(buffer);
+                const frames = gifuct.decompressFrames(gif, true);
                 
                 if (!frames || frames.length === 0) throw new Error("O GIF está vazio! TwT");
 
@@ -978,7 +979,6 @@
                 tempCanvas.width = w; tempCanvas.height = h;
                 const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
                 
-                // Calcula FPS médio fofinho
                 let totalDelay = 0;
                 frames.forEach(f => totalDelay += Math.max(20, f.delay));
                 let avgDelay = totalDelay / frames.length;
@@ -1001,9 +1001,10 @@
                 const gifCtx = gifCanvas.getContext('2d');
                 let prevImgData;
                 
-                const frameTime = 1000 / fps;
+                // Gravação com Sincronia de Tempo Perfeita
+                const startTime = performance.now();
+                let accumulatedDelay = 0;
 
-                // Desenha frame por frame obedecendo as regras malucas do formato GIF :P
                 for (let i = 0; i < frames.length; i++) {
                     const frame = frames[i];
                     
@@ -1028,13 +1029,21 @@
                     ctx.fillRect(0, 0, w, h);
                     ctx.drawImage(gifCanvas, 0, 0);
                     
-                    await new Promise(r => setTimeout(r, frameTime));
+                    accumulatedDelay += Math.max(20, frame.delay);
+                    const expectedTime = startTime + accumulatedDelay;
+                    const now = performance.now();
+                    const sleepTime = expectedTime - now;
+                    
+                    if (sleepTime > 0) {
+                        await new Promise(r => setTimeout(r, sleepTime));
+                    } else {
+                        await new Promise(r => setTimeout(r, 0));
+                    }
                 }
 
                 recorder.stop();
                 const videoWebm = await gravacaoPronta;
                 
-                // Injeta no player!
                 document.getElementById('dicas-iniciais').style.display = 'none';
                 playerVideo.src = URL.createObjectURL(videoWebm); 
                 document.getElementById('video-container').style.display = 'block';
@@ -1053,7 +1062,7 @@
             }
         }
 
-        // 📦 MOTOR DE CONVERSÃO: ZIP -> VÍDEO
+        // 📦 MOTOR DE CONVERSÃO: ZIP -> VÍDEO (AGORA COM REGRA DE OURO INFALÍVEL!)
         async function abrirZipNoEditor(zipBlob) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('txt-loading-timeline').textContent = "Abrindo .ZIP... 📦";
@@ -1074,8 +1083,7 @@
                 document.getElementById('txt-loading-timeline').textContent = "Organizando frames... 🖼️";
                 
                 let todasImagens = [];
-                let temposMarcadores = [0]; 
-                let contagemTotalFrames = 0;
+                let contagemPorPasta = [];
 
                 for (let i = 1; i < linhas.length; i++) {
                     const partes = linhas[i].split(' ');
@@ -1091,8 +1099,7 @@
                             todasImagens.push(imgBlob);
                         }
                         
-                        contagemTotalFrames += arquivosPasta.length;
-                        temposMarcadores.push(contagemTotalFrames / zipFps);
+                        contagemPorPasta.push({ nome: nomePasta, frames: arquivosPasta.length });
                     }
                 }
 
@@ -1117,6 +1124,10 @@
 
                 recorder.start();
 
+                // Gravação com Relógio de Performance Perfeito (Evita que o vídeo fique mais longo que o normal)
+                const frameTime = 1000 / zipFps;
+                const startTime = performance.now();
+                
                 for (let i = 0; i < todasImagens.length; i++) {
                     const img = new Image();
                     img.src = URL.createObjectURL(todasImagens[i]);
@@ -1127,7 +1138,15 @@
                     ctx.drawImage(img, 0, 0, zipW, zipH);
                     URL.revokeObjectURL(img.src);
 
-                    await new Promise(r => setTimeout(r, 1000 / zipFps));
+                    const expectedTime = startTime + ((i + 1) * frameTime);
+                    const now = performance.now();
+                    const sleepTime = expectedTime - now;
+                    
+                    if (sleepTime > 0) {
+                        await new Promise(r => setTimeout(r, sleepTime));
+                    } else {
+                        await new Promise(r => setTimeout(r, 0));
+                    }
                 }
 
                 recorder.stop();
@@ -1146,17 +1165,28 @@
                 document.getElementById('input-altura').value = zipH;
                 document.getElementById('input-qualidade').value = "custom";
                 
-                // 📏 MÁGICA DOS MARCADORES PERFEITOS (Com recuo de 1 frame!)
-                const frameTime = 1 / zipFps;
-                marcadores.m0 = 0;
-                marcadores.m1 = temposMarcadores.length > 1 ? temposMarcadores[1] - frameTime : 0;
-                marcadores.m2 = temposMarcadores.length > 2 ? temposMarcadores[2] - frameTime : marcadores.m1;
-                marcadores.m3 = temposMarcadores.length > 3 ? temposMarcadores[3] - frameTime : temposMarcadores[temposMarcadores.length - 1] - frameTime;
+                // 📏 A REGRA DE OURO CELESTIAL
+                let m1_idx = 0;
+                let m2_idx = 0;
+                let totalFramesGerais = 0;
 
-                // Proteção para não dar tempos negativos
-                marcadores.m1 = Math.max(0, marcadores.m1);
-                marcadores.m2 = Math.max(marcadores.m1, marcadores.m2);
-                marcadores.m3 = Math.max(marcadores.m2, marcadores.m3);
+                for (let c of contagemPorPasta) {
+                    if (c.nome.includes('0') || totalFramesGerais === 0) {
+                        m1_idx = totalFramesGerais + c.frames - 1; // Fim do part0
+                    }
+                    if (c.nome.includes('1') || (contagemPorPasta.length > 1 && totalFramesGerais > 0 && m2_idx === 0)) {
+                        m2_idx = totalFramesGerais + c.frames - 1; // Fim do part1
+                    }
+                    totalFramesGerais += c.frames;
+                }
+
+                if (m2_idx === 0) m2_idx = m1_idx; // Se só tiver part0
+                if (m2_idx < m1_idx) m2_idx = m1_idx; // Segurança extra!
+
+                marcadores.m0 = 0;
+                marcadores.m1 = m1_idx / zipFps;
+                marcadores.m2 = m2_idx / zipFps;
+                marcadores.m3 = (totalFramesGerais - 1) / zipFps;
 
                 playerVideo.src = URL.createObjectURL(videoWebm);
                 
@@ -1760,7 +1790,7 @@
                 const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
                 let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
                 const intervalo = 1 / fps;
-                const meioFrame = intervalo / 2; // Tolerância perfeita para o tempo
+                const meioFrame = intervalo / 2;
                 const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
                 const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
                 const extensao = formato === 'jpeg' ? '.jpg' : '.png';
@@ -1780,7 +1810,6 @@
 
                     let pastaAlvo = null; let numFoto = 0;
                     
-                    // A nova regra de ouro dos marcadores atuando aqui!! >w<
                     if (tempo < marcadores.m1 + meioFrame) { pastaAlvo = pasta0; numFoto = c0++; } 
                     else if (tempo < marcadores.m2 + meioFrame) { pastaAlvo = pasta1; numFoto = c1++; } 
                     else { pastaAlvo = pasta2; numFoto = c2++; }
