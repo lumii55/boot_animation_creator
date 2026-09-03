@@ -204,35 +204,28 @@
             </ul>
         </div>
 
-        <!-- INITIAL STATE UI -->
         <div id="initial-state" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <button class="btn-upload" id="btn-connect" onclick="connectToPhone()" style="background-color: #03dac6;">🔌 Connect to Phone</button>
             <button class="btn-upload" id="btn-manual" onclick="startManualMode()" style="background-color: #333; color: #fff;">📦 Just Create .ZIP</button>
         </div>
 
-        <!-- CONNECTED STATE UI -->
         <div id="connected-state" style="width: 100%; display: none; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <div style="background-color: #28a745; padding: 12px; border-radius: 15px; font-weight: bold; text-align: center; color: white; font-size: 15px;" id="status-connected">🟢 Phone Connected!</div>
             <button class="btn-upload" id="btn-disconnect" onclick="disconnectPhone()" style="background-color: #333; color: #fff;">🚪 Disconnect</button>
         </div>
 
-        <!-- EDITOR SECTION -->
         <div id="editor-section" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 15px;">
             
             <div id="acoes-principais" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
                 
-                <!-- Escolher Vídeo ou GIF -->
                 <label for="upload-video" class="btn-upload" id="lbl-upload" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%;">📂 Video / GIF</label>
                 <input type="file" id="upload-video" accept="video/*, image/gif" hidden>
 
-                <!-- Escolher ZIP -->
                 <label for="upload-zip" class="btn-upload" id="lbl-upload-zip" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%; background-color: #ffb86c; color: #000;">📦 Edit .ZIP</label>
                 <input type="file" id="upload-zip" accept=".zip" hidden>
 
-                <!-- Puxar do Celular (Fica escondido até conectar) -->
                 <button class="btn-upload" id="btn-pull" onclick="abrirModalPull()" style="background-color: #03dac6; color: #000; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">📥 Pull from Phone</button>
 
-                <!-- Remover (Só aparece se o módulo detectar animação custom!) -->
                 <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">🗑️ Remove Animation</button>
             </div>
 
@@ -347,7 +340,6 @@
                 <div class="campo"><label id="lbl-altura">Height</label><input type="number" id="input-altura" oninput="aoMudarTamanhoManual()"></div>
             </div>
 
-            <!-- NOVOS BOTÕES DE EXPORTAÇÃO (Vão aparecer ao editar/puxar ZIP) -->
             <div id="botoes-exportacao" style="display: none; flex-direction: column; gap: 10px; width: 100%; margin-top: 5px;">
                 <button id="btn-baixar-video" class="btn-gerar" style="background-color: #ffb86c; display: block; color: #000;" onclick="baixarVideo()">🎬 Download Video</button>
                 <button id="btn-baixar-zip" class="btn-gerar" style="background-color: #bb86fc; display: block; color: #000;" onclick="baixarZipEditado()">📦 Download .ZIP</button>
@@ -362,7 +354,6 @@
         </div>
     </div>
 
-    <!-- MODAL PUXAR DO CELULAR -->
     <div class="modal-overlay" id="modal-pull">
         <div class="modal-box">
             <h2 id="lbl-modal-pull-title">📥 Pull Animation</h2>
@@ -958,14 +949,12 @@
                 
                 let blob = await res.blob();
                 
-                // MÁGICA FUTURA AQUI: Passaremos esse Blob para a função do JSZip!
-                alert("✨ ZIP recebido com sucesso do celular! (A lógica de extração será feita no módulo JSZip na próxima att :3)");
+                await abrirZipNoEditor(blob);
                 
                 document.getElementById('container-progresso').style.display = 'none';
-                document.getElementById('botoes-exportacao').style.display = 'flex'; // Mostra opções extras
                 
             } catch(e) {
-                alert(t.erro);
+                alert(t.erro + " - " + e.message);
                 document.getElementById('container-progresso').style.display = 'none';
             }
         }
@@ -973,26 +962,161 @@
         document.getElementById('upload-zip').addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
             if (!arquivo) return;
-            
-            // MÁGICA FUTURA AQUI: Passaremos esse 'arquivo' para o extrator JSZip
-            alert("✨ Arquivo .ZIP selecionado! (A descompactação, leitura do desc.txt e montagem na timeline virá a seguir! owo)");
-            
-            dicasIniciais.style.display = 'none';
-            document.getElementById('botoes-exportacao').style.display = 'flex';
-            configuracoes.style.display = 'grid';
-            btnGerar.style.display = 'block';
+            abrirZipNoEditor(arquivo);
         });
 
+        // ===============================================
+        // MOTOR DE CONVERSÃO: ZIP -> VÍDEO uwu 💕
+        // ===============================================
+        async function abrirZipNoEditor(zipBlob) {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('txt-loading-timeline').textContent = "Abrindo .ZIP... 📦";
+
+            try {
+                const zip = await JSZip.loadAsync(zipBlob);
+                const descFile = zip.file("desc.txt");
+                if (!descFile) throw new Error("Arquivo desc.txt não encontrado! Isso é um bootanimation válido? TwT");
+                
+                const descText = await descFile.async("string");
+                const linhas = descText.split('\n').map(l => l.trim()).filter(l => l);
+                
+                // Extrai Configurações Globais
+                const configTops = linhas[0].split(' ');
+                const zipW = parseInt(configTops[0]);
+                const zipH = parseInt(configTops[1]);
+                const zipFps = parseInt(configTops[2]) || 30;
+
+                document.getElementById('txt-loading-timeline').textContent = "Organizando frames... 🖼️";
+                
+                let todasImagens = [];
+                let temposMarcadores = [0]; // Começa no segundo 0
+                let contagemTotalFrames = 0;
+
+                // Processa cada "part" descrita no desc.txt
+                for (let i = 1; i < linhas.length; i++) {
+                    const partes = linhas[i].split(' ');
+                    if (partes[0] === 'c' || partes[0] === 'p') {
+                        const nomePasta = partes[3];
+                        
+                        const regex = new RegExp("^" + nomePasta + "/.*\\.(png|jpg|jpeg)$", "i");
+                        const arquivosPasta = zip.file(regex);
+                        
+                        // Garante que estão em ordem numérica! (ex: 00001.png)
+                        arquivosPasta.sort((a, b) => a.name.localeCompare(b.name));
+                        
+                        for (let arq of arquivosPasta) {
+                            const imgBlob = await arq.async("blob");
+                            todasImagens.push(imgBlob);
+                        }
+                        
+                        // Calcula o tempo exato onde esse marcador deve ficar! >:3
+                        contagemTotalFrames += arquivosPasta.length;
+                        temposMarcadores.push(contagemTotalFrames / zipFps);
+                    }
+                }
+
+                if (todasImagens.length === 0) throw new Error("Nenhuma imagem encontrada nas pastas! TwT");
+
+                document.getElementById('txt-loading-timeline').textContent = "Costurando Vídeo... 🎬 (Isso pode demorar um pouquinho!)";
+                
+                // MÁGICA DE GRAVAÇÃO DO CANVAS
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = zipW;
+                tempCanvas.height = zipH;
+                const ctx = tempCanvas.getContext('2d');
+
+                // Captura o canvas em formato de vídeo
+                const stream = tempCanvas.captureStream(zipFps);
+                const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                const pedacosVideo = [];
+
+                recorder.ondataavailable = e => {
+                    if (e.data.size > 0) pedacosVideo.push(e.data);
+                };
+                
+                const gravacaoPronta = new Promise(resolve => {
+                    recorder.onstop = () => {
+                        const videoFinal = new Blob(pedacosVideo, { type: 'video/webm' });
+                        resolve(videoFinal);
+                    };
+                });
+
+                recorder.start();
+
+                // Desenha frame por frame no canvas, simulando o boot!
+                for (let i = 0; i < todasImagens.length; i++) {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(todasImagens[i]);
+                    await new Promise(r => img.onload = r);
+                    
+                    ctx.fillStyle = "#000000";
+                    ctx.fillRect(0, 0, zipW, zipH);
+                    ctx.drawImage(img, 0, 0, zipW, zipH);
+                    URL.revokeObjectURL(img.src);
+
+                    // Pede pro Javascript esperar o tempo de 1 frame
+                    await new Promise(r => setTimeout(r, 1000 / zipFps));
+                }
+
+                recorder.stop();
+                const videoWebm = await gravacaoPronta;
+
+                // INJETA TUDO NA UI DO SITE!
+                document.getElementById('dicas-iniciais').style.display = 'none';
+                document.getElementById('botoes-exportacao').style.display = 'flex';
+                document.getElementById('video-container').style.display = 'block';
+                document.getElementById('timeline-wrapper').style.display = 'block';
+                document.getElementById('grid-marcadores').style.display = 'grid';
+                document.getElementById('configuracoes').style.display = 'grid';
+                document.getElementById('btn-gerar').style.display = 'block';
+                
+                // Preenche inputs
+                document.getElementById('input-fps').value = zipFps;
+                document.getElementById('input-largura').value = zipW;
+                document.getElementById('input-altura').value = zipH;
+                document.getElementById('input-qualidade').value = "custom";
+                
+                // Preenche Marcadores inteligentemente!
+                marcadores.m0 = temposMarcadores[0]; // 0s
+                marcadores.m1 = temposMarcadores.length > 1 ? temposMarcadores[1] : temposMarcadores[0];
+                marcadores.m2 = temposMarcadores.length > 2 ? temposMarcadores[2] : marcadores.m1;
+                marcadores.m3 = temposMarcadores.length > 3 ? temposMarcadores[3] : marcadores.m2;
+
+                // Carrega o vídeo final no player!
+                playerVideo.src = URL.createObjectURL(videoWebm);
+                
+                // Espera o player processar os metadados do WebM gerado
+                playerVideo.onloadedmetadata = async () => {
+                    originalW = zipW;
+                    originalH = zipH;
+                    atualizarTamanho();
+                    ajustarPaddings();
+                    await desenharFilmstrip(); // Renderiza a timeline fofinha
+                    atualizarBotoesELinhas(); // Coloca as linhas na timeline
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    playerVideo.onloadedmetadata = null; // Limpa evento
+                };
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao ler o ZIP: " + error.message);
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
         function baixarVideo() {
-            // MÁGICA FUTURA AQUI: Motor do MediaRecorder
-            alert("🎬 Convertendo ZIP para Vídeo... (Em breve o MediaRecorder vai juntar todos os frames em um .MP4 fofinho! 💕)");
+            if (!playerVideo.src) return;
+            const linkDownload = document.createElement("a");
+            linkDownload.href = playerVideo.src;
+            linkDownload.download = "bootanimation_video.webm"; 
+            linkDownload.click();
         }
 
         function baixarZipEditado() {
-            // MÁGICA FUTURA AQUI: Gera um ZIP novo se houver alteração
-            alert("📦 Gerando novo .ZIP modificado... (O JSZip irá fechar um novo arquivo com as alterações na timeline! :P)");
+            // O botão nativo "Gerar Animação de Boot" já faz isso com os parâmetros atuais! 
+            // Então podemos só forçar o clique nele :P
+            btnGerar.click(); 
         }
-
 
         // ===============================================
         // MÉTODOS ORIGINAIS DO EDITOR DE VÍDEO
