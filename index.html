@@ -430,7 +430,9 @@
                 msgWaitingAuth: "Please look at your phone screen to allow the connection...",
                 msgAuthDenied: "❌ Connection denied by the phone!",
                 msgAuthTimeout: "⏰ Timeout! You took too long to answer.",
-                btnDisconnect: "🚪 Disconnect"
+                btnDisconnect: "🚪 Disconnect",
+                msgRemoveSuccess: "✨ Animation successfully removed! Boot restored to default.",
+                msgRemoveError: "❌ Server error: "
             },
             pt: {
                 titulo: "✨ Criador de animações de boot ✨",
@@ -499,7 +501,9 @@
                 msgWaitingAuth: "Por favor, olhe para a tela do celular e permita a conexão...",
                 msgAuthDenied: "❌ Conexão negada pelo celular!",
                 msgAuthTimeout: "⏰ Tempo esgotado! Você demorou muito para responder.",
-                btnDisconnect: "🚪 Desconectar"
+                btnDisconnect: "🚪 Desconectar",
+                msgRemoveSuccess: "✨ Animação removida com sucesso! O boot voltou ao original!",
+                msgRemoveError: "❌ Erro do servidor: "
             },
             es: {
                 titulo: "✨ Creador de Animaciones de Boot ✨",
@@ -568,7 +572,9 @@
                 msgWaitingAuth: "Por favor, mira la pantalla de tu celular y permite la conexión...",
                 msgAuthDenied: "❌ ¡Conexión denegada por el celular!",
                 msgAuthTimeout: "⏰ ¡Tiempo agotado! Tardaste mucho en responder.",
-                btnDisconnect: "🚪 Desconectar"
+                btnDisconnect: "🚪 Desconectar",
+                msgRemoveSuccess: "✨ ¡Animación eliminada con éxito! Arranque restaurado al original.",
+                msgRemoveError: "❌ Error del servidor: "
             },
             fr: {
                 titulo: "✨ Créateur d'Animations de Démarrage ✨",
@@ -637,7 +643,9 @@
                 msgWaitingAuth: "Veuillez regarder l'écran de votre téléphone pour autoriser...",
                 msgAuthDenied: "❌ Connexion refusée par le téléphone !",
                 msgAuthTimeout: "⏰ Délai d'attente dépassé ! Vous avez mis trop de temps à répondre.",
-                btnDisconnect: "🚪 Déconnecter"
+                btnDisconnect: "🚪 Déconnecter",
+                msgRemoveSuccess: "✨ Animation supprimée avec succès ! Démarrage restauré par défaut.",
+                msgRemoveError: "❌ Erreur du serveur : "
             }
         };
 
@@ -811,13 +819,25 @@
             document.getElementById('btn-connect').textContent = traducoes[idiomaAtual].btnConnect;
         }
 
+        // Função mágica com POST atualizado! owo
         async function removeAnimation() {
             const t = traducoes[idiomaAtual];
             if(confirm(t.msgConfirmRemove)) {
                 try {
-                    await fetch(IP_LOCAL + '/remove');
+                    let res = await fetch(IP_LOCAL + '/remove', { method: 'POST' });
+                    
+                    if (res.ok) {
+                        let data = await res.json();
+                        if (data.status === "success") {
+                            alert(t.msgRemoveSuccess);
+                        } else {
+                            alert(t.msgRemoveError + data.message);
+                        }
+                    } else {
+                        alert(t.erro + " (HTTP " + res.status + ")");
+                    }
                 } catch (error) {
-                    alert(t.erro);
+                    alert(t.erro + " - The server blocked the connection or is offline!");
                 }
             }
         }
