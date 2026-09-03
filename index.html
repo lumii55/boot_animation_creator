@@ -375,6 +375,20 @@
         </div>
     </div>
 
+    <!-- MODAL REDE / VARREDURA AUTO -->
+    <div class="modal-overlay" id="modal-network">
+        <div class="modal-box">
+            <h2 id="lbl-modal-net-title">🌐 Connect via Network</h2>
+            <p id="lbl-modal-net-desc" style="text-align: center; margin-bottom: 20px; font-size: 14px; color: #ccc;">Server not found on localhost. Enter your phone's IP address or scan the network!</p>
+            <input type="text" id="input-ip" value="192.168.0." style="width: 100%; margin-bottom: 15px; padding: 10px; border-radius: 10px; background: #2a2a2a; border: 1px solid #444; color: #fff; text-align: center; font-family: 'Fredoka', sans-serif;">
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button class="btn-upload" id="btn-connect-ip" style="background-color: #03dac6;" onclick="conectarPorIp()">🔌 Connect</button>
+                <button class="btn-upload" id="btn-scan-net" style="background-color: #bb86fc;" onclick="iniciarVarredura()">🔍 Auto-Scan</button>
+            </div>
+            <button class="btn-fechar-modal" style="margin-top: 15px; background-color: #333;" onclick="fecharModalRede()">Cancel</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="loading-overlay" style="z-index: 200;">
         <div class="modal-box" style="background: transparent; border: none; box-shadow: none;">
             <div style="width: 50px; height: 50px; border: 5px solid #444; border-top: 5px solid #03dac6; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;"></div>
@@ -399,7 +413,7 @@
                 dicasTitulo: "Tips for Beginners",
                 dica1: "Important (Samsung): Because .qmg is a closed format, this site doesn't generate animations for stock Samsung. You MUST be on a Custom ROM/GSI! Root access is required.",
                 dica2: "Size matters: Avoid files larger than 20MB. Heavy files can cause Android to stutter or even cause bootloops.",
-                dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesnt get stretched.",
+                dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.",
                 upload: "📂 Video / GIF",
                 uploadZip: "📦 Edit .ZIP",
                 btnPull: "📥 Pull from Phone",
@@ -408,6 +422,13 @@
                 btnPullModule: "🔧 From Module",
                 btnPullSystem: "📱 Original System",
                 btnPullCancel: "Cancel",
+                modalNetTitle: "🌐 Connect via Network",
+                modalNetDesc: "Server not found on PC. Enter your phone's IP address or scan the network!",
+                btnScan: "🔍 Auto-Scan",
+                btnConnectIp: "🔌 Connect",
+                scanningMsg: "Scanning common networks... This might take a few seconds 🕵️‍♂️",
+                scanFound: "Found it! 🎉 Connecting...",
+                scanNotFound: "Couldn't find the phone! TwT Make sure the server is running and you are on the SAME Wi-Fi.",
                 btnDownloadVideo: "🎬 Download Video",
                 btnDownloadZip: "📦 Download .ZIP",
                 dicaVideo: "👆 Click video to Play or Pause!",
@@ -488,6 +509,13 @@
                 btnPullModule: "🔧 Do Módulo",
                 btnPullSystem: "📱 Original do Sistema",
                 btnPullCancel: "Cancelar",
+                modalNetTitle: "🌐 Conectar pela Rede",
+                modalNetDesc: "Servidor não encontrado no PC. Digite o IP do celular ou faça uma varredura na rede!",
+                btnScan: "🔍 Varredura Auto",
+                btnConnectIp: "🔌 Conectar",
+                scanningMsg: "Vasculhando redes comuns... Isso leva uns segundinhos 🕵️‍♂️",
+                scanFound: "Achei!! 🎉 Conectando...",
+                scanNotFound: "Não achei o celular! TwT O servidor tá rodando e vuxe tá no mesmo Wi-Fi?",
                 btnDownloadVideo: "🎬 Baixar Vídeo",
                 btnDownloadZip: "📦 Baixar .ZIP",
                 dicaVideo: "👆 Clique no vídeo para dar Play ou Pausar!",
@@ -568,6 +596,13 @@
                 btnPullModule: "🔧 Del Módulo",
                 btnPullSystem: "📱 Original del Sistema",
                 btnPullCancel: "Cancelar",
+                modalNetTitle: "🌐 Conectar vía Red",
+                modalNetDesc: "Servidor no encontrado en la PC. ¡Ingresa la IP del celular o escanea la red!",
+                btnScan: "🔍 Escaneo Auto",
+                btnConnectIp: "🔌 Conectar",
+                scanningMsg: "Buscando en redes comunes... Esto tomará unos segundos 🕵️‍♂️",
+                scanFound: "¡Lo encontré! 🎉 Conectando...",
+                scanNotFound: "¡No pude encontrar el celular! TwT ¿Estás en el mismo Wi-Fi?",
                 btnDownloadVideo: "🎬 Descargar Video",
                 btnDownloadZip: "📦 Descargar .ZIP",
                 dicaVideo: "👆 ¡Haz clic en el video para Reproducir o Pausar!",
@@ -648,6 +683,13 @@
                 btnPullModule: "🔧 Du Module",
                 btnPullSystem: "📱 Système d'Origine",
                 btnPullCancel: "Annuler",
+                modalNetTitle: "🌐 Connexion via Réseau",
+                modalNetDesc: "Serveur introuvable sur le PC. Entrez l'IP du téléphone ou scannez le réseau !",
+                btnScan: "🔍 Scan Auto",
+                btnConnectIp: "🔌 Connecter",
+                scanningMsg: "Recherche sur les réseaux... Cela prend quelques secondes 🕵️‍♂️",
+                scanFound: "Trouvé ! 🎉 Connexion...",
+                scanNotFound: "Téléphone introuvable ! TwT Êtes-vous sur le même Wi-Fi ?",
                 btnDownloadVideo: "🎬 Télécharger Vidéo",
                 btnDownloadZip: "📦 Télécharger .ZIP",
                 dicaVideo: "👆 Cliquez sur la vidéo pour Lire ou Mettre en pause !",
@@ -718,7 +760,7 @@
         let idiomaAtual = 'en'; 
         let isConnectedMode = false;
         window.hasCustomAnimApplied = false;
-        const IP_LOCAL = "http://127.0.0.1:4040";
+        let IP_LOCAL = "http://127.0.0.1:4040";
 
         window.addEventListener('beforeunload', function (e) {
             if (isConnectedMode) {
@@ -772,6 +814,10 @@
             document.getElementById('btn-pull-module').textContent = t.btnPullModule;
             document.getElementById('btn-pull-system').textContent = t.btnPullSystem;
             document.getElementById('btn-pull-cancel').textContent = t.btnPullCancel;
+            document.getElementById('lbl-modal-net-title').textContent = t.modalNetTitle;
+            document.getElementById('lbl-modal-net-desc').textContent = t.modalNetDesc;
+            document.getElementById('btn-scan-net').textContent = t.btnScan;
+            document.getElementById('btn-connect-ip').textContent = t.btnConnectIp;
             document.getElementById('btn-baixar-video').textContent = t.btnDownloadVideo;
             document.getElementById('btn-baixar-zip').textContent = t.btnDownloadZip;
             document.getElementById('txt-dicavideo').textContent = t.dicaVideo;
@@ -827,8 +873,27 @@
         async function connectToPhone() {
             const btn = document.getElementById('btn-connect');
             const t = traducoes[idiomaAtual];
-            const textOrig = btn.textContent;
             btn.textContent = t.msgSearching;
+
+            try {
+                // Tenta localhost primeiro (celular direto ou ADB)
+                let response = await fetch(IP_LOCAL + '/ping', { signal: AbortSignal.timeout(1500) });
+                if (response.ok) {
+                    await tentaConexao();
+                } else {
+                    throw new Error("Failed");
+                }
+            } catch (error) {
+                // Não achou no localhost, abre o modal de rede pro PC!
+                btn.textContent = t.btnConnect; 
+                document.getElementById('modal-network').style.display = 'flex';
+            }
+        }
+
+        async function tentaConexao() {
+            const btn = document.getElementById('btn-connect');
+            const t = traducoes[idiomaAtual];
+            btn.textContent = "Connecting... ⚡";
 
             try {
                 let response = await fetch(IP_LOCAL + '/ping');
@@ -841,11 +906,11 @@
                     
                     if (data.status === 'denied') {
                         alert(t.msgAuthDenied);
-                        btn.textContent = textOrig;
+                        btn.textContent = t.btnConnect;
                         return;
                     } else if (data.status === 'timeout') {
                         alert(t.msgAuthTimeout);
-                        btn.textContent = textOrig;
+                        btn.textContent = t.btnConnect;
                         return;
                     }
                 }
@@ -874,11 +939,81 @@
                     atualizarBotoesELinhas();
                 } else {
                     alert(t.msgNotFound);
-                    btn.textContent = textOrig;
+                    btn.textContent = t.btnConnect;
                 }
             } catch (error) {
                 alert(t.msgNotFound);
-                btn.textContent = textOrig;
+                btn.textContent = t.btnConnect;
+            }
+        }
+
+        async function conectarPorIp() {
+            const ip = document.getElementById('input-ip').value.trim();
+            if(!ip) return;
+            IP_LOCAL = `http://${ip}:4040`;
+            fecharModalRede();
+            tentaConexao();
+        }
+
+        function fecharModalRede() {
+            document.getElementById('modal-network').style.display = 'none';
+        }
+
+        // 📡 O RADAR MÁGICO DE REDE JS
+        async function checkIP(ip) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1200); 
+            try {
+                const res = await fetch(`http://${ip}:4040/ping`, { signal: controller.signal });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status) return ip;
+                }
+            } catch (e) {
+                return null;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+            return null;
+        }
+
+        async function iniciarVarredura() {
+            const btn = document.getElementById('btn-scan-net');
+            const desc = document.getElementById('lbl-modal-net-desc');
+            const originalText = btn.textContent;
+            const t = traducoes[idiomaAtual];
+
+            btn.textContent = "Scanning... 🕵️‍♂️";
+            btn.style.pointerEvents = 'none';
+            desc.textContent = t.scanningMsg;
+
+            // Sub-redes mais comuns de roteadores no Brasil e no mundo!
+            const subnets = ['192.168.0', '192.168.1', '192.168.15', '192.168.2', '10.0.0', '192.168.3'];
+            let foundIp = null;
+
+            for (let sub of subnets) {
+                if (foundIp) break;
+                let promises = [];
+                // Bate em 254 IPs simultaneamente como um ninja!
+                for (let i = 1; i <= 254; i++) {
+                    promises.push(checkIP(`${sub}.${i}`));
+                }
+                const results = await Promise.all(promises);
+                foundIp = results.find(ip => ip !== null);
+            }
+
+            if (foundIp) {
+                desc.textContent = t.scanFound;
+                document.getElementById('input-ip').value = foundIp;
+                IP_LOCAL = `http://${foundIp}:4040`;
+                setTimeout(() => {
+                    fecharModalRede();
+                    tentaConexao();
+                }, 1500);
+            } else {
+                desc.textContent = t.scanNotFound;
+                btn.textContent = originalText;
+                btn.style.pointerEvents = 'all';
             }
         }
 
@@ -967,13 +1102,12 @@
             abrirZipNoEditor(arquivo);
         });
 
-        // 🖼️ MOTOR MÁGICO DE GIFS >:3 (AGORA COM IMPORTAÇÃO SUPREMA ES MODULE!)
+        // 🖼️ MOTOR MÁGICO DE GIFS >:3
         async function converterGifParaVideo(file) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('txt-loading-timeline').textContent = "Lendo GIF mágico... ✨";
             
             try {
-                // 👇 A MÁGICA NOVA ESTÁ AQUI! Importamos direto do jsDelivr como módulo!
                 const { parseGIF, decompressFrames } = await import('https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm');
                 
                 const buffer = await file.arrayBuffer();
@@ -1011,7 +1145,6 @@
                 const gifCtx = gifCanvas.getContext('2d');
                 let prevImgData;
                 
-                // Gravação com Sincronia de Tempo Perfeita
                 const startTime = performance.now();
                 let accumulatedDelay = 0;
 
@@ -1072,7 +1205,7 @@
             }
         }
 
-        // 📦 MOTOR DE CONVERSÃO: ZIP -> VÍDEO (AGORA COM REGRA DE OURO INFALÍVEL!)
+        // 📦 MOTOR DE CONVERSÃO: ZIP -> VÍDEO
         async function abrirZipNoEditor(zipBlob) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('txt-loading-timeline').textContent = "Abrindo .ZIP... 📦";
@@ -1134,7 +1267,6 @@
 
                 recorder.start();
 
-                // Gravação com Relógio de Performance Perfeito (Evita que o vídeo fique mais longo que o normal)
                 const frameTime = 1000 / zipFps;
                 const startTime = performance.now();
                 
@@ -1175,23 +1307,22 @@
                 document.getElementById('input-altura').value = zipH;
                 document.getElementById('input-qualidade').value = "custom";
                 
-                // 📏 A REGRA DE OURO CELESTIAL
                 let m1_idx = 0;
                 let m2_idx = 0;
                 let totalFramesGerais = 0;
 
                 for (let c of contagemPorPasta) {
                     if (c.nome.includes('0') || totalFramesGerais === 0) {
-                        m1_idx = totalFramesGerais + c.frames - 1; // Fim do part0
+                        m1_idx = totalFramesGerais + c.frames - 1; 
                     }
                     if (c.nome.includes('1') || (contagemPorPasta.length > 1 && totalFramesGerais > 0 && m2_idx === 0)) {
-                        m2_idx = totalFramesGerais + c.frames - 1; // Fim do part1
+                        m2_idx = totalFramesGerais + c.frames - 1; 
                     }
                     totalFramesGerais += c.frames;
                 }
 
-                if (m2_idx === 0) m2_idx = m1_idx; // Se só tiver part0
-                if (m2_idx < m1_idx) m2_idx = m1_idx; // Segurança extra!
+                if (m2_idx === 0) m2_idx = m1_idx; 
+                if (m2_idx < m1_idx) m2_idx = m1_idx; 
 
                 marcadores.m0 = 0;
                 marcadores.m1 = m1_idx / zipFps;
@@ -1355,7 +1486,6 @@
         }
         window.addEventListener('resize', ajustarPaddings);
 
-        // O interceptador Mágico que separa GIF de Vídeo!
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
             if (!arquivo) return;
