@@ -180,7 +180,6 @@
     </style>
     <!-- Bibliotecas Mágicas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://unpkg.com/gifuct-js@2.1.2/dist/gifuct-js.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -968,16 +967,18 @@
             abrirZipNoEditor(arquivo);
         });
 
-        // 🖼️ MOTOR MÁGICO DE GIFS >:3 (AGORA COM PREFIXO "gifuct"!)
+        // 🖼️ MOTOR MÁGICO DE GIFS >:3 (AGORA COM IMPORTAÇÃO SUPREMA ES MODULE!)
         async function converterGifParaVideo(file) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('txt-loading-timeline').textContent = "Lendo GIF mágico... ✨";
             
             try {
+                // 👇 A MÁGICA NOVA ESTÁ AQUI! Importamos direto do jsDelivr como módulo!
+                const { parseGIF, decompressFrames } = await import('https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm');
+                
                 const buffer = await file.arrayBuffer();
-                // O segredo era o gifuct. antes da função!
-                const gif = gifuct.parseGIF(buffer);
-                const frames = gifuct.decompressFrames(gif, true);
+                const gif = parseGIF(buffer);
+                const frames = decompressFrames(gif, true);
                 
                 if (!frames || frames.length === 0) throw new Error("O GIF está vazio! TwT");
 
