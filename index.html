@@ -179,6 +179,7 @@
         .btn-fechar-modal:active { transform: scale(0.95); }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/gifuct-js@2.1.2/dist/gifuct-js.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -851,7 +852,6 @@
                     
                     document.getElementById('status-connected').textContent = t.statusConnected.replace('!', ': ' + data.model);
                     
-                    // A Mágica da detecção de custom animation! >:3
                     if (data.has_custom) {
                         document.getElementById('btn-remove').style.display = "block";
                         window.hasCustomAnimApplied = true;
@@ -906,7 +906,6 @@
                         let data = await res.json();
                         if (data.status === "success") {
                             alert(t.msgRemoveSuccess);
-                            // Esconde o botão logo após remover! :P
                             document.getElementById('btn-remove').style.display = "none";
                             window.hasCustomAnimApplied = false;
                         } else {
@@ -921,15 +920,11 @@
             }
         }
 
-        // ===============================================
-        // NOVAS FUNÇÕES PARA PUXAR E EDITAR O ZIP uwu ✨
-        // ===============================================
-
         function abrirModalPull() {
             if (window.hasCustomAnimApplied) {
                 document.getElementById('modal-pull').style.display = 'flex';
             } else {
-                puxarAnimacao('system'); // Puxa direto se não tiver módulo aplicado
+                puxarAnimacao('system');
             }
         }
 
@@ -948,7 +943,6 @@
                 if (!res.ok) throw new Error("Failed to pull");
                 
                 let blob = await res.blob();
-                
                 await abrirZipNoEditor(blob);
                 
                 document.getElementById('container-progresso').style.display = 'none';
@@ -965,9 +959,101 @@
             abrirZipNoEditor(arquivo);
         });
 
-        // ===============================================
-        // MOTOR DE CONVERSÃO: ZIP -> VÍDEO uwu 💕
-        // ===============================================
+        // 🖼️ MOTOR MÁGICO DE GIFS >:3
+        async function converterGifParaVideo(file) {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('txt-loading-timeline').textContent = "Lendo GIF mágico... ✨";
+            
+            try {
+                const buffer = await file.arrayBuffer();
+                const gif = parseGIF(buffer);
+                const frames = decompressFrames(gif, true);
+                
+                if (!frames || frames.length === 0) throw new Error("O GIF está vazio! TwT");
+
+                const w = frames[0].dims.width;
+                const h = frames[0].dims.height;
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = w; tempCanvas.height = h;
+                const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
+                
+                // Calcula FPS médio fofinho
+                let totalDelay = 0;
+                frames.forEach(f => totalDelay += Math.max(20, f.delay));
+                let avgDelay = totalDelay / frames.length;
+                let fps = Math.round(1000 / avgDelay);
+                if(fps > 60) fps = 60; 
+                if(fps < 1) fps = 10;
+                
+                document.getElementById('txt-loading-timeline').textContent = "Gravando Vídeo... 🎬";
+
+                const stream = tempCanvas.captureStream(fps);
+                const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                const pedacos = [];
+                recorder.ondataavailable = e => { if (e.data.size > 0) pedacos.push(e.data); };
+                
+                const gravacaoPronta = new Promise(res => recorder.onstop = () => res(new Blob(pedacos, {type: 'video/webm'})));
+                recorder.start();
+
+                const gifCanvas = document.createElement('canvas');
+                gifCanvas.width = w; gifCanvas.height = h;
+                const gifCtx = gifCanvas.getContext('2d');
+                let prevImgData;
+                
+                const frameTime = 1000 / fps;
+
+                // Desenha frame por frame obedecendo as regras malucas do formato GIF :P
+                for (let i = 0; i < frames.length; i++) {
+                    const frame = frames[i];
+                    
+                    if (i > 0 && frames[i-1].disposalType === 2) {
+                        gifCtx.clearRect(frames[i-1].dims.left, frames[i-1].dims.top, frames[i-1].dims.width, frames[i-1].dims.height);
+                    } else if (i > 0 && frames[i-1].disposalType === 3 && prevImgData) {
+                        gifCtx.putImageData(prevImgData, 0, 0);
+                    }
+                    
+                    if (frame.disposalType === 3) {
+                        prevImgData = gifCtx.getImageData(0, 0, w, h);
+                    }
+                    
+                    const patchCanvas = document.createElement('canvas');
+                    patchCanvas.width = frame.dims.width; patchCanvas.height = frame.dims.height;
+                    const pData = new ImageData(new Uint8ClampedArray(frame.patch), frame.dims.width, frame.dims.height);
+                    patchCanvas.getContext('2d').putImageData(pData, 0, 0);
+                    
+                    gifCtx.drawImage(patchCanvas, frame.dims.left, frame.dims.top);
+                    
+                    ctx.fillStyle = "#000000";
+                    ctx.fillRect(0, 0, w, h);
+                    ctx.drawImage(gifCanvas, 0, 0);
+                    
+                    await new Promise(r => setTimeout(r, frameTime));
+                }
+
+                recorder.stop();
+                const videoWebm = await gravacaoPronta;
+                
+                // Injeta no player!
+                document.getElementById('dicas-iniciais').style.display = 'none';
+                playerVideo.src = URL.createObjectURL(videoWebm); 
+                document.getElementById('video-container').style.display = 'block';
+                document.getElementById('timeline-wrapper').style.display = 'block';
+                document.getElementById('grid-marcadores').style.display = 'grid';
+                document.getElementById('configuracoes').style.display = 'grid';
+                document.getElementById('btn-gerar').style.display = 'block';
+                document.getElementById('botoes-exportacao').style.display = 'none';
+                marcadores = { m0: null, m1: null, m2: null, m3: null };
+                atualizarBotoesELinhas();
+                
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao converter GIF: " + error.message);
+                document.getElementById('loading-overlay').style.display = 'none';
+            }
+        }
+
+        // 📦 MOTOR DE CONVERSÃO: ZIP -> VÍDEO
         async function abrirZipNoEditor(zipBlob) {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('txt-loading-timeline').textContent = "Abrindo .ZIP... 📦";
@@ -980,7 +1066,6 @@
                 const descText = await descFile.async("string");
                 const linhas = descText.split('\n').map(l => l.trim()).filter(l => l);
                 
-                // Extrai Configurações Globais
                 const configTops = linhas[0].split(' ');
                 const zipW = parseInt(configTops[0]);
                 const zipH = parseInt(configTops[1]);
@@ -989,19 +1074,16 @@
                 document.getElementById('txt-loading-timeline').textContent = "Organizando frames... 🖼️";
                 
                 let todasImagens = [];
-                let temposMarcadores = [0]; // Começa no segundo 0
+                let temposMarcadores = [0]; 
                 let contagemTotalFrames = 0;
 
-                // Processa cada "part" descrita no desc.txt
                 for (let i = 1; i < linhas.length; i++) {
                     const partes = linhas[i].split(' ');
                     if (partes[0] === 'c' || partes[0] === 'p') {
                         const nomePasta = partes[3];
-                        
                         const regex = new RegExp("^" + nomePasta + "/.*\\.(png|jpg|jpeg)$", "i");
                         const arquivosPasta = zip.file(regex);
                         
-                        // Garante que estão em ordem numérica! (ex: 00001.png)
                         arquivosPasta.sort((a, b) => a.name.localeCompare(b.name));
                         
                         for (let arq of arquivosPasta) {
@@ -1009,7 +1091,6 @@
                             todasImagens.push(imgBlob);
                         }
                         
-                        // Calcula o tempo exato onde esse marcador deve ficar! >:3
                         contagemTotalFrames += arquivosPasta.length;
                         temposMarcadores.push(contagemTotalFrames / zipFps);
                     }
@@ -1017,33 +1098,25 @@
 
                 if (todasImagens.length === 0) throw new Error("Nenhuma imagem encontrada nas pastas! TwT");
 
-                document.getElementById('txt-loading-timeline').textContent = "Costurando Vídeo... 🎬 (Isso pode demorar um pouquinho!)";
+                document.getElementById('txt-loading-timeline').textContent = "Costurando Vídeo... 🎬";
                 
-                // MÁGICA DE GRAVAÇÃO DO CANVAS
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = zipW;
                 tempCanvas.height = zipH;
                 const ctx = tempCanvas.getContext('2d');
 
-                // Captura o canvas em formato de vídeo
                 const stream = tempCanvas.captureStream(zipFps);
                 const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
                 const pedacosVideo = [];
 
-                recorder.ondataavailable = e => {
-                    if (e.data.size > 0) pedacosVideo.push(e.data);
-                };
+                recorder.ondataavailable = e => { if (e.data.size > 0) pedacosVideo.push(e.data); };
                 
                 const gravacaoPronta = new Promise(resolve => {
-                    recorder.onstop = () => {
-                        const videoFinal = new Blob(pedacosVideo, { type: 'video/webm' });
-                        resolve(videoFinal);
-                    };
+                    recorder.onstop = () => resolve(new Blob(pedacosVideo, { type: 'video/webm' }));
                 });
 
                 recorder.start();
 
-                // Desenha frame por frame no canvas, simulando o boot!
                 for (let i = 0; i < todasImagens.length; i++) {
                     const img = new Image();
                     img.src = URL.createObjectURL(todasImagens[i]);
@@ -1054,14 +1127,12 @@
                     ctx.drawImage(img, 0, 0, zipW, zipH);
                     URL.revokeObjectURL(img.src);
 
-                    // Pede pro Javascript esperar o tempo de 1 frame
                     await new Promise(r => setTimeout(r, 1000 / zipFps));
                 }
 
                 recorder.stop();
                 const videoWebm = await gravacaoPronta;
 
-                // INJETA TUDO NA UI DO SITE!
                 document.getElementById('dicas-iniciais').style.display = 'none';
                 document.getElementById('botoes-exportacao').style.display = 'flex';
                 document.getElementById('video-container').style.display = 'block';
@@ -1070,31 +1141,34 @@
                 document.getElementById('configuracoes').style.display = 'grid';
                 document.getElementById('btn-gerar').style.display = 'block';
                 
-                // Preenche inputs
                 document.getElementById('input-fps').value = zipFps;
                 document.getElementById('input-largura').value = zipW;
                 document.getElementById('input-altura').value = zipH;
                 document.getElementById('input-qualidade').value = "custom";
                 
-                // Preenche Marcadores inteligentemente!
-                marcadores.m0 = temposMarcadores[0]; // 0s
-                marcadores.m1 = temposMarcadores.length > 1 ? temposMarcadores[1] : temposMarcadores[0];
-                marcadores.m2 = temposMarcadores.length > 2 ? temposMarcadores[2] : marcadores.m1;
-                marcadores.m3 = temposMarcadores.length > 3 ? temposMarcadores[3] : marcadores.m2;
+                // 📏 MÁGICA DOS MARCADORES PERFEITOS (Com recuo de 1 frame!)
+                const frameTime = 1 / zipFps;
+                marcadores.m0 = 0;
+                marcadores.m1 = temposMarcadores.length > 1 ? temposMarcadores[1] - frameTime : 0;
+                marcadores.m2 = temposMarcadores.length > 2 ? temposMarcadores[2] - frameTime : marcadores.m1;
+                marcadores.m3 = temposMarcadores.length > 3 ? temposMarcadores[3] - frameTime : temposMarcadores[temposMarcadores.length - 1] - frameTime;
 
-                // Carrega o vídeo final no player!
+                // Proteção para não dar tempos negativos
+                marcadores.m1 = Math.max(0, marcadores.m1);
+                marcadores.m2 = Math.max(marcadores.m1, marcadores.m2);
+                marcadores.m3 = Math.max(marcadores.m2, marcadores.m3);
+
                 playerVideo.src = URL.createObjectURL(videoWebm);
                 
-                // Espera o player processar os metadados do WebM gerado
                 playerVideo.onloadedmetadata = async () => {
                     originalW = zipW;
                     originalH = zipH;
                     atualizarTamanho();
                     ajustarPaddings();
-                    await desenharFilmstrip(); // Renderiza a timeline fofinha
-                    atualizarBotoesELinhas(); // Coloca as linhas na timeline
+                    await desenharFilmstrip(); 
+                    atualizarBotoesELinhas(); 
                     document.getElementById('loading-overlay').style.display = 'none';
-                    playerVideo.onloadedmetadata = null; // Limpa evento
+                    playerVideo.onloadedmetadata = null;
                 };
 
             } catch (error) {
@@ -1113,14 +1187,8 @@
         }
 
         function baixarZipEditado() {
-            // O botão nativo "Gerar Animação de Boot" já faz isso com os parâmetros atuais! 
-            // Então podemos só forçar o clique nele :P
             btnGerar.click(); 
         }
-
-        // ===============================================
-        // MÉTODOS ORIGINAIS DO EDITOR DE VÍDEO
-        // ===============================================
 
         function verificarModulo() {
             const isModulo = document.getElementById('input-gerar-modulo').checked;
@@ -1247,9 +1315,15 @@
         }
         window.addEventListener('resize', ajustarPaddings);
 
+        // O interceptador Mágico que separa GIF de Vídeo!
         inputVideo.addEventListener('change', function(evento) {
             const arquivo = evento.target.files[0];
             if (!arquivo) return;
+
+            if (arquivo.type === 'image/gif') {
+                converterGifParaVideo(arquivo);
+                return;
+            }
 
             const leitor = new FileReader();
             leitor.onload = function(e) {
@@ -1260,7 +1334,7 @@
                 gridMarcadores.style.display = 'grid';
                 configuracoes.style.display = 'grid';
                 btnGerar.style.display = 'block';
-                document.getElementById('botoes-exportacao').style.display = 'none'; // Esconde os botoes novos
+                document.getElementById('botoes-exportacao').style.display = 'none';
                 marcadores = { m0: null, m1: null, m2: null, m3: null };
                 atualizarBotoesELinhas();
             };
@@ -1680,11 +1754,13 @@
             }
         });
 
+        // 📸 O MÁGICO PAPARAZZO COM MATEMÁTICA PERFEITA!
         async function paparazzoOtimizado(zip, largura, altura, fps, formato, t) {
             return new Promise(async (resolve) => {
                 const pasta0 = zip.folder("part0"), pasta1 = zip.folder("part1"), pasta2 = zip.folder("part2");
                 let c0 = 0, c1 = 0, c2 = 0, fotosTiradas = 0;
                 const intervalo = 1 / fps;
+                const meioFrame = intervalo / 2; // Tolerância perfeita para o tempo
                 const totalFotos = Math.floor((marcadores.m3 - marcadores.m0) / intervalo) + 1;
                 const mimeType = formato === 'jpeg' ? 'image/jpeg' : 'image/png';
                 const extensao = formato === 'jpeg' ? '.jpg' : '.png';
@@ -1703,8 +1779,10 @@
                     contexto.drawImage(playerVideo, 0, 0, largura, altura);
 
                     let pastaAlvo = null; let numFoto = 0;
-                    if (tempo < marcadores.m1) { pastaAlvo = pasta0; numFoto = c0++; } 
-                    else if (tempo < marcadores.m2) { pastaAlvo = pasta1; numFoto = c1++; } 
+                    
+                    // A nova regra de ouro dos marcadores atuando aqui!! >w<
+                    if (tempo < marcadores.m1 + meioFrame) { pastaAlvo = pasta0; numFoto = c0++; } 
+                    else if (tempo < marcadores.m2 + meioFrame) { pastaAlvo = pasta1; numFoto = c1++; } 
                     else { pastaAlvo = pasta2; numFoto = c2++; }
 
                     const nome = String(numFoto).padStart(5, '0') + extensao;
