@@ -224,9 +224,14 @@
                 <label for="upload-zip" class="btn-upload" id="lbl-upload-zip" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%; background-color: #ffb86c; color: #000;">📦 Edit .ZIP</label>
                 <input type="file" id="upload-zip" accept=".zip" hidden>
 
-                <button class="btn-upload" id="btn-pull" onclick="abrirModalPull()" style="background-color: #03dac6; color: #000; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">📥 Pull from Phone</button>
+                <label for="upload-zip-direto" class="btn-upload" id="lbl-upload-direto" style="margin: 0; display: none; align-items: center; justify-content: center; height: 100%; background-color: #03dac6; color: #000; font-size: 14px;">🚀 Inject .ZIP</label>
+                <input type="file" id="upload-zip-direto" accept=".zip" hidden>
+
+                <button class="btn-upload" id="btn-pull" onclick="abrirModalPull()" style="background-color: #bb86fc; color: #000; margin: 0; height: 100%; display: none; font-size: 14px;">📥 Pull from Phone</button>
 
                 <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">🗑️ Remove Animation</button>
+                
+                <button class="btn-upload" id="btn-reset" onclick="resetarModulo()" style="background-color: #ff5555; border: 2px solid #8b0000; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">⚠️ Troubleshoot (Reset)</button>
             </div>
 
             <div class="video-container" id="video-container">
@@ -406,6 +411,7 @@
                 dica3: "Screen aspect: Phones are vertical! Prefer vertical videos (TikTok/Reels format) so your animation doesn't get stretched.",
                 upload: "📂 Video / GIF",
                 uploadZip: "📦 Edit .ZIP",
+                btnInjectZip: "🚀 Inject .ZIP",
                 btnPull: "📥 Pull from Phone",
                 modalPullTitle: "📥 Pull Animation",
                 modalPullDesc: "You already have a custom animation installed! Which version do you want to pull to the editor? :3",
@@ -471,6 +477,7 @@
                 btnManual: "📦 Just Create .ZIP",
                 statusConnected: "🟢 Phone Connected!",
                 btnRemove: "🗑️ Remove Animation",
+                btnResetModule: "⚠️ Troubleshoot (Reset)",
                 btnInjectReady: "⚡ INJECT INTO PHONE",
                 msgSearching: "Searching... 🔍",
                 msgNotFound: "Module not found! Is the server running in the background?",
@@ -493,6 +500,7 @@
                 dica3: "Formato da Tela: Celulares ficam em pé! Dê preferência a vídeos verticais (formato Reels/TikTok) para a imagem não ficar esticada.",
                 upload: "📂 Vídeo / GIF",
                 uploadZip: "📦 Editar .ZIP",
+                btnInjectZip: "🚀 Injetar .ZIP",
                 btnPull: "📥 Puxar do Celular",
                 modalPullTitle: "📥 Puxar Animação",
                 modalPullDesc: "Você já possui uma animação customizada instalada! Qual versão você deseja puxar para o editor? :3",
@@ -558,6 +566,7 @@
                 btnManual: "📦 Apenas Criar .ZIP",
                 statusConnected: "🟢 Celular Conectado!",
                 btnRemove: "🗑️ Remover Animação",
+                btnResetModule: "⚠️ Troubleshoot (Reset)",
                 btnInjectReady: "⚡ INJETAR NO CELULAR",
                 msgSearching: "Procurando... 🔍",
                 msgNotFound: "Módulo não encontrado! O servidor está rodando no fundo?",
@@ -580,6 +589,7 @@
                 dica3: "Formato de Pantalla: ¡Los teléfonos son verticales! Prefiere videos verticales (formato TikTok/Reels) para que no se estiren.",
                 upload: "📂 Video / GIF",
                 uploadZip: "📦 Editar .ZIP",
+                btnInjectZip: "🚀 Inyectar .ZIP",
                 btnPull: "📥 Extraer del Celular",
                 modalPullTitle: "📥 Extraer Animación",
                 modalPullDesc: "¡Ya tienes una animación personalizada instalada! ¿Qué versión deseas extraer al editor? :3",
@@ -645,6 +655,7 @@
                 btnManual: "📦 Solo Crear .ZIP",
                 statusConnected: "🟢 ¡Celular Conectado!",
                 btnRemove: "🗑️ Eliminar Animación",
+                btnResetModule: "⚠️ Troubleshoot (Reset)",
                 btnInjectReady: "⚡ INYECTAR EN EL CELULAR",
                 msgSearching: "Buscando... 🔍",
                 msgNotFound: "¡Módulo no encontrado! ¿El servidor se está ejecutando en segundo plano?",
@@ -667,6 +678,7 @@
                 dica3: "Format d'Écran : Privilégiez les vidéos verticales (format TikTok/Reels) pour que votre animation ne soit pas déformée.",
                 upload: "📂 Vidéo / GIF",
                 uploadZip: "📦 Éditer .ZIP",
+                btnInjectZip: "🚀 Injecter .ZIP",
                 btnPull: "📥 Extraire du Téléphone",
                 modalPullTitle: "📥 Extraire l'Animation",
                 modalPullDesc: "Vous avez déjà une animation personnalisée installée ! Quelle version voulez-vous extraire vers l'éditeur ? :3",
@@ -732,6 +744,7 @@
                 btnManual: "📦 Juste Créer un .ZIP",
                 statusConnected: "🟢 Téléphone Connecté !",
                 btnRemove: "🗑️ Supprimer l'Anim",
+                btnResetModule: "⚠️ Troubleshoot (Reset)",
                 btnInjectReady: "⚡ INJECTER DANS LE TÉLÉPHONE",
                 msgSearching: "Recherche... 🔍",
                 msgNotFound: "Module introuvable ! Le serveur tourne-t-il en arrière-plan ?",
@@ -798,6 +811,7 @@
             document.getElementById('txt-dica3').innerHTML = `<strong>${t.dica3.split(': ')[0]}:</strong> ${t.dica3.split(': ')[1]}`;
             document.getElementById('lbl-upload').textContent = t.upload;
             document.getElementById('lbl-upload-zip').textContent = t.uploadZip;
+            document.getElementById('lbl-upload-direto').textContent = t.btnInjectZip;
             document.getElementById('btn-pull').textContent = t.btnPull;
             document.getElementById('lbl-modal-pull-title').textContent = t.modalPullTitle;
             document.getElementById('lbl-modal-pull-desc').textContent = t.modalPullDesc;
@@ -847,6 +861,7 @@
             document.getElementById('btn-manual').textContent = t.btnManual;
             document.getElementById('status-connected').textContent = t.statusConnected;
             document.getElementById('btn-remove').textContent = t.btnRemove;
+            document.getElementById('btn-reset').textContent = t.btnResetModule;
             document.getElementById('btn-disconnect').textContent = t.btnDisconnect;
 
             ['intro', 'loop', 'final'].forEach(part => {
@@ -924,6 +939,9 @@
                     }
 
                     document.getElementById('btn-pull').style.display = "block";
+                    // ⚡ EXIBE OS NOVOS BOTÕES!
+                    document.getElementById('lbl-upload-direto').style.display = "flex";
+                    document.getElementById('btn-reset').style.display = "block";
                     document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr 1fr";
                     
                     atualizarBotoesELinhas();
@@ -1022,6 +1040,8 @@
             document.getElementById('acoes-principais').style.gridTemplateColumns = "1fr 1fr";
             document.getElementById('btn-remove').style.display = "none";
             document.getElementById('btn-pull').style.display = "none";
+            document.getElementById('lbl-upload-direto').style.display = "none";
+            document.getElementById('btn-reset').style.display = "none";
             
             atualizarBotoesELinhas();
         }
@@ -1055,6 +1075,25 @@
                     }
                 } catch (error) {
                     alert(t.erro + " - The server blocked the connection or is offline!");
+                }
+            }
+        }
+
+        // 🔄 NOVO: FUNÇÃO TROUBLESHOOT (RESET)
+        async function resetarModulo() {
+            if(confirm("Isso vai forçar o módulo a refazer a varredura e atualizar os caminhos no próximo boot! Continuar? :3")) {
+                try {
+                    let res = await fetch(IP_LOCAL + '/reset', { method: 'POST' });
+                    if (res.ok) {
+                        let data = await res.json();
+                        alert(data.message);
+                        document.getElementById('btn-remove').style.display = "none";
+                        window.hasCustomAnimApplied = false;
+                    } else {
+                        alert("Erro no servidor ao tentar resetar! TwT");
+                    }
+                } catch (error) {
+                    alert("Erro ao contatar o servidor TwT");
                 }
             }
         }
@@ -1098,6 +1137,54 @@
             const arquivo = evento.target.files[0];
             if (!arquivo) return;
             abrirZipNoEditor(arquivo);
+        });
+
+        // 🚀 NOVO: INJETAR ZIP DIRETO (Com verificação inteligente!)
+        document.getElementById('upload-zip-direto').addEventListener('change', async function(evento) {
+            const arquivo = evento.target.files[0];
+            if (!arquivo) return;
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('txt-loading-timeline').textContent = "Verificando ZIP... 🕵️‍♂️";
+
+            try {
+                const zip = await JSZip.loadAsync(arquivo);
+                const descFile = zip.file("desc.txt");
+                
+                // Verificação 1: Tem desc.txt?
+                if (!descFile) throw new Error("Esse ZIP não tem o arquivo desc.txt! Não é um bootanimation válido TwT");
+                
+                // Verificação 2: Tem pelo menos uma pasta de animação?
+                let temPastaPart = false;
+                zip.forEach(function (relativePath, file){
+                    if (file.dir && (relativePath.includes("part") || relativePath.includes("folder"))) {
+                        temPastaPart = true;
+                    }
+                });
+
+                if (!temPastaPart) throw new Error("Não achei nenhuma pasta de frames (tipo part0) dentro do ZIP! :(");
+
+                // Se passou, manda bala!
+                document.getElementById('txt-loading-timeline').textContent = "Injetando no celular... ⚡";
+                
+                const formData = new FormData();
+                formData.append('bootanimation', arquivo, 'bootanimation.zip');
+                
+                let res = await fetch(IP_LOCAL + "/upload", { method: "POST", body: formData });
+                
+                if (res.ok) {
+                    alert("🎉 ZIP injetado lindamente! Reinicie o celular para ver!");
+                    document.getElementById('btn-remove').style.display = "block";
+                    window.hasCustomAnimApplied = true;
+                } else {
+                    throw new Error("O servidor recusou o arquivo! TwT");
+                }
+            } catch (e) {
+                alert("Erro: " + e.message);
+            } finally {
+                document.getElementById('loading-overlay').style.display = 'none';
+                evento.target.value = ''; // Limpa o input
+            }
         });
 
         // 🖼️ MOTOR MÁGICO DE GIFS >:3
