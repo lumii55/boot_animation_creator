@@ -178,7 +178,6 @@
         }
         .btn-fechar-modal:active { transform: scale(0.95); }
     </style>
-    <!-- Bibliotecas Mágicas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
@@ -205,35 +204,28 @@
             </ul>
         </div>
 
-        <!-- INITIAL STATE UI -->
         <div id="initial-state" style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <button class="btn-upload" id="btn-connect" onclick="connectToPhone()" style="background-color: #03dac6;">🔌 Connect to Phone</button>
             <button class="btn-upload" id="btn-manual" onclick="startManualMode()" style="background-color: #333; color: #fff;">📦 Just Create .ZIP</button>
         </div>
 
-        <!-- CONNECTED STATE UI -->
         <div id="connected-state" style="width: 100%; display: none; flex-direction: column; gap: 10px; margin-bottom: 5px;">
             <div style="background-color: #28a745; padding: 12px; border-radius: 15px; font-weight: bold; text-align: center; color: white; font-size: 15px;" id="status-connected">🟢 Phone Connected!</div>
             <button class="btn-upload" id="btn-disconnect" onclick="disconnectPhone()" style="background-color: #333; color: #fff;">🚪 Disconnect</button>
         </div>
 
-        <!-- EDITOR SECTION -->
         <div id="editor-section" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 15px;">
             
             <div id="acoes-principais" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%;">
                 
-                <!-- Escolher Vídeo ou GIF -->
                 <label for="upload-video" class="btn-upload" id="lbl-upload" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%;">📂 Video / GIF</label>
                 <input type="file" id="upload-video" accept="video/*, image/gif" hidden>
 
-                <!-- Escolher ZIP -->
                 <label for="upload-zip" class="btn-upload" id="lbl-upload-zip" style="margin: 0; display: flex; align-items: center; justify-content: center; height: 100%; background-color: #ffb86c; color: #000;">📦 Edit .ZIP</label>
                 <input type="file" id="upload-zip" accept=".zip" hidden>
 
-                <!-- Puxar do Celular -->
                 <button class="btn-upload" id="btn-pull" onclick="abrirModalPull()" style="background-color: #03dac6; color: #000; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">📥 Pull from Phone</button>
 
-                <!-- Remover -->
                 <button class="btn-upload" id="btn-remove" onclick="removeAnimation()" style="background-color: #ff5555; color: #fff; margin: 0; height: 100%; display: none; font-size: 14px; grid-column: span 2;">🗑️ Remove Animation</button>
             </div>
 
@@ -362,7 +354,6 @@
         </div>
     </div>
 
-    <!-- MODAL PUXAR DO CELULAR -->
     <div class="modal-overlay" id="modal-pull">
         <div class="modal-box">
             <h2 id="lbl-modal-pull-title">📥 Pull Animation</h2>
@@ -375,7 +366,6 @@
         </div>
     </div>
 
-    <!-- MODAL REDE / VARREDURA AUTO -->
     <div class="modal-overlay" id="modal-network">
         <div class="modal-box">
             <h2 id="lbl-modal-net-title">🌐 Connect via Network</h2>
@@ -977,6 +967,7 @@
             return null;
         }
 
+        // 📡 VARREDURA CIRÚRGICA (Não surta mais o navegador!)
         async function iniciarVarredura() {
             const btn = document.getElementById('btn-scan-net');
             const desc = document.getElementById('lbl-modal-net-desc');
@@ -993,13 +984,18 @@
 
             for (let sub of subnets) {
                 if (foundIp) break;
-                let promises = [];
-                // Bate em 254 IPs simultaneamente como um ninja!
-                for (let i = 1; i <= 254; i++) {
-                    promises.push(checkIP(`${sub}.${i}`));
+                
+                // Bate em lotes de 40 para o navegador não entrar em pânico! >:3
+                const chunkSize = 40;
+                for (let i = 1; i <= 254; i += chunkSize) {
+                    let promises = [];
+                    for (let j = i; j < i + chunkSize && j <= 254; j++) {
+                        promises.push(checkIP(`${sub}.${j}`));
+                    }
+                    const results = await Promise.all(promises);
+                    foundIp = results.find(ip => ip !== null);
+                    if (foundIp) break;
                 }
-                const results = await Promise.all(promises);
-                foundIp = results.find(ip => ip !== null);
             }
 
             if (foundIp) {
@@ -1075,6 +1071,7 @@
             document.getElementById('modal-pull').style.display = 'none';
         }
 
+        // 📥 PUXAR BLINDADO (Com aniquilador de Cache!)
         async function puxarAnimacao(source) {
             fecharModalPull();
             const t = traducoes[idiomaAtual];
@@ -1082,7 +1079,8 @@
             document.getElementById('container-progresso').style.display = 'flex';
             
             try {
-                let res = await fetch(IP_LOCAL + '/pull?source=' + source);
+                // O "&t=Date.now()" impede o navegador de usar a memória antiga! owo
+                let res = await fetch(IP_LOCAL + '/pull?source=' + source + '&t=' + Date.now());
                 if (!res.ok) throw new Error("Failed to pull");
                 
                 let blob = await res.blob();
